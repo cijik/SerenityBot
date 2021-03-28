@@ -1,4 +1,4 @@
-package com.ciji.demo.model;
+package com.ciji.serenity.model;
 
 import com.openpojo.reflection.impl.PojoClassFactory;
 import com.openpojo.validation.ValidatorBuilder;

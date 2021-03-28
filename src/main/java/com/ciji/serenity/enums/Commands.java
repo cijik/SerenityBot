@@ -1,4 +1,4 @@
-package com.ciji.demo.enums;
+package com.ciji.serenity.enums;
 
 public enum Commands {
 

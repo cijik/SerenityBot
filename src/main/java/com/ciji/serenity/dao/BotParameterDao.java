@@ -1,6 +1,6 @@
-package com.ciji.demo.dao;
+package com.ciji.serenity.dao;
 
-import com.ciji.demo.model.BotParam;
+import com.ciji.serenity.model.BotParam;
 
 import org.springframework.data.repository.CrudRepository;
 

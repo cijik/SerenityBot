@@ -1,4 +1,4 @@
-package com.ciji.demo.service;
+package com.ciji.serenity.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -6,8 +6,8 @@ import static org.mockito.Mockito.when;
 
 import java.util.Optional;
 
-import com.ciji.demo.dao.BotParameterDao;
-import com.ciji.demo.model.BotParam;
+import com.ciji.serenity.dao.BotParameterDao;
+import com.ciji.serenity.model.BotParam;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

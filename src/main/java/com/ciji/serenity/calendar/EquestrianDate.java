@@ -1,4 +1,4 @@
-package com.ciji.demo.calendar;
+package com.ciji.serenity.calendar;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -59,11 +59,11 @@ public class EquestrianDate {
             day = daysToAdd % 28;
             monthToSet++;
         }
-        if (monthToSet > 13) {
+        if (monthToSet > 12) {
             monthToSet %= 13;
             yearsToAdd++;
         }
         month = EquestrianMonth.values()[monthToSet];
-        this.year = yearsToAdd;
+        this.year += yearsToAdd;
     }
 }

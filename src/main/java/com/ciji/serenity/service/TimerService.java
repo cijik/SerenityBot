@@ -1,4 +1,4 @@
-package com.ciji.demo.service;
+package com.ciji.serenity.service;
 
 import discord4j.core.object.entity.Message;
 import org.apache.commons.lang3.time.StopWatch;

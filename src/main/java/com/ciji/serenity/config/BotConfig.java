@@ -1,8 +1,8 @@
-package com.ciji.demo.config;
+package com.ciji.serenity.config;
 
 import java.util.List;
 
-import com.ciji.demo.listeners.EventListener;
+import com.ciji.serenity.listeners.EventListener;
 import com.zaxxer.hikari.HikariDataSource;
 
 import org.springframework.beans.factory.annotation.Value;

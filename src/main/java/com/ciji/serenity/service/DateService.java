@@ -1,8 +1,8 @@
-package com.ciji.demo.service;
+package com.ciji.serenity.service;
 
-import com.ciji.demo.calendar.EquestrianDate;
-import com.ciji.demo.dao.BotParameterDao;
-import com.ciji.demo.model.BotParam;
+import com.ciji.serenity.calendar.EquestrianDate;
+import com.ciji.serenity.dao.BotParameterDao;
+import com.ciji.serenity.model.BotParam;
 import discord4j.core.object.entity.Message;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -47,6 +47,8 @@ public class DateService {
             String dateValue = botParam.get().getValue();
             EquestrianDate date = EquestrianDate.fromDateString(dateValue);
             date.addDays(Integer.parseInt(days));
+            botParam.get().setValue(String.format("%d.%d.%d", date.getDay(), date.getMonth(), date.getYear()));
+            botParameterDao.save(botParam.get());
             return postMessage(eventMessage, "Days added.");
         } else {
             return postMessage(eventMessage, "No date set!");

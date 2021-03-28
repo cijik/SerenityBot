@@ -1,8 +1,8 @@
-package com.ciji.demo.service;
+package com.ciji.serenity.service;
 
-import com.ciji.demo.dao.BotParameterDao;
-import com.ciji.demo.enums.Commands;
-import com.ciji.demo.model.BotParam;
+import com.ciji.serenity.dao.BotParameterDao;
+import com.ciji.serenity.enums.Commands;
+import com.ciji.serenity.model.BotParam;
 
 import discord4j.core.object.entity.Message;
 import lombok.extern.slf4j.Slf4j;
@@ -43,7 +43,7 @@ public class CommandProcessingService {
             PREFIX = "!";
         }
 
-        if (eventMessage.getContent().matches("^"+PREFIX+"[a-zA-Z ]+$")) {
+        if (eventMessage.getContent().matches("^"+PREFIX+"[a-zA-Z ]+[A-Za-z0-9.]*$")) {
             switch (Commands.fromString(eventMessage.getContent().split(" ")[0].substring(PREFIX.length()))) {
                 case TODO: return doTodo(eventMessage);
                 case GET_TIMER: return timerService.getTimer(eventMessage);

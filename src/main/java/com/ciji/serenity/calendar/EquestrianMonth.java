@@ -1,4 +1,4 @@
-package com.ciji.demo.calendar;
+package com.ciji.serenity.calendar;
 
 public enum EquestrianMonth {
 
@@ -20,6 +20,6 @@ public enum EquestrianMonth {
     @Override
     public String toString() {
         String monthName = this.name();
-        return monthName.substring(0, 1).toUpperCase() + monthName.substring(1);
+        return monthName.substring(0, 1).toUpperCase() + monthName.substring(1).toLowerCase();
     }
 }
