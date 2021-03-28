@@ -22,6 +22,9 @@ public class CommandProcessingService {
     @Autowired
     private TimerService timerService;
 
+    @Autowired
+    private DateService dateService;
+
     private static String PREFIX;
 
     public BotParam getParameter(String id) {
@@ -47,6 +50,9 @@ public class CommandProcessingService {
                 case START_TIMER: return timerService.startTimer(eventMessage);
                 case STOP_TIMER: return timerService.stopTimer(eventMessage);
                 case SET_PREFIX: return setPrefix(eventMessage);
+                case SET_DATE: return dateService.setDate(eventMessage);
+                case GET_DATE: return dateService.getDate(eventMessage);
+                case ADD_DAYS: return dateService.addDays(eventMessage);
             }
         } else {
             log.error("Invalid prefix!");
@@ -64,9 +70,10 @@ public class CommandProcessingService {
 
     private Mono<Void> setPrefix(Message eventMessage) {
         String newPrefix = eventMessage.getContent().split(" ")[1];
-        BotParam botParam = botParameterDao.findById("prefix").get();
-        botParam.setValue(newPrefix);
-        botParameterDao.save(botParam);
+        botParameterDao.findById("prefix").ifPresent(param -> {
+            param.setValue(newPrefix);
+            botParameterDao.save(param);
+        });
         return Mono.just(eventMessage)
                 .flatMap(Message::getChannel)
                 .flatMap(channel -> channel.createMessage("New prefix set: " + newPrefix))

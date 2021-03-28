@@ -18,7 +18,7 @@ import discord4j.core.event.domain.Event;
 import lombok.extern.slf4j.Slf4j;
 
 @Configuration
-@PropertySource({ "classpath:application.properties" })
+@PropertySource({ "classpath:application.properties", "classpath:token.properties" }) //token is added in a separate property file as the "token" property
 @Slf4j
 public class BotConfig {
 

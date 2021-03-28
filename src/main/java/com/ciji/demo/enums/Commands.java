@@ -10,7 +10,13 @@ public enum Commands {
 
     STOP_TIMER("stopTimer"),
 
-    SET_PREFIX("setPrefix");
+    SET_PREFIX("setPrefix"),
+
+    GET_DATE("getDate"),
+
+    SET_DATE("setDate"),
+
+    ADD_DAYS("addDays");
 
     private String command;
 
