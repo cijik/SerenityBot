@@ -1,6 +1,8 @@
 package com.ciji.serenity.service;
 
+import discord4j.core.event.domain.InteractionCreateEvent;
 import discord4j.core.object.entity.Message;
+import discord4j.discordjson.json.MessageData;
 import org.apache.commons.lang3.time.StopWatch;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
@@ -12,36 +14,32 @@ public class TimerService {
 
     private StopWatch stopWatch;
 
-    public Mono<Void> getTimer(Message eventMessage) {
+    public Mono<MessageData> getTimer(InteractionCreateEvent event) {
         try {
             long hours = stopWatch.getTime(TimeUnit.HOURS);
             long minutes = stopWatch.getTime(TimeUnit.MINUTES) % 60;
             long seconds = stopWatch.getTime(TimeUnit.SECONDS) % 60;
-            return Mono.just(eventMessage)
-                    .flatMap(Message::getChannel)
-                    .flatMap(channel -> channel.createMessage("Current timer: " + hours + ":" + minutes + ":" + seconds))
-                    .then();
+            return event.acknowledge()
+                    .then(event.getInteractionResponse()
+                            .createFollowupMessage("Current timer: " + hours + ":" + minutes + ":" + seconds));
         } catch (NullPointerException e) {
-            return Mono.just(eventMessage)
-                    .flatMap(Message::getChannel)
-                    .flatMap(channel -> channel.createMessage("No timer active at the moment."))
-                    .then();
+            return event.acknowledge()
+                    .then(event.getInteractionResponse()
+                            .createFollowupMessage("No timer active at the moment."));
         }
     }
 
-    public Mono<Void> startTimer(Message eventMessage) {
+    public Mono<MessageData> startTimer(InteractionCreateEvent event) {
         stopWatch = StopWatch.createStarted();
-        return Mono.just(eventMessage)
-                .flatMap(Message::getChannel)
-                .flatMap(channel -> channel.createMessage("Timer started."))
-                .then();
+        return event.acknowledge()
+                .then(event.getInteractionResponse()
+                        .createFollowupMessage("Timer started."));
     }
 
-    public Mono<Void> stopTimer(Message eventMessage) {
+    public Mono<MessageData> stopTimer(InteractionCreateEvent event) {
         stopWatch.stop();
-        return Mono.just(eventMessage)
-                .flatMap(Message::getChannel)
-                .flatMap(channel -> channel.createMessage("Timer stopped."))
-                .then();
+        return event.acknowledge()
+                .then(event.getInteractionResponse()
+                        .createFollowupMessage("Timer stopped."));
     }
 }

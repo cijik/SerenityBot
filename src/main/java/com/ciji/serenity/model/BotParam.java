@@ -13,10 +13,10 @@ import lombok.Data;
 public class BotParam {
 
     @Id
-    @Column(name = "param_name")
+    @Column(name = "param_name", length = 50)
     private String name;
 
-    @Column(name = "param_value")
+    @Column(name = "param_value", length = 50)
     private String value;
 
     @Override
