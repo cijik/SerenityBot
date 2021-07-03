@@ -9,9 +9,9 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.ciji</groupId>
-	<artifactId>demo</artifactId>
-	<version>0.0.3</version>
-	<name>demo</name>
+	<artifactId>serenity-bot</artifactId>
+	<version>0.0.4</version>
+	<name>SerenityBot</name>
 	<description>Demo project for Spring Boot</description>
 	<properties>
 		<java.version>11</java.version>

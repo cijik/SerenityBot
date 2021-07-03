@@ -23,9 +23,9 @@ public class SerenityEventAdapter extends ReactiveEventAdapter {
         try {
             switch (Commands.fromString(event.getCommandName())) {
                 case TODO: return doTodo(event);
-                case GET_TIMER: return timerService.getTimer(event);
-                case START_TIMER: return timerService.startTimer(event);
-                case STOP_TIMER: return timerService.stopTimer(event);
+                case GET_TIMER: return timerService.getTime(event);
+                case START_TIMER: return timerService.startClock(event);
+                case STOP_TIMER: return timerService.stopClock(event);
                 case SET_DATE: return dateService.setDate(event);
                 case GET_DATE: return dateService.getDate(event);
                 case ADD_DAYS: return dateService.addDays(event);
