@@ -1,10 +1,10 @@
 package com.ciji.serenity.commands;
 
 import com.ciji.serenity.config.Client;
+import discord4j.core.object.command.ApplicationCommandOption;
 import discord4j.discordjson.json.ApplicationCommandOptionData;
 import discord4j.discordjson.json.ApplicationCommandRequest;
 import discord4j.rest.RestClient;
-import discord4j.rest.util.ApplicationCommandOptionType;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -25,7 +25,7 @@ public class SetDateCommand implements SerenityCommand {
                 .addOption(ApplicationCommandOptionData.builder()
                         .name("date")
                         .description("A date in dd.mm.yyyy format.")
-                        .type(ApplicationCommandOptionType.STRING.getValue())
+                        .type(ApplicationCommandOption.Type.STRING.getValue())
                         .required(true)
                         .build())
                 .build();

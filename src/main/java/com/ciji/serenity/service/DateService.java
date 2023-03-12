@@ -4,7 +4,7 @@ import com.ciji.serenity.calendar.EquestrianDate;
 import com.ciji.serenity.dao.BotParameterDao;
 import com.ciji.serenity.exception.OptionNotFoundException;
 import com.ciji.serenity.model.BotParam;
-import discord4j.core.event.domain.InteractionCreateEvent;
+import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
 import discord4j.discordjson.json.MessageData;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -18,8 +18,8 @@ public class DateService {
 
     private final BotParameterDao botParameterDao;
 
-    public Mono<MessageData> setDate(InteractionCreateEvent event) {
-        String dateValue = event.getInteraction().getCommandInteraction()
+    public Mono<MessageData> setDate(ChatInputInteractionEvent event) {
+        String dateValue = event
                 .getOption("date").orElseThrow(OptionNotFoundException::new)
                 .getValue().orElseThrow()
                 .asString();
@@ -30,7 +30,7 @@ public class DateService {
         return postMessage(event, "Current date set as: " + dateValue);
     }
 
-    public Mono<MessageData> getDate(InteractionCreateEvent event) {
+    public Mono<MessageData> getDate(ChatInputInteractionEvent event) {
         Optional<BotParam> botParam = botParameterDao.findById("equestrian_date");
         if (botParam.isPresent()) {
             String dateValue = botParam.get().getValue();
@@ -44,8 +44,8 @@ public class DateService {
         }
     }
 
-    public Mono<MessageData> addDays(InteractionCreateEvent event) {
-        String days = event.getInteraction().getCommandInteraction().getOption("days").orElseThrow(OptionNotFoundException::new).getValue().toString();
+    public Mono<MessageData> addDays(ChatInputInteractionEvent event) {
+        String days = event.getOption("days").orElseThrow(OptionNotFoundException::new).getValue().toString();
         Optional<BotParam> botParam = botParameterDao.findById("equestrian_date");
         if (botParam.isPresent()) {
             String dateValue = botParam.get().getValue();
@@ -59,8 +59,8 @@ public class DateService {
         }
     }
 
-    private Mono<MessageData> postMessage(InteractionCreateEvent event, String s) {
-        return event.acknowledge()
+    private Mono<MessageData> postMessage(ChatInputInteractionEvent event, String s) {
+        return event.reply()
                 .then(event.getInteractionResponse()
                         .createFollowupMessage(s));
     }
