@@ -4,19 +4,11 @@ public enum Commands {
 
     TODO("todo"),
 
-    GET_TIMER("getTimer"),
+    GET_CHARACTER("get-character"),
 
-    START_TIMER("startTimer"),
+    ADD_CHARACTER("add-character"),
 
-    STOP_TIMER("stopTimer"),
-
-    SET_PREFIX("setPrefix"),
-
-    GET_DATE("getDate"),
-
-    SET_DATE("setDate"),
-
-    ADD_DAYS("addDays");
+    REMOVE_CHARACTER("remove-character");
 
     private String command;
 

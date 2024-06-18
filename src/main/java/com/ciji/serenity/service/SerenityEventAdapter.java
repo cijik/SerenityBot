@@ -1,11 +1,10 @@
 package com.ciji.serenity.service;
 
+import com.ciji.serenity.config.Client;
 import com.ciji.serenity.enums.Commands;
-import com.ciji.serenity.exception.OptionNotFoundException;
 import discord4j.core.event.ReactiveEventAdapter;
 import discord4j.core.event.domain.interaction.ApplicationCommandInteractionEvent;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
-import discord4j.core.event.domain.interaction.InteractionCreateEvent;
 import discord4j.discordjson.json.MessageData;
 import lombok.AllArgsConstructor;
 import org.reactivestreams.Publisher;
@@ -16,53 +15,30 @@ import reactor.core.publisher.Mono;
 @AllArgsConstructor
 public class SerenityEventAdapter extends ReactiveEventAdapter {
 
-    private final TimerService timerService;
-
-    private final DateService dateService;
+    private final CharacterSheetService characterSheetService;
 
     @Override
     public Publisher<?> onApplicationCommandInteraction(ApplicationCommandInteractionEvent event) {
-        try {
-            switch (Commands.fromString(event.getCommandName())) {
-                case TODO -> {
-                    return doTodo(event);
-                }
-                case GET_TIMER -> {
-                    return timerService.getTime(event);
-                }
-                case START_TIMER -> {
-                    return timerService.startClock(event);
-                }
-                case STOP_TIMER -> {
-                    return timerService.stopClock(event);
-                }
+        switch (Commands.fromString(event.getCommandName())) {
+            case TODO -> {
+                return doTodo(event);
             }
-        } catch (OptionNotFoundException e) {
-            return event.reply()
-                    .then(event.getInteractionResponse()
-                            .createFollowupMessage("No option specified!"));
         }
         return Mono.empty();
     }
 
     @Override
     public Publisher<?> onChatInputInteraction(ChatInputInteractionEvent event) {
-        try {
-            switch (Commands.fromString(event.getCommandName())) {
-                case SET_DATE -> {
-                    return dateService.setDate(event);
-                }
-                case GET_DATE -> {
-                    return dateService.getDate(event);
-                }
-                case ADD_DAYS -> {
-                    return dateService.addDays(event);
-                }
+        switch (Commands.fromString(event.getCommandName())) {
+            case GET_CHARACTER -> {
+                return characterSheetService.getCharacter(event);
             }
-        } catch (OptionNotFoundException e) {
-            return event.reply()
-                    .then(event.getInteractionResponse()
-                            .createFollowupMessage("No option specified!"));
+            case ADD_CHARACTER -> {
+                return characterSheetService.addCharacter(event);
+            }
+            case REMOVE_CHARACTER -> {
+                return characterSheetService.removeCharacter(event);
+            }
         }
         return Mono.empty();
     }

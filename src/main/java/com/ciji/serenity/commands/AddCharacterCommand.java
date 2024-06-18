@@ -1,6 +1,7 @@
 package com.ciji.serenity.commands;
 
 import com.ciji.serenity.config.Client;
+import discord4j.core.object.command.ApplicationCommand;
 import discord4j.core.object.command.ApplicationCommandOption;
 import discord4j.discordjson.json.ApplicationCommandOptionData;
 import discord4j.discordjson.json.ApplicationCommandRequest;
@@ -10,21 +11,30 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
+import static com.ciji.serenity.enums.Commands.ADD_CHARACTER;
+
 @Component
 @Slf4j
 @AllArgsConstructor
-public class SetDateCommand implements SerenityCommand {
+public class AddCharacterCommand implements SerenityCommand {
 
     private final Client client;
 
     @Override
     public void register() {
         ApplicationCommandRequest commandRequest = ApplicationCommandRequest.builder()
-                .name("setDate")
-                .description("Set the current date on the planet.")
+                .name(ADD_CHARACTER.getCommand())
+                .description("Adds a character sheet to the database")
+                .type(ApplicationCommand.Type.CHAT_INPUT.getValue())
                 .addOption(ApplicationCommandOptionData.builder()
-                        .name("date")
-                        .description("A date in dd.mm.yyyy format.")
+                        .name("name")
+                        .description("Name of the character to add")
+                        .type(ApplicationCommandOption.Type.STRING.getValue())
+                        .required(true)
+                        .build())
+                .addOption(ApplicationCommandOptionData.builder()
+                        .name("url")
+                        .description("Link to the character's sheet")
                         .type(ApplicationCommandOption.Type.STRING.getValue())
                         .required(true)
                         .build())
@@ -37,7 +47,7 @@ public class SetDateCommand implements SerenityCommand {
         restClient.getApplicationService()
                 .createGuildApplicationCommand(applicationId, 177794959854796801L, commandRequest)
                 .doOnError(e -> log.warn("Unable to create guild command", e))
-                .onErrorResume(e -> Mono.empty())
+                .onErrorResume(_ -> Mono.empty())
                 .block();
     }
 }
