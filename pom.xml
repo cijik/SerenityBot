@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>com.ciji</groupId>
 	<artifactId>serenity-bot</artifactId>
-	<version>0.0.5</version>
+	<version>0.0.6</version>
 	<name>SerenityBot</name>
 	<description>A Discord bot for managing a TTRPG</description>
 	<properties>
@@ -42,6 +42,11 @@
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-lang3</artifactId>
 			<version>3.12.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-text</artifactId>
+			<version>1.12.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>

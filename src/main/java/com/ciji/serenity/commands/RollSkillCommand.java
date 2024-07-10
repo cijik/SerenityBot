@@ -11,24 +11,37 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
-import static com.ciji.serenity.enums.Commands.REMOVE_CHARACTER;
+import static com.ciji.serenity.enums.Commands.READ_SHEET;
+import static com.ciji.serenity.enums.Commands.ROLL_SKILL;
 
 @Component
 @Slf4j
 @AllArgsConstructor
-public class RemoveCharacterCommand implements SerenityCommand {
+public class RollSkillCommand implements SerenityCommand {
 
     private final Client client;
 
     @Override
     public void register() {
         ApplicationCommandRequest commandRequest = ApplicationCommandRequest.builder()
-                .name(REMOVE_CHARACTER.getCommand())
-                .description("Removes the character and their sheet by name")
+                .name(ROLL_SKILL.getCommand())
+                .description("Rolls a character's Skill MFD")
                 .type(ApplicationCommand.Type.CHAT_INPUT.getValue())
                 .addOption(ApplicationCommandOptionData.builder()
-                        .name("name")
-                        .description("Name of the character to remove")
+                        .name("character-name")
+                        .description("Name of the character sheet to read")
+                        .type(ApplicationCommandOption.Type.STRING.getValue())
+                        .required(true)
+                        .build())
+                .addOption(ApplicationCommandOptionData.builder()
+                        .name("skill-name")
+                        .description("Name of the skill to roll from the sheet")
+                        .type(ApplicationCommandOption.Type.STRING.getValue())
+                        .required(true)
+                        .build())
+                .addOption(ApplicationCommandOptionData.builder()
+                        .name("skill-modifier")
+                        .description("Skill modifier to apply to the roll")
                         .type(ApplicationCommandOption.Type.STRING.getValue())
                         .required(true)
                         .build())

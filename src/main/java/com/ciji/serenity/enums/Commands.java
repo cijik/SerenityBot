@@ -10,7 +10,9 @@ public enum Commands {
 
     REMOVE_CHARACTER("remove-character"),
 
-    READ_SHEET("read-sheet");
+    READ_SHEET("read-sheet"),
+
+    ROLL_SKILL("roll-skill");
 
     private String command;
 

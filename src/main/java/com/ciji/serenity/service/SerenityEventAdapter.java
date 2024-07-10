@@ -42,6 +42,9 @@ public class SerenityEventAdapter extends ReactiveEventAdapter {
             case READ_SHEET -> {
                 return characterSheetService.readSheetValue(event);
             }
+            case ROLL_SKILL -> {
+                return characterSheetService.rollSkill(event);
+            }
         }
         return Mono.empty();
     }

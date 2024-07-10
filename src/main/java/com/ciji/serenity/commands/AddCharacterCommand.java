@@ -45,7 +45,7 @@ public class AddCharacterCommand implements SerenityCommand {
         long applicationId = restClient.getApplicationId().block();
 
         restClient.getApplicationService()
-                .createGuildApplicationCommand(applicationId, 177794959854796801L, commandRequest)
+                .createGlobalApplicationCommand(applicationId, commandRequest)
                 .doOnError(e -> log.warn("Unable to create guild command", e))
                 .onErrorResume(_ -> Mono.empty())
                 .block();
