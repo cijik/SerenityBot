@@ -8,7 +8,9 @@ public enum Commands {
 
     ADD_CHARACTER("add-character"),
 
-    REMOVE_CHARACTER("remove-character");
+    REMOVE_CHARACTER("remove-character"),
+
+    READ_SHEET("read-sheet");
 
     private String command;
 

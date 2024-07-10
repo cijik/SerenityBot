@@ -39,6 +39,9 @@ public class SerenityEventAdapter extends ReactiveEventAdapter {
             case REMOVE_CHARACTER -> {
                 return characterSheetService.removeCharacter(event);
             }
+            case READ_SHEET -> {
+                return characterSheetService.readSheetValue(event);
+            }
         }
         return Mono.empty();
     }
