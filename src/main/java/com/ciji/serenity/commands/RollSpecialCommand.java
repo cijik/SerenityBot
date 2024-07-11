@@ -11,20 +11,20 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
-import static com.ciji.serenity.enums.Commands.ROLL_SKILL;
+import static com.ciji.serenity.enums.Commands.ROLL_SPECIAL;
 
 @Component
 @Slf4j
 @AllArgsConstructor
-public class RollSkillCommand implements SerenityCommand {
+public class RollSpecialCommand implements SerenityCommand {
 
     private final Client client;
 
     @Override
     public void register() {
         ApplicationCommandRequest commandRequest = ApplicationCommandRequest.builder()
-                .name(ROLL_SKILL.getCommand())
-                .description("Rolls a character's Skill MFD")
+                .name(ROLL_SPECIAL.getCommand())
+                .description("Rolls a character's SPECIAL MFD")
                 .type(ApplicationCommand.Type.CHAT_INPUT.getValue())
                 .addOption(ApplicationCommandOptionData.builder()
                         .name("character-name")
@@ -33,14 +33,14 @@ public class RollSkillCommand implements SerenityCommand {
                         .required(true)
                         .build())
                 .addOption(ApplicationCommandOptionData.builder()
-                        .name("skill-name")
-                        .description("Name of the skill to roll from the sheet")
+                        .name("special-name")
+                        .description("Name of the SPECIAL to roll from the sheet")
                         .type(ApplicationCommandOption.Type.STRING.getValue())
                         .required(true)
                         .build())
                 .addOption(ApplicationCommandOptionData.builder()
-                        .name("skill-modifier")
-                        .description("Skill modifier to apply to the roll")
+                        .name("special-modifier")
+                        .description("SPECIAL modifier to apply to the roll")
                         .type(ApplicationCommandOption.Type.STRING.getValue())
                         .required(true)
                         .build())

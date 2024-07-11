@@ -149,12 +149,66 @@ public class CharacterSheetService {
             int requestedSkill = skillNames.getValues().indexOf(List.of(skillName));
             int requestedModifier = Modifiers.fromString(skillModifier).ordinal() * 2;
 
-            int skillThreshold = Integer.parseInt((String) skillValueMatrix.getValues().get(requestedSkill).get(requestedModifier));
+            int skillThreshold;
+            try {
+                skillThreshold = Integer.parseInt((String) skillValueMatrix.getValues().get(requestedSkill).get(requestedModifier));
+            } catch (IndexOutOfBoundsException e) {
+                return event.createFollowup("**" + characterName + "** does not have this skill");
+            }
             int roll = new Random().nextInt(100);
             String result = roll <= skillThreshold ? "Success!" : "Failure!";
 
             return event.createFollowup(InteractionFollowupCreateSpec.builder()
                     .content(WordUtils.capitalize(characterName.toLowerCase(Locale.ROOT)) + " rolls " + skillName + "[**" + skillThreshold + "**] at **" + skillModifier + "**, resulting in: **" + roll + "**, " + result)
+                    .build());
+        }
+    }
+
+    @SneakyThrows
+    public Mono<Message> rollSpecial(ChatInputInteractionEvent event) {
+        String characterName = event
+                .getOption("character-name")
+                .flatMap(ApplicationCommandInteractionOption::getValue)
+                .map(ApplicationCommandInteractionOptionValue::asString)
+                .orElseThrow(OptionNotFoundException::new);
+        String specialName = event
+                .getOption("special-name")
+                .flatMap(ApplicationCommandInteractionOption::getValue)
+                .map(ApplicationCommandInteractionOptionValue::asString)
+                .orElseThrow(OptionNotFoundException::new);
+        String specialModifier = event
+                .getOption("special-modifier")
+                .flatMap(ApplicationCommandInteractionOption::getValue)
+                .map(ApplicationCommandInteractionOptionValue::asString)
+                .orElseThrow(OptionNotFoundException::new);
+        event.deferReply().withEphemeral(false).block();
+
+        CharacterSheet characterSheet = characterSheetDao.findByName(WordUtils.capitalize(characterName.toLowerCase(Locale.ROOT)));
+        if (characterSheet == null) {
+            return event.createFollowup("Character not found");
+        } else {
+            List<String> ranges = List.of("'Sheet'!AN27:AO40", "'Sheet'!AP27:AV40");
+            BatchGetValuesResponse readResult = SheetsServiceUtil.getSheetsService().spreadsheets().values()
+                    .batchGet(characterSheet.getId())
+                    .setRanges(ranges)
+                    .execute();
+            specialName = StringUtils.capitalize(specialName.toLowerCase(Locale.ROOT));
+            ValueRange specialNames = readResult.getValueRanges().getFirst();
+            ValueRange specialValueMatrix = readResult.getValueRanges().get(1);
+            int requestedSpecial = specialNames.getValues().indexOf(List.of(StringUtils.truncate(specialName, 1)));
+            int requestedModifier = Modifiers.fromString(specialModifier).ordinal();
+
+            int specialThreshold;
+            try {
+                specialThreshold = Integer.parseInt((String) specialValueMatrix.getValues().get(requestedSpecial).get(requestedModifier));
+            } catch (IndexOutOfBoundsException e) {
+                return event.createFollowup(specialName + " is not a valid SPECIAL");
+            }
+            int roll = new Random().nextInt(100);
+            String result = roll <= specialThreshold ? "Success!" : "Failure!";
+
+            return event.createFollowup(InteractionFollowupCreateSpec.builder()
+                    .content(WordUtils.capitalize(characterName.toLowerCase(Locale.ROOT)) + " rolls " + specialName + "[**" + specialThreshold + "**] at **" + specialModifier + "**, resulting in: **" + roll + "**, " + result)
                     .build());
         }
     }

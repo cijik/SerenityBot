@@ -12,7 +12,9 @@ public enum Commands {
 
     READ_SHEET("read-sheet"),
 
-    ROLL_SKILL("roll-skill");
+    ROLL_SKILL("roll-skill"),
+
+    ROLL_SPECIAL("roll-special");
 
     private String command;
 

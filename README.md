@@ -6,3 +6,4 @@ Currently supports:
  - Retrieving a character sheet from the database
  - Reading a Shadow spell's description from an added sheet
  - Rolling dice according to a skill value on an added sheet
+ - Rolling dice according to a SPECIAL value on an added sheet
