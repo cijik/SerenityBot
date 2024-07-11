@@ -2,6 +2,7 @@
 A Discord bot for managing a TTRPG
 
 Currently supports:
- - Setting a prefix
- - A timer
- - A custom date system of 13 months and 28 days
+ - Adding character sheets to the database
+ - Retrieving a character sheet from the database
+ - Reading a Shadow spell's description from an added sheet
+ - Rolling dice according to a skill value on an added sheet

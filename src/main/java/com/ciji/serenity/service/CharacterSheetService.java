@@ -151,7 +151,7 @@ public class CharacterSheetService {
 
             int skillThreshold = Integer.parseInt((String) skillValueMatrix.getValues().get(requestedSkill).get(requestedModifier));
             int roll = new Random().nextInt(100);
-            String result = roll < skillThreshold ? "Success!" : "Failure!";
+            String result = roll <= skillThreshold ? "Success!" : "Failure!";
 
             return event.createFollowup(InteractionFollowupCreateSpec.builder()
                     .content(WordUtils.capitalize(characterName.toLowerCase(Locale.ROOT)) + " rolls " + skillName + "[**" + skillThreshold + "**] at **" + skillModifier + "**, resulting in: **" + roll + "**, " + result)
