@@ -1,5 +1,8 @@
 package com.ciji.serenity.enums;
 
+import lombok.Getter;
+
+@Getter
 public enum Modifiers {
     TWO("2"),
     ONE_AND_ONE_HALF("1 1/2"),
@@ -9,14 +12,10 @@ public enum Modifiers {
     ONE_QUARTER("1/4"),
     ONE_TENTH("1/10");
 
-    private String modifier;
+    private final String modifier;
 
     Modifiers(String modifier) {
         this.modifier = modifier;
-    }
-
-    public String getModifier() {
-        return modifier;
     }
 
     public static Modifiers fromString(String value) {

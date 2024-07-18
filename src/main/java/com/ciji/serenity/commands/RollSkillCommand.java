@@ -40,7 +40,7 @@ public class RollSkillCommand implements SerenityCommand {
                         .build())
                 .addOption(ApplicationCommandOptionData.builder()
                         .name("skill-modifier")
-                        .description("Skill modifier to apply to the roll")
+                        .description("MFD to check the roll against")
                         .type(ApplicationCommandOption.Type.STRING.getValue())
                         .required(true)
                         .build())

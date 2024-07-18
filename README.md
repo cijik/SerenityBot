@@ -7,3 +7,4 @@ Currently supports:
  - Reading a Shadow spell's description from an added sheet
  - Rolling dice according to a skill value on an added sheet
  - Rolling dice according to a SPECIAL value on an added sheet
+ - Rolling dice with an optional MFD modifier

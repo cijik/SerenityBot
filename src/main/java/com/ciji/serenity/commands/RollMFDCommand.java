@@ -11,20 +11,20 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
-import static com.ciji.serenity.enums.Commands.ROLL_SPECIAL;
+import static com.ciji.serenity.enums.Commands.ROLL_MFD;
 
 @Component
 @Slf4j
 @AllArgsConstructor
-public class RollSpecialCommand implements SerenityCommand {
+public class RollMFDCommand implements SerenityCommand {
 
     private final Client client;
 
     @Override
     public void register() {
         ApplicationCommandRequest commandRequest = ApplicationCommandRequest.builder()
-                .name(ROLL_SPECIAL.getCommand())
-                .description("Rolls a character's SPECIAL MFD")
+                .name(ROLL_MFD.getCommand())
+                .description("Rolls a d100 and returns the MFD range for a specified character")
                 .type(ApplicationCommand.Type.CHAT_INPUT.getValue())
                 .addOption(ApplicationCommandOptionData.builder()
                         .name("character-name")
@@ -33,14 +33,20 @@ public class RollSpecialCommand implements SerenityCommand {
                         .required(true)
                         .build())
                 .addOption(ApplicationCommandOptionData.builder()
-                        .name("special-name")
-                        .description("Name of the SPECIAL to roll from the sheet")
+                        .name("attribute-type")
+                        .description("SPECIAL or skill")
                         .type(ApplicationCommandOption.Type.STRING.getValue())
                         .required(true)
                         .build())
                 .addOption(ApplicationCommandOptionData.builder()
-                        .name("special-modifier")
-                        .description("MFD to check the roll against")
+                        .name("attribute-name")
+                        .description("Name of the attribute to roll for")
+                        .type(ApplicationCommandOption.Type.STRING.getValue())
+                        .required(true)
+                        .build())
+                .addOption(ApplicationCommandOptionData.builder()
+                        .name("step-modifier")
+                        .description("Step modifier to apply to the roll")
                         .type(ApplicationCommandOption.Type.STRING.getValue())
                         .required(true)
                         .build())

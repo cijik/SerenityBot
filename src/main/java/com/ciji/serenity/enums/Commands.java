@@ -1,5 +1,8 @@
 package com.ciji.serenity.enums;
 
+import lombok.Getter;
+
+@Getter
 public enum Commands {
 
     TODO("todo"),
@@ -14,16 +17,14 @@ public enum Commands {
 
     ROLL_SKILL("roll-skill"),
 
-    ROLL_SPECIAL("roll-special");
+    ROLL_SPECIAL("roll-special"),
 
-    private String command;
+    ROLL_MFD("roll-mfd");
+
+    private final String command;
 
     Commands(String command) {
         this.command = command;
-    }
-
-    public String getCommand() {
-        return this.command;
     }
 
     public static Commands fromString(String value) {
