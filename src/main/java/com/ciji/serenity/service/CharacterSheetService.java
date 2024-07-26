@@ -4,6 +4,10 @@ import com.ciji.serenity.dao.CharacterSheetDao;
 import com.ciji.serenity.enums.Modifiers;
 import com.ciji.serenity.exception.OptionNotFoundException;
 import com.ciji.serenity.model.CharacterSheet;
+import com.ezylang.evalex.EvaluationException;
+import com.ezylang.evalex.Expression;
+import com.ezylang.evalex.data.EvaluationValue;
+import com.ezylang.evalex.parser.ParseException;
 import com.google.api.services.sheets.v4.model.BatchGetValuesResponse;
 import com.google.api.services.sheets.v4.model.ValueRange;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
@@ -19,14 +23,20 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.WordUtils;
+import org.springframework.expression.spel.SpelEvaluationException;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.security.GeneralSecurityException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Random;
+import java.util.regex.MatchResult;
+import java.util.regex.Pattern;
 
 @Service
 @RequiredArgsConstructor
@@ -34,6 +44,8 @@ import java.util.Random;
 public class CharacterSheetService {
 
     private final CharacterSheetDao characterSheetDao;
+
+    private static final String DICE_REGEX = "\\d+d\\d+";
 
     public Mono<Message> getCharacter(ChatInputInteractionEvent event) {
         String characterName = getParameterValue(event, "name");
@@ -250,6 +262,53 @@ public class CharacterSheetService {
                         .build());
             }
         }
+    }
+
+    public Mono<Message> roll(ChatInputInteractionEvent event) {
+        String roll = getParameterValue(event, "roll");
+        event.deferReply().withEphemeral(false).block();
+
+        Pattern dicePattern = Pattern.compile(DICE_REGEX);
+        List<String> dice = new ArrayList<>();
+        dicePattern.matcher(roll).results().map(MatchResult::group).forEach(dice::add);
+
+        List<Integer> performedRolls = new ArrayList<>();
+        dice.forEach(die -> {
+            int numberOfDice = Integer.parseInt(die.substring(0, die.indexOf("d")));
+            int numberOfSides = Integer.parseInt(die.substring(die.indexOf("d")+1));
+            int finalSum = 0;
+            for (int i = 0; i < numberOfDice; i++) {
+               finalSum += new Random().nextInt(numberOfSides) + 1;
+            }
+            performedRolls.add(finalSum);
+        });
+
+        roll = StringUtils.replaceEach(roll, dice.toArray(String[]::new), performedRolls.stream().map(String::valueOf).toArray(String[]::new));
+
+        log.info("Processing expression '{}'", roll);
+        if (roll.matches(".*[a-z].*")) {
+            log.error("Expression '{}' contains invalid operands", roll);
+            return event.createFollowup("Invalid roll expression");
+        }
+        Expression expression = new Expression(roll);
+        EvaluationValue finalResult;
+
+        try {
+            finalResult = expression.evaluate();
+        } catch (EvaluationException | ParseException e) {
+            log.error("Expression '{}' could not be processed as a number", roll);
+            return event.createFollowup("Invalid roll expression");
+        }
+
+        if (finalResult.getNumberValue().compareTo(BigDecimal.ZERO) < 0) {
+            return event.createFollowup(InteractionFollowupCreateSpec.builder()
+                    .content("**" + event.getInteraction().getUser().getUsername() + "** rolls **0** (" + finalResult.getNumberValue().setScale(2, RoundingMode.DOWN).stripTrailingZeros().toPlainString() + ")")
+                    .build());
+        }
+
+        return event.createFollowup(InteractionFollowupCreateSpec.builder()
+                .content("**" + event.getInteraction().getUser().getUsername() + "** rolls **" + finalResult.getNumberValue().setScale(2, RoundingMode.DOWN).stripTrailingZeros().toPlainString() + "**")
+                .build());
     }
 
     private static String getParameterValue(ChatInputInteractionEvent event, String name) {

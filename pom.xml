@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>com.ciji</groupId>
 	<artifactId>serenity-bot</artifactId>
-	<version>0.0.10</version>
+	<version>0.0.11</version>
 	<name>SerenityBot</name>
 	<description>A Discord bot for managing a TTRPG</description>
 	<properties>
@@ -103,6 +103,12 @@
 			<groupId>com.discord4j</groupId>
 			<artifactId>discord4j-core</artifactId>
 			<version>3.2.6</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.ezylang</groupId>
+			<artifactId>EvalEx</artifactId>
+			<version>3.3.0</version>
 		</dependency>
 
 		<dependency>

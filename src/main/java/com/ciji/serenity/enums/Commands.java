@@ -19,7 +19,9 @@ public enum Commands {
 
     ROLL_SPECIAL("roll-special"),
 
-    ROLL_MFD("roll-mfd");
+    ROLL_MFD("roll-mfd"),
+
+    ROLL("roll");
 
     private final String command;
 
