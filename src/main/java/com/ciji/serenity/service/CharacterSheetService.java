@@ -272,13 +272,13 @@ public class CharacterSheetService {
         List<String> dice = new ArrayList<>();
         dicePattern.matcher(roll).results().map(MatchResult::group).forEach(dice::add);
 
-        List<Integer> performedRolls = new ArrayList<>();
+        List<BigDecimal> performedRolls = new ArrayList<>();
         dice.forEach(die -> {
             int numberOfDice = Integer.parseInt(die.substring(0, die.indexOf("d")));
             int numberOfSides = Integer.parseInt(die.substring(die.indexOf("d")+1));
-            int finalSum = 0;
+            BigDecimal finalSum = BigDecimal.ZERO;
             for (int i = 0; i < numberOfDice; i++) {
-               finalSum += new Random().nextInt(numberOfSides) + 1;
+               finalSum = finalSum.add(BigDecimal.valueOf(new Random().nextInt(numberOfSides) + 1));
             }
             performedRolls.add(finalSum);
         });
