@@ -35,6 +35,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Random;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.MatchResult;
 import java.util.regex.Pattern;
 
@@ -267,20 +268,31 @@ public class CharacterSheetService {
     public Mono<Message> roll(ChatInputInteractionEvent event) {
         String roll = getParameterValue(event, "roll");
         event.deferReply().withEphemeral(false).block();
+        String comment = "";
+        boolean rollContainsComment = roll.contains("#");
+        if (rollContainsComment) {
+            comment = roll.split("#")[1];
+        }
+        String originalRoll = roll = roll.split("#")[0];
 
         Pattern dicePattern = Pattern.compile(DICE_REGEX);
         List<String> dice = new ArrayList<>();
         dicePattern.matcher(roll).results().map(MatchResult::group).forEach(dice::add);
 
         List<BigDecimal> performedRolls = new ArrayList<>();
+        List<List<Integer>> individualPerformedRolls = new ArrayList<>();
         dice.forEach(die -> {
+            List<Integer> dieRolls = new ArrayList<>();
             int numberOfDice = Integer.parseInt(die.substring(0, die.indexOf("d")));
             int numberOfSides = Integer.parseInt(die.substring(die.indexOf("d")+1));
             BigDecimal finalSum = BigDecimal.ZERO;
             for (int i = 0; i < numberOfDice; i++) {
-               finalSum = finalSum.add(BigDecimal.valueOf(new Random().nextInt(numberOfSides) + 1));
+                int rollResult = new Random().nextInt(numberOfSides) + 1;
+                dieRolls.add(rollResult);
+                finalSum = finalSum.add(BigDecimal.valueOf(rollResult));
             }
             performedRolls.add(finalSum);
+            individualPerformedRolls.add(dieRolls);
         });
 
         roll = StringUtils.replaceEach(roll, dice.toArray(String[]::new), performedRolls.stream().map(String::valueOf).toArray(String[]::new));
@@ -300,15 +312,38 @@ public class CharacterSheetService {
             return event.createFollowup("Invalid roll expression");
         }
 
+        StringBuilder response = new StringBuilder();
+        response.append("**").append(event.getInteraction().getUser().getUsername()).append("** rolls ");
         if (finalResult.getNumberValue().compareTo(BigDecimal.ZERO) < 0) {
+            response.append("**0** (").append(finalResult.getNumberValue().setScale(2, RoundingMode.DOWN).stripTrailingZeros().toPlainString()).append(")");
+            if (rollContainsComment) {
+                response.append(" with comment: '").append(comment.strip()).append("'");
+            }
+            appendIndividualRolls(response, individualPerformedRolls, dice, originalRoll);
             return event.createFollowup(InteractionFollowupCreateSpec.builder()
-                    .content("**" + event.getInteraction().getUser().getUsername() + "** rolls **0** (" + finalResult.getNumberValue().setScale(2, RoundingMode.DOWN).stripTrailingZeros().toPlainString() + ")")
+                    .content(response.toString())
                     .build());
         }
 
+        response.append("**").append(finalResult.getNumberValue().setScale(2, RoundingMode.DOWN).stripTrailingZeros().toPlainString()).append("**");
+        if (rollContainsComment) {
+            response.append(" with comment: '").append(comment.strip()).append("'");
+        }
+        appendIndividualRolls(response, individualPerformedRolls, dice, originalRoll);
         return event.createFollowup(InteractionFollowupCreateSpec.builder()
-                .content("**" + event.getInteraction().getUser().getUsername() + "** rolls **" + finalResult.getNumberValue().setScale(2, RoundingMode.DOWN).stripTrailingZeros().toPlainString() + "**")
+                .content(response.toString())
                 .build());
+    }
+
+    private static void appendIndividualRolls(StringBuilder response, List<List<Integer>> individualPerformedRolls, List<String> dice, String originalRoll) {
+        response.append("\n").append("```").append("\n").append("Roll details: ").append(originalRoll);
+        AtomicInteger index = new AtomicInteger(0);
+        individualPerformedRolls.forEach(listOfRolls -> {
+            response.append("\n").append(dice.get(index.getAndIncrement())).append(": [ ");
+            listOfRolls.forEach(recordedRoll -> response.append(recordedRoll).append(" "));
+            response.append("]");
+        });
+        response.append("```");
     }
 
     private static String getParameterValue(ChatInputInteractionEvent event, String name) {
