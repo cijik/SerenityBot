@@ -21,4 +21,8 @@ public class CharacterSheet {
     @ToString.Include
     @Indexed
     private String name;
+
+    @NotNull
+    @Indexed
+    private String ownerId;
 }

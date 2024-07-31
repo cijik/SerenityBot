@@ -49,7 +49,7 @@ public class CharacterSheetService {
         String characterName = getParameterValue(event, "name");
         event.deferReply().withEphemeral(true).block();
 
-        CharacterSheet characterSheet = getCharacterSheet(characterName);
+        CharacterSheet characterSheet = getCharacterSheet(characterName, event.getInteraction().getUser().getId().asString());
         if (characterSheet == null) {
             return createMissingCharacterFollowup(event, characterName);
         } else {
@@ -67,6 +67,7 @@ public class CharacterSheetService {
         CharacterSheet characterSheet = new CharacterSheet();
         characterSheet.setId(characterSheetUrl.split("/")[5]);
         characterSheet.setName(WordUtils.capitalize(characterName.toLowerCase(Locale.ROOT)));
+        characterSheet.setOwnerId(event.getInteraction().getUser().getId().asString());
         event.deferReply().withEphemeral(true).block();
 
         log.info("Adding character {} to database", characterName);
@@ -78,7 +79,7 @@ public class CharacterSheetService {
         String characterName = getParameterValue(event, "name");
         event.deferReply().withEphemeral(true).block();
 
-        CharacterSheet characterSheet = getCharacterSheet(characterName);
+        CharacterSheet characterSheet = getCharacterSheet(characterName, event.getInteraction().getUser().getId().asString());
         if (characterSheet == null) {
             return createMissingCharacterFollowup(event, characterName);
         } else {
@@ -94,7 +95,7 @@ public class CharacterSheetService {
         String sheetValue = getParameterValue(event, "value");
         event.deferReply().withEphemeral(true).block();
 
-        CharacterSheet characterSheet = getCharacterSheet(characterName);
+        CharacterSheet characterSheet = getCharacterSheet(characterName, event.getInteraction().getUser().getId().asString());
         if (characterSheet == null) {
             return createMissingCharacterFollowup(event, characterName);
         } else {
@@ -120,7 +121,7 @@ public class CharacterSheetService {
         String attributeModifier = getParameterValue(event, "attribute-modifier");
         event.deferReply().withEphemeral(false).block();
 
-        CharacterSheet characterSheet = getCharacterSheet(characterName);
+        CharacterSheet characterSheet = getCharacterSheet(characterName, event.getInteraction().getUser().getId().asString());
         if (characterSheet == null) {
             return event.createFollowup("Character not found");
         } else {
@@ -174,7 +175,7 @@ public class CharacterSheetService {
         String attributeModifier = getParameterValue(event, "step-modifier");
         event.deferReply().withEphemeral(false).block();
 
-        CharacterSheet characterSheet = getCharacterSheet(characterName);
+        CharacterSheet characterSheet = getCharacterSheet(characterName, event.getInteraction().getUser().getId().asString());
         if (characterSheet == null) {
             return event.createFollowup("Character not found");
         } else {
@@ -365,10 +366,9 @@ public class CharacterSheetService {
                 .orElseThrow(OptionNotFoundException::new);
     }
 
-    private CharacterSheet getCharacterSheet(String characterName) {
+    private CharacterSheet getCharacterSheet(String characterName, String ownerId) {
         log.info("Retrieving character {} from database", characterName);
-        CharacterSheet characterSheet = characterSheetDao.findByName(WordUtils.capitalize(characterName.toLowerCase(Locale.ROOT)));
-        return characterSheet;
+        return characterSheetDao.findByNameAndOwnerId(WordUtils.capitalize(characterName.toLowerCase(Locale.ROOT)), ownerId);
     }
 
     private static InteractionFollowupCreateMono createMissingCharacterFollowup(ChatInputInteractionEvent event, String characterName) {
