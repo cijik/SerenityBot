@@ -11,6 +11,8 @@ public enum Commands {
 
     ADD_CHARACTER("add-character"),
 
+    UPDATE_CHARACTER("update-character"),
+
     REMOVE_CHARACTER("remove-character"),
 
     READ_SHEET("read-sheet"),

@@ -7,5 +7,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface CharacterSheetDao extends CrudRepository<CharacterSheet, String> {
 
+    CharacterSheet findByName(String name);
+
     CharacterSheet findByNameAndOwnerId(String name, String ownerId);
 }

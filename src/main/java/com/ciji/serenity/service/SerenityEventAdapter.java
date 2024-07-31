@@ -35,6 +35,9 @@ public class SerenityEventAdapter extends ReactiveEventAdapter {
             case ADD_CHARACTER -> {
                 return characterSheetService.addCharacter(event);
             }
+            case UPDATE_CHARACTER -> {
+                return characterSheetService.updateCharacter(event);
+            }
             case REMOVE_CHARACTER -> {
                 return characterSheetService.removeCharacter(event);
             }

@@ -75,6 +75,23 @@ public class CharacterSheetService {
         return event.createFollowup("Character sheet added");
     }
 
+    public Mono<Message> updateCharacter(ChatInputInteractionEvent event) {
+        String characterName = getParameterValue(event, "name");
+        String ownerId = getParameterValue(event, "owner-id");
+        event.deferReply().withEphemeral(true).block();
+
+        CharacterSheet characterSheet = characterSheetDao.findByName(WordUtils.capitalize(characterName.toLowerCase(Locale.ROOT)));
+        if (characterSheet == null) {
+            return createMissingCharacterFollowup(event, characterName);
+        } else {
+            characterSheet.setOwnerId(ownerId);
+            characterSheetDao.save(characterSheet);
+            return event.createFollowup(InteractionFollowupCreateSpec.builder()
+                    .content("Character **" + characterName + "** has been updated with ownerId " + ownerId + ".")
+                    .build());
+        }
+    }
+
     public Mono<Message> removeCharacter(ChatInputInteractionEvent event) {
         String characterName = getParameterValue(event, "name");
         event.deferReply().withEphemeral(true).block();
