@@ -21,7 +21,9 @@ public enum Commands {
 
     ROLL_MFD("roll-mfd"),
 
-    ROLL("roll");
+    ROLL("roll"),
+
+    SHORT_ROLL("r");
 
     private final String command;
 

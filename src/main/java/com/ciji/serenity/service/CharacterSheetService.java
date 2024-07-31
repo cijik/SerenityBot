@@ -316,20 +316,21 @@ public class CharacterSheetService {
         response.append("**").append(event.getInteraction().getUser().getUsername()).append("** rolls ");
         if (finalResult.getNumberValue().compareTo(BigDecimal.ZERO) < 0) {
             response.append("**0** (").append(finalResult.getNumberValue().setScale(2, RoundingMode.DOWN).stripTrailingZeros().toPlainString()).append(")");
-            if (rollContainsComment) {
-                response.append(" with comment: '").append(comment.strip()).append("'");
-            }
-            appendIndividualRolls(response, individualPerformedRolls, dice, originalRoll);
-            return event.createFollowup(InteractionFollowupCreateSpec.builder()
-                    .content(response.toString())
-                    .build());
+            return createResponse(event, comment, rollContainsComment, originalRoll, dice, individualPerformedRolls, response);
         }
 
         response.append("**").append(finalResult.getNumberValue().setScale(2, RoundingMode.DOWN).stripTrailingZeros().toPlainString()).append("**");
+        return createResponse(event, comment, rollContainsComment, originalRoll, dice, individualPerformedRolls, response);
+    }
+
+    private Mono<Message> createResponse(ChatInputInteractionEvent event, String comment, boolean rollContainsComment, String originalRoll, List<String> dice, List<List<Integer>> individualPerformedRolls, StringBuilder response) {
         if (rollContainsComment) {
             response.append(" with comment: '").append(comment.strip()).append("'");
         }
         appendIndividualRolls(response, individualPerformedRolls, dice, originalRoll);
+        if (response.length() > 2000) {
+            return event.createFollowup("Resulting message too long, please split your rolls into smaller ones.");
+        }
         return event.createFollowup(InteractionFollowupCreateSpec.builder()
                 .content(response.toString())
                 .build());

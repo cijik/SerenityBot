@@ -51,7 +51,7 @@ public class SerenityEventAdapter extends ReactiveEventAdapter {
             case ROLL_MFD -> {
                 return characterSheetService.rollMFD(event);
             }
-            case ROLL -> {
+            case ROLL, SHORT_ROLL -> {
                 return characterSheetService.roll(event);
             }
         }
