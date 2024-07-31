@@ -10,6 +10,7 @@ import com.ezylang.evalex.data.EvaluationValue;
 import com.ezylang.evalex.parser.ParseException;
 import com.google.api.services.sheets.v4.model.BatchGetValuesResponse;
 import com.google.api.services.sheets.v4.model.ValueRange;
+import discord4j.common.util.Snowflake;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
 import discord4j.core.object.command.ApplicationCommandInteractionOption;
 import discord4j.core.object.command.ApplicationCommandInteractionOptionValue;
@@ -31,10 +32,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.security.GeneralSecurityException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Random;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.MatchResult;
 import java.util.regex.Pattern;
@@ -46,7 +44,7 @@ public class CharacterSheetService {
 
     private final CharacterSheetDao characterSheetDao;
 
-    private static final String DICE_REGEX = "\\d+d\\d+";
+    private static final String DICE_REGEX = "\\d*d\\d+";
 
     public Mono<Message> getCharacter(ChatInputInteractionEvent event) {
         String characterName = getParameterValue(event, "name");
@@ -269,6 +267,7 @@ public class CharacterSheetService {
         String roll = getParameterValue(event, "roll");
         event.deferReply().withEphemeral(false).block();
         String comment = "";
+        String user = getUser(event);
         boolean rollContainsComment = roll.contains("#");
         if (rollContainsComment) {
             comment = roll.split("#")[1];
@@ -283,7 +282,12 @@ public class CharacterSheetService {
         List<List<Integer>> individualPerformedRolls = new ArrayList<>();
         dice.forEach(die -> {
             List<Integer> dieRolls = new ArrayList<>();
-            int numberOfDice = Integer.parseInt(die.substring(0, die.indexOf("d")));
+            int numberOfDice;
+            try {
+                numberOfDice = Integer.parseInt(die.substring(0, die.indexOf("d")));
+            } catch (NumberFormatException e) {
+                numberOfDice = 1;
+            }
             int numberOfSides = Integer.parseInt(die.substring(die.indexOf("d")+1));
             BigDecimal finalSum = BigDecimal.ZERO;
             for (int i = 0; i < numberOfDice; i++) {
@@ -313,7 +317,7 @@ public class CharacterSheetService {
         }
 
         StringBuilder response = new StringBuilder();
-        response.append("**").append(event.getInteraction().getUser().getUsername()).append("** rolls ");
+        response.append("**").append(user).append("** rolls ");
         if (finalResult.getNumberValue().compareTo(BigDecimal.ZERO) < 0) {
             response.append("**0** (").append(finalResult.getNumberValue().setScale(2, RoundingMode.DOWN).stripTrailingZeros().toPlainString()).append(")");
             return createResponse(event, comment, rollContainsComment, originalRoll, dice, individualPerformedRolls, response);
@@ -321,6 +325,16 @@ public class CharacterSheetService {
 
         response.append("**").append(finalResult.getNumberValue().setScale(2, RoundingMode.DOWN).stripTrailingZeros().toPlainString()).append("**");
         return createResponse(event, comment, rollContainsComment, originalRoll, dice, individualPerformedRolls, response);
+    }
+
+    private static String getUser(ChatInputInteractionEvent event) {
+        try {
+            return event.getInteraction().getMember().orElseThrow().getMemberData().nick().get().orElseThrow();
+        } catch (NoSuchElementException e) {
+            log.error("No member found");
+            event.createFollowup("Could not retrieve server username");
+        }
+        return event.getInteraction().getUser().getUsername();
     }
 
     private Mono<Message> createResponse(ChatInputInteractionEvent event, String comment, boolean rollContainsComment, String originalRoll, List<String> dice, List<List<Integer>> individualPerformedRolls, StringBuilder response) {
