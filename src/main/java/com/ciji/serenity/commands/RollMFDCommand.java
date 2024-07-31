@@ -46,7 +46,7 @@ public class RollMFDCommand implements SerenityCommand {
                         .build())
                 .addOption(ApplicationCommandOptionData.builder()
                         .name("step-modifier")
-                        .description("Step modifier to apply to the roll as an integer (1) or fraction (1/2)")
+                        .description("Step modifier to apply to the roll as an integer value")
                         .type(ApplicationCommandOption.Type.STRING.getValue())
                         .required(true)
                         .build())

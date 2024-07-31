@@ -1,6 +1,5 @@
 package com.ciji.serenity.service;
 
-import com.ciji.serenity.config.Client;
 import com.ciji.serenity.enums.Commands;
 import discord4j.core.event.ReactiveEventAdapter;
 import discord4j.core.event.domain.interaction.ApplicationCommandInteractionEvent;
@@ -42,11 +41,8 @@ public class SerenityEventAdapter extends ReactiveEventAdapter {
             case READ_SHEET -> {
                 return characterSheetService.readSheetValue(event);
             }
-            case ROLL_SKILL -> {
-                return characterSheetService.rollSkill(event);
-            }
-            case ROLL_SPECIAL -> {
-                return characterSheetService.rollSpecial(event);
+            case ROLL_ATTRIBUTE -> {
+                return characterSheetService.rollAttribute(event);
             }
             case ROLL_MFD -> {
                 return characterSheetService.rollMFD(event);

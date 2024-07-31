@@ -11,36 +11,42 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
-import static com.ciji.serenity.enums.Commands.ROLL_SPECIAL;
+import static com.ciji.serenity.enums.Commands.ROLL_ATTRIBUTE;
 
 @Component
 @Slf4j
 @AllArgsConstructor
-public class RollSpecialCommand implements SerenityCommand {
+public class RollAttributeCommand implements SerenityCommand {
 
     private final Client client;
 
     @Override
     public void register() {
         ApplicationCommandRequest commandRequest = ApplicationCommandRequest.builder()
-                .name(ROLL_SPECIAL.getCommand())
-                .description("Rolls a character's SPECIAL MFD")
+                .name(ROLL_ATTRIBUTE.getCommand())
+                .description("Rolls a character's attribute MFD")
                 .type(ApplicationCommand.Type.CHAT_INPUT.getValue())
                 .addOption(ApplicationCommandOptionData.builder()
                         .name("character-name")
-                        .description("Name of the character sheet to read")
+                        .description("Name of the character sheet to read, as they were added to the database (case insensitive)")
                         .type(ApplicationCommandOption.Type.STRING.getValue())
                         .required(true)
                         .build())
                 .addOption(ApplicationCommandOptionData.builder()
-                        .name("special-name")
-                        .description("Name of the SPECIAL to roll from the sheet")
+                        .name("attribute-type")
+                        .description("SPECIAL or skill (case insensitive)")
                         .type(ApplicationCommandOption.Type.STRING.getValue())
                         .required(true)
                         .build())
                 .addOption(ApplicationCommandOptionData.builder()
-                        .name("special-modifier")
-                        .description("MFD to check the roll against")
+                        .name("attribute-name")
+                        .description("Name of the skill to roll from the sheet, written plainly (spaces are allowed)")
+                        .type(ApplicationCommandOption.Type.STRING.getValue())
+                        .required(true)
+                        .build())
+                .addOption(ApplicationCommandOptionData.builder()
+                        .name("attribute-modifier")
+                        .description("MFD to check the roll against, as an integer (1) or fraction (1/2)")
                         .type(ApplicationCommandOption.Type.STRING.getValue())
                         .required(true)
                         .build())

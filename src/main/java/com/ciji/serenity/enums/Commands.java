@@ -15,9 +15,7 @@ public enum Commands {
 
     READ_SHEET("read-sheet"),
 
-    ROLL_SKILL("roll-skill"),
-
-    ROLL_SPECIAL("roll-special"),
+    ROLL_ATTRIBUTE("roll-attribute"),
 
     ROLL_MFD("roll-mfd"),
 

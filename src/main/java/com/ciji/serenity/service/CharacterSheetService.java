@@ -10,7 +10,6 @@ import com.ezylang.evalex.data.EvaluationValue;
 import com.ezylang.evalex.parser.ParseException;
 import com.google.api.services.sheets.v4.model.BatchGetValuesResponse;
 import com.google.api.services.sheets.v4.model.ValueRange;
-import discord4j.common.util.Snowflake;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
 import discord4j.core.object.command.ApplicationCommandInteractionOption;
 import discord4j.core.object.command.ApplicationCommandInteractionOptionValue;
@@ -24,7 +23,6 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.WordUtils;
-import org.springframework.expression.spel.SpelEvaluationException;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
@@ -114,66 +112,51 @@ public class CharacterSheetService {
     }
 
     @SneakyThrows
-    public Mono<Message> rollSkill(ChatInputInteractionEvent event) {
+    public Mono<Message> rollAttribute(ChatInputInteractionEvent event) {
         String characterName = getParameterValue(event, "character-name");
-        String skillName = getParameterValue(event, "skill-name");
-        String skillModifier = getParameterValue(event, "skill-modifier");
+        String attributeType = getParameterValue(event, "attribute-type");
+        String attributeName = getParameterValue(event, "attribute-name");
+        String attributeModifier = getParameterValue(event, "attribute-modifier");
         event.deferReply().withEphemeral(false).block();
 
         CharacterSheet characterSheet = getCharacterSheet(characterName);
         if (characterSheet == null) {
             return event.createFollowup("Character not found");
         } else {
-            List<String> ranges = List.of("'Sheet'!BF7:BJ40", "'Sheet'!BW7:CJ40");
+            List<String> ranges;
+            int cellModifier;
+            if (attributeType.equalsIgnoreCase("SPECIAL")) {
+                ranges = List.of("'Sheet'!AN27:AO40", "'Sheet'!AP27:AV40");
+                cellModifier = 1;
+            } else if (attributeType.equalsIgnoreCase("Skill")) {
+                ranges = List.of("'Sheet'!BF7:BJ40", "'Sheet'!BW7:CJ40");
+                cellModifier = 2;
+            } else {
+                log.error("Invalid attribute type: {}", attributeType);
+                return event.createFollowup(attributeType + " is not a valid attribute type");
+            }
 
             BatchGetValuesResponse readResult = getSpreadsheetMatrix(characterSheet, ranges);
-            skillName = WordUtils.capitalize(skillName.toLowerCase(Locale.ROOT));
-            ValueRange skillNames = readResult.getValueRanges().getFirst();
-            ValueRange skillValueMatrix = readResult.getValueRanges().get(1);
-            int requestedSkill = skillNames.getValues().indexOf(List.of(skillName));
-            int requestedModifier = Modifiers.fromString(skillModifier).ordinal() * 2;
-
-            int skillThreshold;
-            log.info("Parsing skill threshold");
-            try {
-                skillThreshold = Integer.parseInt((String) skillValueMatrix.getValues().get(requestedSkill).get(requestedModifier));
-            } catch (IndexOutOfBoundsException e) {
-                log.error("Skill threshold out of bounds");
-                return event.createFollowup("**" + characterName + "** does not have this skill");
+            attributeName = WordUtils.capitalize(attributeName.toLowerCase(Locale.ROOT));
+            ValueRange attributeNames = readResult.getValueRanges().getFirst();
+            ValueRange attributeValueMatrix = readResult.getValueRanges().get(1);
+            int requestedAttribute;
+            if (attributeType.equalsIgnoreCase("SPECIAL")) {
+                requestedAttribute = attributeNames.getValues().indexOf(List.of(StringUtils.truncate(attributeName, 1)));
+            } else {
+                requestedAttribute = attributeNames.getValues().indexOf(List.of(attributeName));
             }
-            return createRollResultFollowup(event, characterName, skillName, skillModifier, skillThreshold);
-        }
-    }
+            int requestedModifier = Modifiers.fromString(attributeModifier).ordinal() * cellModifier;
 
-    @SneakyThrows
-    public Mono<Message> rollSpecial(ChatInputInteractionEvent event) {
-        String characterName = getParameterValue(event, "character-name");
-        String specialName = getParameterValue(event, "special-name");
-        String specialModifier = getParameterValue(event, "special-modifier");
-        event.deferReply().withEphemeral(false).block();
-
-        CharacterSheet characterSheet = getCharacterSheet(characterName);
-        if (characterSheet == null) {
-            return event.createFollowup("Character not found");
-        } else {
-            List<String> ranges = List.of("'Sheet'!AN27:AO40", "'Sheet'!AP27:AV40");
-
-            BatchGetValuesResponse readResult = getSpreadsheetMatrix(characterSheet, ranges);
-            specialName = StringUtils.capitalize(specialName.toLowerCase(Locale.ROOT));
-            ValueRange specialNames = readResult.getValueRanges().getFirst();
-            ValueRange specialValueMatrix = readResult.getValueRanges().get(1);
-            int requestedSpecial = specialNames.getValues().indexOf(List.of(StringUtils.truncate(specialName, 1)));
-            int requestedModifier = Modifiers.fromString(specialModifier).ordinal();
-
-            int specialThreshold;
-            log.info("Parsing SPECIAL threshold");
+            int attributeThreshold;
+            log.info("Parsing attribute threshold");
             try {
-                specialThreshold = Integer.parseInt((String) specialValueMatrix.getValues().get(requestedSpecial).get(requestedModifier));
+                attributeThreshold = Integer.parseInt((String) attributeValueMatrix.getValues().get(requestedAttribute).get(requestedModifier));
             } catch (IndexOutOfBoundsException e) {
-                log.error("SPECIAL threshold out of bounds");
-                return event.createFollowup(specialName + " is not a valid SPECIAL");
+                log.error("Attribute threshold out of bounds");
+                return event.createFollowup("**" + characterName + "** does not have this " + WordUtils.capitalize(attributeType.toLowerCase(Locale.ROOT)));
             }
-            return createRollResultFollowup(event, characterName, specialName, specialModifier, specialThreshold);
+            return createRollResultFollowup(event, characterName, attributeName, attributeModifier, attributeThreshold);
         }
     }
 
@@ -328,13 +311,11 @@ public class CharacterSheetService {
     }
 
     private static String getUser(ChatInputInteractionEvent event) {
-        try {
-            return event.getInteraction().getMember().orElseThrow().getMemberData().nick().get().orElseThrow();
-        } catch (NoSuchElementException e) {
-            log.error("No member found");
-            event.createFollowup("Could not retrieve server username");
-        }
-        return event.getInteraction().getUser().getUsername();
+        return event.getInteraction().getMember().orElseThrow().getMemberData().nick().get().orElse(
+                event.getInteraction().getUser().getGlobalName().orElse(
+                        event.getInteraction().getUser().getUsername()
+                )
+        );
     }
 
     private Mono<Message> createResponse(ChatInputInteractionEvent event, String comment, boolean rollContainsComment, String originalRoll, List<String> dice, List<List<Integer>> individualPerformedRolls, StringBuilder response) {
