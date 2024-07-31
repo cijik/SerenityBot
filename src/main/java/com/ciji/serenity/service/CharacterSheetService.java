@@ -2,6 +2,7 @@ package com.ciji.serenity.service;
 
 import com.ciji.serenity.dao.CharacterSheetDao;
 import com.ciji.serenity.enums.Modifiers;
+import com.ciji.serenity.enums.Specials;
 import com.ciji.serenity.exception.OptionNotFoundException;
 import com.ciji.serenity.model.CharacterSheet;
 import com.ezylang.evalex.EvaluationException;
@@ -142,6 +143,11 @@ public class CharacterSheetService {
             ValueRange attributeValueMatrix = readResult.getValueRanges().get(1);
             int requestedAttribute;
             if (attributeType.equalsIgnoreCase("SPECIAL")) {
+                try {
+                    Specials.valueOf(StringUtils.toRootUpperCase(attributeName));
+                } catch (IllegalArgumentException e) {
+                    return event.createFollowup("**" + characterName + "** does not have this " + WordUtils.capitalize(attributeType.toLowerCase(Locale.ROOT)));
+                }
                 requestedAttribute = attributeNames.getValues().indexOf(List.of(StringUtils.truncate(attributeName, 1)));
             } else {
                 requestedAttribute = attributeNames.getValues().indexOf(List.of(attributeName));
@@ -192,6 +198,11 @@ public class CharacterSheetService {
             ValueRange attributeValueMatrix = readResult.getValueRanges().get(1);
             int requestedAttribute;
             if (attributeType.equalsIgnoreCase("SPECIAL")) {
+                try {
+                    Specials.valueOf(StringUtils.toRootUpperCase(attributeName));
+                } catch (IllegalArgumentException e) {
+                    return event.createFollowup("**" + characterName + "** does not have this " + WordUtils.capitalize(attributeType.toLowerCase(Locale.ROOT)));
+                }
                 requestedAttribute = attributeNames.getValues().indexOf(List.of(StringUtils.truncate(attributeName, 1)));
             } else {
                 requestedAttribute = attributeNames.getValues().indexOf(List.of(attributeName));
@@ -308,6 +319,10 @@ public class CharacterSheetService {
 
         response.append("**").append(finalResult.getNumberValue().setScale(2, RoundingMode.DOWN).stripTrailingZeros().toPlainString()).append("**");
         return createResponse(event, comment, rollContainsComment, originalRoll, dice, individualPerformedRolls, response);
+    }
+
+    private static void verifySPECIALValidity(ChatInputInteractionEvent event) {
+
     }
 
     private static String getUser(ChatInputInteractionEvent event) {
