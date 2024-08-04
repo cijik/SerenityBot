@@ -35,6 +35,7 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.MatchResult;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -59,6 +60,15 @@ public class CharacterSheetService {
                             .components(List.of(ActionRow.of(button)))
                             .build());
         }
+    }
+
+    public Mono<Message> getAllCharacters(ChatInputInteractionEvent event) {
+        event.deferReply().withEphemeral(true).block();
+
+        List<CharacterSheet> characters = characterSheetDao.findAllByOwnerId(event.getInteraction().getUser().getId().asString());
+        String characterList = characters.stream().map(CharacterSheet::getName).collect(Collectors.joining(","));
+
+        return event.createFollowup("Here's the list of all characters you own:\n**" + characterList + "**");
     }
 
     public Mono<Message> addCharacter(ChatInputInteractionEvent event) {
@@ -384,12 +394,12 @@ public class CharacterSheetService {
     }
 
     private CharacterSheet getCharacterSheet(String characterName, String ownerId) {
-        log.info("Retrieving character {} from database", characterName);
+        log.info("Retrieving character {} for user {}", characterName, ownerId);
         return characterSheetDao.findByNameAndOwnerId(WordUtils.capitalize(characterName.toLowerCase(Locale.ROOT)), ownerId);
     }
 
     private static InteractionFollowupCreateMono createMissingCharacterFollowup(ChatInputInteractionEvent event, String characterName) {
-        log.error("Character {} not found", characterName);
+        log.error("Character {} not found for user {}", characterName, event.getInteraction().getUser().getId().asString());
         return event.createFollowup("Character not found");
     }
 

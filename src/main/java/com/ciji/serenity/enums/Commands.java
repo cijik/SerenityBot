@@ -9,6 +9,8 @@ public enum Commands {
 
     GET_CHARACTER("get-character"),
 
+    GET_ALL_CHARACTERS("get-all-characters"),
+
     ADD_CHARACTER("add-character"),
 
     UPDATE_CHARACTER("update-character"),
