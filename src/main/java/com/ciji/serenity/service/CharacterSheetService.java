@@ -9,6 +9,7 @@ import com.ezylang.evalex.EvaluationException;
 import com.ezylang.evalex.Expression;
 import com.ezylang.evalex.data.EvaluationValue;
 import com.ezylang.evalex.parser.ParseException;
+import com.google.api.client.googleapis.json.GoogleJsonResponseException;
 import com.google.api.services.sheets.v4.model.BatchGetValuesResponse;
 import com.google.api.services.sheets.v4.model.ValueRange;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
@@ -128,7 +129,13 @@ public class CharacterSheetService {
         } else {
             List<String> ranges = List.of("'Shadow Spells'!C2:C115", "'Shadow Spells'!I2:I115");
 
-            BatchGetValuesResponse readResult = getSpreadsheetMatrix(characterSheet, ranges);
+            BatchGetValuesResponse readResult;
+            try {
+                readResult = getSpreadsheetMatrix(characterSheet, ranges);
+            } catch (GoogleJsonResponseException e) {
+                log.error("Cannot access character sheet");
+                return event.createFollowup("Cannot access character sheet. Please add the bot (serenity-bot@serenitybot.iam.gserviceaccount.com) as an editor to the character sheet and/or make the sheet viewable to everyone with the link.");
+            }
             sheetValue = WordUtils.capitalize(sheetValue.toLowerCase(Locale.ROOT));
             ValueRange spells = readResult.getValueRanges().getFirst();
             ValueRange descriptions = readResult.getValueRanges().get(1);
@@ -165,7 +172,13 @@ public class CharacterSheetService {
                 return event.createFollowup(attributeType + " is not a valid attribute type");
             }
 
-            BatchGetValuesResponse readResult = getSpreadsheetMatrix(characterSheet, ranges);
+            BatchGetValuesResponse readResult;
+            try {
+                readResult = getSpreadsheetMatrix(characterSheet, ranges);
+            } catch (GoogleJsonResponseException e) {
+                log.error("Cannot access character sheet");
+                return event.createFollowup("Cannot access character sheet. Please add the bot (serenity-bot@serenitybot.iam.gserviceaccount.com) as an editor to the character sheet and/or make the sheet viewable to everyone with the link.");
+            }
             attributeName = WordUtils.capitalize(attributeName.toLowerCase(Locale.ROOT));
             ValueRange attributeNames = readResult.getValueRanges().getFirst();
             ValueRange attributeValueMatrix = readResult.getValueRanges().get(1);
@@ -180,7 +193,13 @@ public class CharacterSheetService {
             } else {
                 requestedAttribute = attributeNames.getValues().indexOf(List.of(attributeName));
             }
-            int requestedModifier = Modifiers.fromString(attributeModifier).ordinal() * cellModifier;
+            int requestedModifier;
+            try {
+                requestedModifier = Modifiers.fromString(attributeModifier).ordinal() * cellModifier;
+            } catch (IllegalArgumentException e) {
+                log.error("Invalid attribute modifier: {}", attributeModifier);
+                return event.createFollowup(attributeModifier + " is not a valid attribute modifier. Please specify one from the following list: 2, 1 1/2, 1, 3/4, 1/2, 1/4, 1/10");
+            }
 
             int attributeThreshold;
             log.info("Parsing attribute threshold");
@@ -219,7 +238,13 @@ public class CharacterSheetService {
                 return event.createFollowup(attributeType + " is not a valid attribute type");
             }
 
-            BatchGetValuesResponse readResult = getSpreadsheetMatrix(characterSheet, ranges);
+            BatchGetValuesResponse readResult;
+            try {
+                readResult = getSpreadsheetMatrix(characterSheet, ranges);
+            } catch (GoogleJsonResponseException e) {
+                log.error("Cannot access character sheet");
+                return event.createFollowup("Cannot access character sheet. Please add the bot (serenity-bot@serenitybot.iam.gserviceaccount.com) as an editor to the character sheet and/or make the sheet viewable to everyone with the link.");
+            }
             attributeName = WordUtils.capitalize(attributeName.toLowerCase(Locale.ROOT));
             characterName = WordUtils.capitalize(characterName.toLowerCase(Locale.ROOT));
             ValueRange attributeNames = readResult.getValueRanges().getFirst();
@@ -347,10 +372,6 @@ public class CharacterSheetService {
 
         response.append("**").append(finalResult.getNumberValue().setScale(2, RoundingMode.DOWN).stripTrailingZeros().toPlainString()).append("**");
         return createResponse(event, comment, rollContainsComment, originalRoll, dice, individualPerformedRolls, response);
-    }
-
-    private static void verifySPECIALValidity(ChatInputInteractionEvent event) {
-
     }
 
     private static String getUser(ChatInputInteractionEvent event) {
