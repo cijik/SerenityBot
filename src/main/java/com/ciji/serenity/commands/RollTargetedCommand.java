@@ -40,7 +40,7 @@ public class RollTargetedCommand implements SerenityCommand {
                         .build())
                 .addOption(ApplicationCommandOptionData.builder()
                         .name("with-target-mfd")
-                        .description("Target MFD to check the roll against as one of the following values: 2, 1 1/2, 1, 3/4, 1/2, 1/4, 1/10")
+                        .description("Target MFD to check against as one of the following values: 2, 1 1/2, 1, 3/4, 1/2, 1/4, 1/10")
                         .type(ApplicationCommandOption.Type.STRING.getValue())
                         .required(true)
                         .build())
