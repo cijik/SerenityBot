@@ -47,7 +47,6 @@ public class CharacterSheetService {
 
     private static final String DICE_REGEX = "\\d*d\\d+";
 
-    private static final Set<String> SPECIALS = Set.of("strength", "perception", "endurance", "charisma", "intelligence", "agility", "luck");
     private static final Set<String> SKILLS = Set.of("dig", "melee", "energy weapons",
             "explosives", "lockpicking", "big guns",
             "survival", "unarmed", "mercantile",
@@ -167,7 +166,7 @@ public class CharacterSheetService {
         } else {
             List<String> ranges;
             int cellModifier;
-            if (SPECIALS.contains(attributeName.toLowerCase(Locale.ROOT))) {
+            if (Specials.fromString(attributeName.toLowerCase(Locale.ROOT)) != null) {
                 ranges = List.of("'Sheet'!AN27:AO40", "'Sheet'!AP27:AV40");
                 cellModifier = 1;
             } else if (SKILLS.contains(attributeName.toLowerCase(Locale.ROOT))) {
@@ -189,7 +188,7 @@ public class CharacterSheetService {
             ValueRange attributeNames = readResult.getValueRanges().getFirst();
             ValueRange attributeValueMatrix = readResult.getValueRanges().get(1);
             int requestedAttribute;
-            if (SPECIALS.contains(attributeName.toLowerCase(Locale.ROOT))) {
+            if (Specials.fromString(attributeName.toLowerCase(Locale.ROOT)) != null) {
                 try {
                     Specials.fromString(StringUtils.toRootUpperCase(attributeName));
                 } catch (IllegalArgumentException e) {
@@ -232,7 +231,7 @@ public class CharacterSheetService {
         } else {
             List<String> ranges;
             int cellModifier;
-            if (SPECIALS.contains(attributeName.toLowerCase(Locale.ROOT))) {
+            if (Specials.fromString(attributeName.toLowerCase(Locale.ROOT)) != null) {
                 ranges = List.of("'Sheet'!AN27:AO40", "'Sheet'!AP27:AV40");
                 cellModifier = 1;
             } else if (SKILLS.contains(attributeName.toLowerCase(Locale.ROOT))) {
@@ -255,7 +254,7 @@ public class CharacterSheetService {
             ValueRange attributeNames = readResult.getValueRanges().getFirst();
             ValueRange attributeValueMatrix = readResult.getValueRanges().get(1);
             int requestedAttribute;
-            if (SPECIALS.contains(attributeName.toLowerCase(Locale.ROOT))) {
+            if (Specials.fromString(attributeName.toLowerCase(Locale.ROOT)) != null) {
                 try {
                     Specials.fromString(StringUtils.toRootUpperCase(attributeName));
                 } catch (IllegalArgumentException e) {

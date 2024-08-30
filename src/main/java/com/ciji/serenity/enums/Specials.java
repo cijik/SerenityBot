@@ -19,11 +19,13 @@ public enum Specials {
     }
 
     public static Specials fromString(String value) {
+        Specials result = null;
         for (Specials s : Specials.values()) {
             if (Arrays.stream(s.aliases).anyMatch(alias -> alias.equalsIgnoreCase(value))) {
-                return s;
+                result = s;
+                break;
             }
         }
-        throw new IllegalArgumentException("No constant with text " + value + " found");
+        return result;
     }
 }
