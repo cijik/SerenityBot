@@ -167,6 +167,7 @@ public class CharacterSheetService {
             List<String> ranges;
             int cellModifier;
             if (Specials.fromString(attributeName.toLowerCase(Locale.ROOT)) != null) {
+                attributeName = Specials.fromString(attributeName.toLowerCase(Locale.ROOT)).name().toLowerCase(Locale.ROOT);
                 ranges = List.of("'Sheet'!AN27:AO40", "'Sheet'!AP27:AV40");
                 cellModifier = 1;
             } else if (SKILLS.contains(attributeName.toLowerCase(Locale.ROOT))) {
@@ -232,6 +233,7 @@ public class CharacterSheetService {
             List<String> ranges;
             int cellModifier;
             if (Specials.fromString(attributeName.toLowerCase(Locale.ROOT)) != null) {
+                attributeName = Specials.fromString(attributeName.toLowerCase(Locale.ROOT)).name().toLowerCase(Locale.ROOT);
                 ranges = List.of("'Sheet'!AN27:AO40", "'Sheet'!AP27:AV40");
                 cellModifier = 1;
             } else if (SKILLS.contains(attributeName.toLowerCase(Locale.ROOT))) {
