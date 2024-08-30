@@ -1,24 +1,26 @@
 package com.ciji.serenity.enums;
 
+import java.util.Arrays;
+
 public enum Specials {
 
-    STRENGTH("S"),
-    PERCEPTION("P"),
-    ENDURANCE("E"),
-    CHARISMA("C"),
-    INTELLIGENCE("I"),
-    AGILITY("A"),
-    LUCK("L");
+    STRENGTH(new String[]{"S", "Str", "Strength"}),
+    PERCEPTION(new String[]{"P", "Per", "Perception"}),
+    ENDURANCE(new String[]{"E", "End", "Endurance"}),
+    CHARISMA(new String[]{"C", "Cha", "Charisma"}),
+    INTELLIGENCE(new String[]{"I", "Int", "Intelligence"}),
+    AGILITY(new String[]{"A", "Agi", "Agility"}),
+    LUCK(new String[]{"L", "Luc", "Luk", "Luck"}),;
 
-    private final String literal;
+    private final String[] aliases;
 
-    Specials(String literal) {
-        this.literal = literal;
+    Specials(String[] aliases) {
+        this.aliases = aliases;
     }
 
     public static Specials fromString(String value) {
         for (Specials s : Specials.values()) {
-            if (s.literal.equalsIgnoreCase(value)) {
+            if (Arrays.stream(s.aliases).anyMatch(alias -> alias.equalsIgnoreCase(value))) {
                 return s;
             }
         }

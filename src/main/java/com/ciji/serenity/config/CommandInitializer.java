@@ -29,8 +29,9 @@ public class CommandInitializer {
 
         List<ApplicationCommandData> existingCommands = client.getClient().getRestClient().getApplicationService().getGlobalApplicationCommands(applicationId).collectList().block();
         if (existingCommands != null) {
-            existingCommands.removeIf(existingCommand -> Commands.fromString(existingCommand.name()) == null);
-            restClient.getApplicationService().bulkOverwriteGlobalApplicationCommand(applicationId, existingCommands.stream().map(ApplicationCommandRequestMapper::map).toList()).subscribe();
+            if (existingCommands.removeIf(existingCommand -> Commands.fromString(existingCommand.name()) == null)) {
+                restClient.getApplicationService().bulkOverwriteGlobalApplicationCommand(applicationId, existingCommands.stream().map(ApplicationCommandRequestMapper::map).toList()).subscribe();
+            }
         }
 
         for (SerenityCommand command : commandList) {

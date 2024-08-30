@@ -191,7 +191,7 @@ public class CharacterSheetService {
             int requestedAttribute;
             if (SPECIALS.contains(attributeName.toLowerCase(Locale.ROOT))) {
                 try {
-                    Specials.valueOf(StringUtils.toRootUpperCase(attributeName));
+                    Specials.fromString(StringUtils.toRootUpperCase(attributeName));
                 } catch (IllegalArgumentException e) {
                     return event.createFollowup("**" + characterName + "** does not have this attribute");
                 }
@@ -257,7 +257,7 @@ public class CharacterSheetService {
             int requestedAttribute;
             if (SPECIALS.contains(attributeName.toLowerCase(Locale.ROOT))) {
                 try {
-                    Specials.valueOf(StringUtils.toRootUpperCase(attributeName));
+                    Specials.fromString(StringUtils.toRootUpperCase(attributeName));
                 } catch (IllegalArgumentException e) {
                     return event.createFollowup("**" + characterName + "** does not have this attribute");
                 }
