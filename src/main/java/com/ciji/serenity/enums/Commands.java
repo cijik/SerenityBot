@@ -19,9 +19,9 @@ public enum Commands {
 
     READ_SHEET("read-sheet"),
 
-    ROLL_ATTRIBUTE("roll-attribute"),
+    ROLL_TARGETED("roll-targeted"),
 
-    ROLL_MFD("roll-mfd"),
+    ROLL_UNTARGETED("roll-untargeted"),
 
     ROLL("roll"),
 

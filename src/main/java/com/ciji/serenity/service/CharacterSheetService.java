@@ -47,6 +47,13 @@ public class CharacterSheetService {
 
     private static final String DICE_REGEX = "\\d*d\\d+";
 
+    private static final Set<String> SPECIALS = Set.of("strength", "perception", "endurance", "charisma", "intelligence", "agility", "luck");
+    private static final Set<String> SKILLS = Set.of("dig", "melee", "energy weapons",
+            "explosives", "lockpicking", "big guns",
+            "survival", "unarmed", "mercantile",
+            "speechcraft", "magic", "medicine",
+            "repair", "science", "flight", "small guns", "sneak");
+
     public Mono<Message> getCharacter(ChatInputInteractionEvent event) {
         String characterName = getParameterValue(event, "name");
         event.deferReply().withEphemeral(true).block();
@@ -148,11 +155,10 @@ public class CharacterSheetService {
     }
 
     @SneakyThrows
-    public Mono<Message> rollAttribute(ChatInputInteractionEvent event) {
+    public Mono<Message> rollTargeted(ChatInputInteractionEvent event) {
         String characterName = getParameterValue(event, "character-name");
-        String attributeType = getParameterValue(event, "attribute-type");
-        String attributeName = getParameterValue(event, "attribute-name");
-        String attributeModifier = getParameterValue(event, "attribute-modifier");
+        String attributeName = getParameterValue(event, "rolls-for");
+        String targetMFD = getParameterValue(event, "with-target-mfd");
         event.deferReply().withEphemeral(false).block();
 
         CharacterSheet characterSheet = getCharacterSheet(characterName, event.getInteraction().getUser().getId().asString());
@@ -161,15 +167,15 @@ public class CharacterSheetService {
         } else {
             List<String> ranges;
             int cellModifier;
-            if (attributeType.equalsIgnoreCase("SPECIAL")) {
+            if (SPECIALS.contains(attributeName.toLowerCase(Locale.ROOT))) {
                 ranges = List.of("'Sheet'!AN27:AO40", "'Sheet'!AP27:AV40");
                 cellModifier = 1;
-            } else if (attributeType.equalsIgnoreCase("Skill")) {
+            } else if (SKILLS.contains(attributeName.toLowerCase(Locale.ROOT))) {
                 ranges = List.of("'Sheet'!BF7:BJ40", "'Sheet'!BW7:CJ40");
                 cellModifier = 2;
             } else {
-                log.error("Invalid attribute type: {}", attributeType);
-                return event.createFollowup(attributeType + " is not a valid attribute type");
+                log.error("Invalid attribute: {}", attributeName);
+                return event.createFollowup(attributeName + " is not a valid attribute");
             }
 
             BatchGetValuesResponse readResult;
@@ -183,11 +189,11 @@ public class CharacterSheetService {
             ValueRange attributeNames = readResult.getValueRanges().getFirst();
             ValueRange attributeValueMatrix = readResult.getValueRanges().get(1);
             int requestedAttribute;
-            if (attributeType.equalsIgnoreCase("SPECIAL")) {
+            if (SPECIALS.contains(attributeName.toLowerCase(Locale.ROOT))) {
                 try {
                     Specials.valueOf(StringUtils.toRootUpperCase(attributeName));
                 } catch (IllegalArgumentException e) {
-                    return event.createFollowup("**" + characterName + "** does not have this " + WordUtils.capitalize(attributeType.toLowerCase(Locale.ROOT)));
+                    return event.createFollowup("**" + characterName + "** does not have this attribute");
                 }
                 requestedAttribute = attributeNames.getValues().indexOf(List.of(StringUtils.truncate(attributeName, 1)));
             } else {
@@ -195,10 +201,10 @@ public class CharacterSheetService {
             }
             int requestedModifier;
             try {
-                requestedModifier = Modifiers.fromString(attributeModifier).ordinal() * cellModifier;
+                requestedModifier = Modifiers.fromString(targetMFD).ordinal() * cellModifier;
             } catch (IllegalArgumentException e) {
-                log.error("Invalid attribute modifier: {}", attributeModifier);
-                return event.createFollowup(attributeModifier + " is not a valid attribute modifier. Please specify one from the following list: 2, 1 1/2, 1, 3/4, 1/2, 1/4, 1/10");
+                log.error("Invalid target MFD: {}", targetMFD);
+                return event.createFollowup(targetMFD + " is not a valid target MFD. Please specify one from the following list: 2, 1 1/2, 1, 3/4, 1/2, 1/4, 1/10");
             }
 
             int attributeThreshold;
@@ -207,18 +213,17 @@ public class CharacterSheetService {
                 attributeThreshold = Integer.parseInt((String) attributeValueMatrix.getValues().get(requestedAttribute).get(requestedModifier));
             } catch (IndexOutOfBoundsException e) {
                 log.error("Attribute threshold out of bounds");
-                return event.createFollowup("**" + characterName + "** does not have this " + WordUtils.capitalize(attributeType.toLowerCase(Locale.ROOT)));
+                return event.createFollowup("**" + characterName + "** does not have this attribute");
             }
-            return createRollResultFollowup(event, characterName, attributeName, attributeModifier, attributeThreshold);
+            return createRollResultFollowup(event, characterName, attributeName, targetMFD, attributeThreshold);
         }
     }
 
     @SneakyThrows
-    public Mono<Message> rollMFD(ChatInputInteractionEvent event) {
+    public Mono<Message> rollUntargeted(ChatInputInteractionEvent event) {
         String characterName = getParameterValue(event, "character-name");
-        String attributeType = getParameterValue(event, "attribute-type");
-        String attributeName = getParameterValue(event, "attribute-name");
-        String attributeModifier = getParameterValue(event, "step-modifier");
+        String attributeName = getParameterValue(event, "rolls-for");
+        String stepModifier = getParameterValue(event, "with-step-bonus");
         event.deferReply().withEphemeral(false).block();
 
         CharacterSheet characterSheet = getCharacterSheet(characterName, event.getInteraction().getUser().getId().asString());
@@ -227,15 +232,15 @@ public class CharacterSheetService {
         } else {
             List<String> ranges;
             int cellModifier;
-            if (attributeType.equalsIgnoreCase("SPECIAL")) {
+            if (SPECIALS.contains(attributeName.toLowerCase(Locale.ROOT))) {
                 ranges = List.of("'Sheet'!AN27:AO40", "'Sheet'!AP27:AV40");
                 cellModifier = 1;
-            } else if (attributeType.equalsIgnoreCase("Skill")) {
+            } else if (SKILLS.contains(attributeName.toLowerCase(Locale.ROOT))) {
                 ranges = List.of("'Sheet'!BF7:BJ40", "'Sheet'!BW7:CJ40");
                 cellModifier = 2;
             } else {
-                log.error("Invalid attribute type: {}", attributeType);
-                return event.createFollowup(attributeType + " is not a valid attribute type");
+                log.error("Invalid attribute: {}", attributeName);
+                return event.createFollowup(attributeName + " is not a valid attribute");
             }
 
             BatchGetValuesResponse readResult;
@@ -250,11 +255,11 @@ public class CharacterSheetService {
             ValueRange attributeNames = readResult.getValueRanges().getFirst();
             ValueRange attributeValueMatrix = readResult.getValueRanges().get(1);
             int requestedAttribute;
-            if (attributeType.equalsIgnoreCase("SPECIAL")) {
+            if (SPECIALS.contains(attributeName.toLowerCase(Locale.ROOT))) {
                 try {
                     Specials.valueOf(StringUtils.toRootUpperCase(attributeName));
                 } catch (IllegalArgumentException e) {
-                    return event.createFollowup("**" + characterName + "** does not have this " + WordUtils.capitalize(attributeType.toLowerCase(Locale.ROOT)));
+                    return event.createFollowup("**" + characterName + "** does not have this attribute");
                 }
                 requestedAttribute = attributeNames.getValues().indexOf(List.of(StringUtils.truncate(attributeName, 1)));
             } else {
@@ -274,11 +279,11 @@ public class CharacterSheetService {
                 currentMFD = attributeValueMatrix.getValues().get(requestedAttribute).reversed().stream()
                         .filter(mfd -> !((String) mfd).isEmpty() && Integer.parseInt((String) mfd) >= roll).findFirst().orElse(null);
             } catch (IndexOutOfBoundsException e) {
-                log.error("Requested MFD value does not exist for current attribute");
+                log.error("Requested MFD value does not exist for attribute {}", attributeName);
                 return event.createFollowup(attributeName + " is not a valid attribute for specified attribute type");
             }
             if (currentMFD == null) {
-                log.error("No higher MFD threshold found");
+                log.error("No higher MFD threshold found for {}", roll);
                 return event.createFollowup("The roll of **" + roll + "** is above MFD 2 (**" + attributeValueMatrix.getValues().get(requestedAttribute).getFirst() + "**) for " + attributeName);
             } else {
                 int MFDIndex = attributeValueMatrix.getValues().get(requestedAttribute).indexOf(currentMFD);
@@ -286,22 +291,22 @@ public class CharacterSheetService {
                 int matchingMFDValue = Integer.parseInt((String) attributeValueMatrix.getValues().get(requestedAttribute).get(MFDIndex));
                 String modifiedMatchingMFD;
                 try {
-                    modifiedMatchingMFD = getModifiedMFD(MFDIndex, cellModifier, attributeModifier);
+                    modifiedMatchingMFD = getModifiedMFD(MFDIndex, cellModifier, stepModifier);
                 } catch (NumberFormatException e) {
-                    log.error("{} is not a valid step modifier", attributeModifier);
-                    return event.createFollowup(attributeModifier + " is not a valid modifier");
+                    log.error("{} is not a valid step modifier", stepModifier);
+                    return event.createFollowup(stepModifier + " is not a valid step modifier");
                 }
-                boolean isModifierPositive = Integer.parseInt(attributeModifier) >= 0;
+                boolean isModifierPositive = Integer.parseInt(stepModifier) >= 0;
                 StringBuilder response = new StringBuilder();
                 response
                         .append(characterName)
                         .append(" rolls **").append(roll)
                         .append("** for ").append(attributeName)
                         .append(" succeeding MFD **").append(matchingMFD).append("** (**").append(matchingMFDValue).append("**)");
-                if (Integer.parseInt(attributeModifier) != 0) {
+                if (Integer.parseInt(stepModifier) != 0) {
                     response
                             .append(" normally or **").append(modifiedMatchingMFD).append("** ")
-                            .append("with a step ").append(isModifierPositive ? "bonus " : "penalty ").append("of ").append(attributeModifier);
+                            .append("with a step ").append(isModifierPositive ? "bonus " : "penalty ").append("of ").append(stepModifier);
                 }
                 return event.createFollowup(InteractionFollowupCreateSpec.builder()
                         .content(response.toString())

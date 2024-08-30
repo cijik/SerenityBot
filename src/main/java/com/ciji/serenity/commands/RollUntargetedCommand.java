@@ -11,19 +11,19 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
-import static com.ciji.serenity.enums.Commands.ROLL_MFD;
+import static com.ciji.serenity.enums.Commands.ROLL_UNTARGETED;
 
 @Component
 @Slf4j
 @AllArgsConstructor
-public class RollMFDCommand implements SerenityCommand {
+public class RollUntargetedCommand implements SerenityCommand {
 
     private final Client client;
 
     @Override
     public void register() {
         ApplicationCommandRequest commandRequest = ApplicationCommandRequest.builder()
-                .name(ROLL_MFD.getCommand())
+                .name(ROLL_UNTARGETED.getCommand())
                 .description("Rolls a d100 and returns the MFD range for a specified character")
                 .type(ApplicationCommand.Type.CHAT_INPUT.getValue())
                 .addOption(ApplicationCommandOptionData.builder()
@@ -33,20 +33,14 @@ public class RollMFDCommand implements SerenityCommand {
                         .required(true)
                         .build())
                 .addOption(ApplicationCommandOptionData.builder()
-                        .name("attribute-type")
-                        .description("SPECIAL or skill (case insensitive)")
-                        .type(ApplicationCommandOption.Type.STRING.getValue())
-                        .required(true)
-                        .build())
-                .addOption(ApplicationCommandOptionData.builder()
-                        .name("attribute-name")
+                        .name("rolls-for")
                         .description("Name of the attribute to roll for, written plainly (spaces are allowed)")
                         .type(ApplicationCommandOption.Type.STRING.getValue())
                         .required(true)
                         .build())
                 .addOption(ApplicationCommandOptionData.builder()
-                        .name("step-modifier")
-                        .description("Step modifier to apply to the roll as an integer value")
+                        .name("with-step-bonus")
+                        .description("Step bonus or penalty to apply to the roll. Bonus is positive, penalty is negative")
                         .type(ApplicationCommandOption.Type.STRING.getValue())
                         .required(true)
                         .build())

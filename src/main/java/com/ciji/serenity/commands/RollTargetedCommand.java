@@ -11,20 +11,20 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
-import static com.ciji.serenity.enums.Commands.ROLL_ATTRIBUTE;
+import static com.ciji.serenity.enums.Commands.ROLL_TARGETED;
 
 @Component
 @Slf4j
 @AllArgsConstructor
-public class RollAttributeCommand implements SerenityCommand {
+public class RollTargetedCommand implements SerenityCommand {
 
     private final Client client;
 
     @Override
     public void register() {
         ApplicationCommandRequest commandRequest = ApplicationCommandRequest.builder()
-                .name(ROLL_ATTRIBUTE.getCommand())
-                .description("Rolls a character's attribute MFD")
+                .name(ROLL_TARGETED.getCommand())
+                .description("Rolls a character's attribute with MFD target")
                 .type(ApplicationCommand.Type.CHAT_INPUT.getValue())
                 .addOption(ApplicationCommandOptionData.builder()
                         .name("character-name")
@@ -33,20 +33,14 @@ public class RollAttributeCommand implements SerenityCommand {
                         .required(true)
                         .build())
                 .addOption(ApplicationCommandOptionData.builder()
-                        .name("attribute-type")
-                        .description("SPECIAL or skill (case insensitive)")
+                        .name("rolls-for")
+                        .description("Name of the attribute to roll from the sheet, written plainly (spaces are allowed)")
                         .type(ApplicationCommandOption.Type.STRING.getValue())
                         .required(true)
                         .build())
                 .addOption(ApplicationCommandOptionData.builder()
-                        .name("attribute-name")
-                        .description("Name of the skill to roll from the sheet, written plainly (spaces are allowed)")
-                        .type(ApplicationCommandOption.Type.STRING.getValue())
-                        .required(true)
-                        .build())
-                .addOption(ApplicationCommandOptionData.builder()
-                        .name("attribute-modifier")
-                        .description("MFD to check the roll against, as an integer (1) or fraction (1/2)")
+                        .name("with-target-mfd")
+                        .description("Target MFD to check the roll against as one of the following values: 2, 1 1/2, 1, 3/4, 1/2, 1/4, 1/10")
                         .type(ApplicationCommandOption.Type.STRING.getValue())
                         .required(true)
                         .build())

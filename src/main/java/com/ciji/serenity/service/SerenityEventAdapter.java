@@ -47,11 +47,11 @@ public class SerenityEventAdapter extends ReactiveEventAdapter {
             case READ_SHEET -> {
                 return characterSheetService.readSheetValue(event);
             }
-            case ROLL_ATTRIBUTE -> {
-                return characterSheetService.rollAttribute(event);
+            case ROLL_TARGETED -> {
+                return characterSheetService.rollTargeted(event);
             }
-            case ROLL_MFD -> {
-                return characterSheetService.rollMFD(event);
+            case ROLL_UNTARGETED -> {
+                return characterSheetService.rollUntargeted(event);
             }
             case ROLL, SHORT_ROLL -> {
                 return characterSheetService.roll(event);
