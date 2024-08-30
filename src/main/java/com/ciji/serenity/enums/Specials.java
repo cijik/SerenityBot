@@ -10,7 +10,7 @@ public enum Specials {
     CHARISMA(new String[]{"C", "Cha", "Charisma"}),
     INTELLIGENCE(new String[]{"I", "Int", "Intelligence"}),
     AGILITY(new String[]{"A", "Agi", "Agility"}),
-    LUCK(new String[]{"L", "Luc", "Luk", "Luck"}),;
+    LUCK(new String[]{"L", "Lck", "Luc", "Luk", "Luck"});
 
     private final String[] aliases;
 
