@@ -34,11 +34,13 @@ public enum Commands {
     }
 
     public static Commands fromString(String value) {
+        Commands command = null;
         for (Commands c : Commands.values()) {
             if (c.command.equalsIgnoreCase(value)) {
-                return c;
+                command = c;
+                break;
             }
         }
-        throw new IllegalArgumentException("No constant with text " + value + " found");
+        return command;
     }
 }
