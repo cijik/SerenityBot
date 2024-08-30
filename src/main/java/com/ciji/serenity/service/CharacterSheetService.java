@@ -443,7 +443,7 @@ public class CharacterSheetService {
         String result = roll <= skillThreshold ? "Success!" : "Failure!";
 
         return event.createFollowup(InteractionFollowupCreateSpec.builder()
-                .content(WordUtils.capitalize(characterName.toLowerCase(Locale.ROOT)) + " rolls " + skillName + "[**" + skillThreshold + "**] at **" + skillModifier + "**, resulting in: **" + roll + "**, " + result)
+                .content(WordUtils.capitalize(characterName.toLowerCase(Locale.ROOT)) + " rolls **" + roll + "** for " + skillName + " with target MFD **" + skillModifier + "** [**" + skillThreshold + "**], " + result)
                 .build());
     }
 
