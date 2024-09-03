@@ -8,9 +8,11 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
 import org.springframework.data.redis.core.index.Indexed;
 
+import java.io.Serializable;
+
 @Data
 @RedisHash
-public class CharacterSheet {
+public class CharacterSheet implements Serializable {
 
     @Id
     @ToString.Include

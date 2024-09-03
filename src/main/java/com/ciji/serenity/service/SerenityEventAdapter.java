@@ -16,6 +16,8 @@ public class SerenityEventAdapter extends ReactiveEventAdapter {
 
     private final CharacterSheetService characterSheetService;
 
+    private final RollProcessingService rollProcessingService;
+
     @Override
     public Publisher<?> onApplicationCommandInteraction(ApplicationCommandInteractionEvent event) {
         switch (Commands.fromString(event.getCommandName())) {
@@ -48,13 +50,13 @@ public class SerenityEventAdapter extends ReactiveEventAdapter {
                 return characterSheetService.readSheetValue(event);
             }
             case ROLL_TARGETED -> {
-                return characterSheetService.rollTargeted(event);
+                return rollProcessingService.rollTargeted(event);
             }
             case ROLL_UNTARGETED -> {
-                return characterSheetService.rollUntargeted(event);
+                return rollProcessingService.rollUntargeted(event);
             }
             case ROLL, SHORT_ROLL -> {
-                return characterSheetService.roll(event);
+                return rollProcessingService.roll(event);
             }
         }
         return Mono.empty();
