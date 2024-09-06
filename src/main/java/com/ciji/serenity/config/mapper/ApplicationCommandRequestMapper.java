@@ -1,4 +1,4 @@
-package com.ciji.serenity.config.mappers;
+package com.ciji.serenity.config.mapper;
 
 import discord4j.discordjson.json.ApplicationCommandData;
 import discord4j.discordjson.json.ApplicationCommandRequest;

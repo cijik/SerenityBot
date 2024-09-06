@@ -1,4 +1,4 @@
-package com.ciji.serenity.config.listeners;
+package com.ciji.serenity.config.listener;
 
 import com.ciji.serenity.config.Client;
 import com.ciji.serenity.config.CommandInitializer;
