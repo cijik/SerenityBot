@@ -22,7 +22,7 @@ public class GetAllCharactersCommand implements SerenityCommand {
     public void register() {
         ApplicationCommandRequest commandRequest = ApplicationCommandRequest.builder()
                 .name(GET_ALL_CHARACTERS.getCommand())
-                .description("Retrieves a list of all owned characters")
+                .description(GET_ALL_CHARACTERS.getShortDesc())
                 .type(ApplicationCommand.Type.CHAT_INPUT.getValue())
                 .build();
 
@@ -32,7 +32,7 @@ public class GetAllCharactersCommand implements SerenityCommand {
 
         restClient.getApplicationService()
                 .createGlobalApplicationCommand(applicationId, commandRequest)
-                .doOnError(e -> log.warn("Unable to create guild command", e))
+                .doOnError(e -> log.error("Unable to create guild command", e))
                 .onErrorResume(_ -> Mono.empty())
                 .block();
     }

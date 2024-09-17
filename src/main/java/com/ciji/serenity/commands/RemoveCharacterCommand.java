@@ -24,11 +24,11 @@ public class RemoveCharacterCommand implements SerenityCommand {
     public void register() {
         ApplicationCommandRequest commandRequest = ApplicationCommandRequest.builder()
                 .name(REMOVE_CHARACTER.getCommand())
-                .description("Removes the character and their sheet by name")
+                .description(REMOVE_CHARACTER.getShortDesc())
                 .type(ApplicationCommand.Type.CHAT_INPUT.getValue())
                 .addOption(ApplicationCommandOptionData.builder()
                         .name("name")
-                        .description("Name of the character to remove")
+                        .description(REMOVE_CHARACTER.getParamDescs().get("name"))
                         .type(ApplicationCommandOption.Type.STRING.getValue())
                         .required(true)
                         .build())
@@ -40,7 +40,7 @@ public class RemoveCharacterCommand implements SerenityCommand {
 
         restClient.getApplicationService()
                 .createGlobalApplicationCommand(applicationId, commandRequest)
-                .doOnError(e -> log.warn("Unable to create guild command", e))
+                .doOnError(e -> log.error("Unable to create guild command", e))
                 .onErrorResume(_ -> Mono.empty())
                 .block();
     }

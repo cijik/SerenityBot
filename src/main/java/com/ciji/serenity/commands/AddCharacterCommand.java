@@ -24,17 +24,17 @@ public class AddCharacterCommand implements SerenityCommand {
     public void register() {
         ApplicationCommandRequest commandRequest = ApplicationCommandRequest.builder()
                 .name(ADD_CHARACTER.getCommand())
-                .description("Adds a character sheet to the database")
+                .description(ADD_CHARACTER.getShortDesc())
                 .type(ApplicationCommand.Type.CHAT_INPUT.getValue())
                 .addOption(ApplicationCommandOptionData.builder()
                         .name("name")
-                        .description("Name of the character to add")
+                        .description(ADD_CHARACTER.getParamDescs().get("name"))
                         .type(ApplicationCommandOption.Type.STRING.getValue())
                         .required(true)
                         .build())
                 .addOption(ApplicationCommandOptionData.builder()
                         .name("url")
-                        .description("Link to the character's sheet")
+                        .description(ADD_CHARACTER.getParamDescs().get("url"))
                         .type(ApplicationCommandOption.Type.STRING.getValue())
                         .required(true)
                         .build())
@@ -46,7 +46,7 @@ public class AddCharacterCommand implements SerenityCommand {
 
         restClient.getApplicationService()
                 .createGlobalApplicationCommand(applicationId, commandRequest)
-                .doOnError(e -> log.warn("Unable to create guild command", e))
+                .doOnError(e -> log.error("Unable to create guild command", e))
                 .onErrorResume(_ -> Mono.empty())
                 .block();
     }

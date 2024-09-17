@@ -24,17 +24,17 @@ public class UpdateCharacterCommand implements SerenityCommand {
     public void register() {
         ApplicationCommandRequest commandRequest = ApplicationCommandRequest.builder()
                 .name(UPDATE_CHARACTER.getCommand())
-                .description("Adds a character sheet to the database")
+                .description(UPDATE_CHARACTER.getShortDesc())
                 .type(ApplicationCommand.Type.CHAT_INPUT.getValue())
                 .addOption(ApplicationCommandOptionData.builder()
                         .name("name")
-                        .description("Name of the character to add")
+                        .description(UPDATE_CHARACTER.getParamDescs().get("name"))
                         .type(ApplicationCommandOption.Type.STRING.getValue())
                         .required(true)
                         .build())
                 .addOption(ApplicationCommandOptionData.builder()
                         .name("owner-id")
-                        .description("User ID of the character's owner")
+                        .description(UPDATE_CHARACTER.getParamDescs().get("owner-id"))
                         .type(ApplicationCommandOption.Type.STRING.getValue())
                         .required(true)
                         .build())
@@ -46,7 +46,7 @@ public class UpdateCharacterCommand implements SerenityCommand {
 
         restClient.getApplicationService()
                 .createGuildApplicationCommand(applicationId, 177794959854796801L, commandRequest)
-                .doOnError(e -> log.warn("Unable to create guild command", e))
+                .doOnError(e -> log.error("Unable to create guild command", e))
                 .onErrorResume(_ -> Mono.empty())
                 .block();
     }

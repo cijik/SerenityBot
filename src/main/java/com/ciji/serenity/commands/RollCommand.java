@@ -24,11 +24,11 @@ public class RollCommand implements SerenityCommand {
     public void register() {
         ApplicationCommandRequest commandRequest = ApplicationCommandRequest.builder()
                 .name(ROLL.getCommand())
-                .description("Rolls one or several dice")
+                .description(ROLL.getShortDesc())
                 .type(ApplicationCommand.Type.CHAT_INPUT.getValue())
                 .addOption(ApplicationCommandOptionData.builder()
                         .name("roll")
-                        .description("The roll string including any modifiers")
+                        .description(ROLL.getParamDescs().get("roll"))
                         .type(ApplicationCommandOption.Type.STRING.getValue())
                         .required(true)
                         .build())
@@ -40,7 +40,7 @@ public class RollCommand implements SerenityCommand {
 
         restClient.getApplicationService()
                 .createGlobalApplicationCommand(applicationId, commandRequest)
-                .doOnError(e -> log.warn("Unable to create guild command", e))
+                .doOnError(e -> log.error("Unable to create guild command", e))
                 .onErrorResume(_ -> Mono.empty())
                 .block();
     }

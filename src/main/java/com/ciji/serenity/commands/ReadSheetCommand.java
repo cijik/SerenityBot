@@ -24,17 +24,17 @@ public class ReadSheetCommand implements SerenityCommand {
     public void register() {
         ApplicationCommandRequest commandRequest = ApplicationCommandRequest.builder()
                 .name(READ_SHEET.getCommand())
-                .description("Reads a character's Google Sheet")
+                .description(READ_SHEET.getShortDesc())
                 .type(ApplicationCommand.Type.CHAT_INPUT.getValue())
                 .addOption(ApplicationCommandOptionData.builder()
                         .name("name")
-                        .description("Name of the character sheet to read")
+                        .description(READ_SHEET.getParamDescs().get("name"))
                         .type(ApplicationCommandOption.Type.STRING.getValue())
                         .required(true)
                         .build())
                 .addOption(ApplicationCommandOptionData.builder()
                         .name("value")
-                        .description("Value to read from the sheet")
+                        .description(READ_SHEET.getParamDescs().get("value"))
                         .type(ApplicationCommandOption.Type.STRING.getValue())
                         .required(true)
                         .build())
@@ -46,7 +46,7 @@ public class ReadSheetCommand implements SerenityCommand {
 
         restClient.getApplicationService()
                 .createGlobalApplicationCommand(applicationId, commandRequest)
-                .doOnError(e -> log.warn("Unable to create guild command", e))
+                .doOnError(e -> log.error("Unable to create guild command", e))
                 .onErrorResume(_ -> Mono.empty())
                 .block();
     }

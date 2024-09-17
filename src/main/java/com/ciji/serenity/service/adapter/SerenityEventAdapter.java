@@ -1,22 +1,24 @@
 package com.ciji.serenity.service.adapter;
 
+import java.time.Duration;
+
+import org.reactivestreams.Publisher;
+import org.springframework.stereotype.Component;
+
 import com.ciji.serenity.config.Client;
 import com.ciji.serenity.enums.Commands;
 import com.ciji.serenity.service.CharacterSheetService;
+import com.ciji.serenity.service.CommandInfoService;
 import com.ciji.serenity.service.RollProcessingService;
+
 import discord4j.core.event.ReactiveEventAdapter;
 import discord4j.core.event.domain.interaction.ApplicationCommandInteractionEvent;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
 import discord4j.core.object.presence.ClientActivity;
 import discord4j.core.object.presence.ClientPresence;
 import discord4j.core.object.presence.Status;
-import discord4j.discordjson.json.MessageData;
 import lombok.AllArgsConstructor;
-import org.reactivestreams.Publisher;
-import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
-
-import java.time.Duration;
 
 @Component
 @AllArgsConstructor
@@ -26,13 +28,10 @@ public class SerenityEventAdapter extends ReactiveEventAdapter {
 
     private final RollProcessingService rollProcessingService;
 
+    private final CommandInfoService commandInfoService;
+
     @Override
     public Publisher<?> onApplicationCommandInteraction(ApplicationCommandInteractionEvent event) {
-        switch (Commands.fromString(event.getCommandName())) {
-            case TODO -> {
-                return doTodo(event);
-            }
-        }
         return Mono.empty();
     }
 
@@ -66,6 +65,12 @@ public class SerenityEventAdapter extends ReactiveEventAdapter {
             case ROLL, SHORT_ROLL -> {
                 return rollProcessingService.roll(event);
             }
+            case HELP -> {
+                return commandInfoService.getHelp(event);
+            }
+            case DOCS -> {
+                return commandInfoService.getDocs(event);
+            }
         }
         return Mono.empty();
     }
@@ -73,11 +78,5 @@ public class SerenityEventAdapter extends ReactiveEventAdapter {
     public void updatePresenceOnCommandInit(Client client) {
         client.getClient().updatePresence(ClientPresence.of(Status.ONLINE, ClientActivity.listening("requests"))).block(Duration.ofSeconds(1));
 //        client.getClient().updatePresence(ClientPresence.of(Status.DO_NOT_DISTURB, ClientActivity.custom("Debugging, do not interact"))).block(Duration.ofSeconds(1));
-    }
-
-    private Mono<MessageData> doTodo(ApplicationCommandInteractionEvent event) {
-        return event.reply()
-                .then(event.getInteractionResponse()
-                        .createFollowupMessage("Things to do today:\n - write a bot\n - eat lunch\n - play a game"));
     }
 }

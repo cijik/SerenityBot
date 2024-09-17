@@ -24,11 +24,11 @@ public class GetCharacterCommand implements SerenityCommand {
     public void register() {
         ApplicationCommandRequest commandRequest = ApplicationCommandRequest.builder()
                 .name(GET_CHARACTER.getCommand())
-                .description("Retrieves the character and their sheet by name")
+                .description(GET_CHARACTER.getShortDesc())
                 .type(ApplicationCommand.Type.CHAT_INPUT.getValue())
                 .addOption(ApplicationCommandOptionData.builder()
                         .name("name")
-                        .description("Name of the character to retrieve")
+                        .description(GET_CHARACTER.getParamDescs().get("name"))
                         .type(ApplicationCommandOption.Type.STRING.getValue())
                         .required(true)
                         .build())
@@ -40,7 +40,7 @@ public class GetCharacterCommand implements SerenityCommand {
 
         restClient.getApplicationService()
                 .createGlobalApplicationCommand(applicationId, commandRequest)
-                .doOnError(e -> log.warn("Unable to create guild command", e))
+                .doOnError(e -> log.error("Unable to create guild command", e))
                 .onErrorResume(_ -> Mono.empty())
                 .block();
     }

@@ -1,19 +1,17 @@
 package com.ciji.serenity.config;
 
+import java.util.List;
+
+import org.springframework.stereotype.Component;
+
 import com.ciji.serenity.commands.SerenityCommand;
 import com.ciji.serenity.config.mapper.ApplicationCommandRequestMapper;
 import com.ciji.serenity.enums.Commands;
 import com.ciji.serenity.service.adapter.SerenityEventAdapter;
-import discord4j.core.object.presence.ClientActivity;
-import discord4j.core.object.presence.ClientPresence;
-import discord4j.core.object.presence.Status;
+
 import discord4j.discordjson.json.ApplicationCommandData;
 import discord4j.rest.RestClient;
 import lombok.AllArgsConstructor;
-import org.springframework.stereotype.Component;
-
-import java.time.Duration;
-import java.util.List;
 
 @Component
 @AllArgsConstructor
