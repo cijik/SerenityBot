@@ -37,13 +37,13 @@ public enum Commands {
     ROLL_TARGETED("roll-targeted", "Rolls a character's attribute with MFD target",
     "Roll a d100 targeting a specific MFD of a SPECIAL or Skill of a specified character",
     Map.of("character-name", "Name of the character sheet to read from as they written when they were added (case insensitive)", 
-           "rolls-for", "Name of the SPECIAL or Skill to roll from the sheet, written plainly. Spaces and three letter shortenings for SPECIALs are allowed", 
+           "rolls-for", "Name of the SPECIAL or Skill to roll from the sheet. Spaces are allowed",
            "with-target-mfd", "Target MFD to check against as one of the following values: 2, 1 1/2, 1, 3/4, 1/2, 1/4, 1/10")),
 
     ROLL_UNTARGETED("roll-untargeted", "Rolls a character's attribute",
     "Roll a d100 for a specific SPECIAL or Skill of a specified character and get the MFD threshold it passes, with any bonuses or maluses applied",
     Map.of("character-name", "Name of the character sheet to read from as they written when they were added (case insensitive)",
-           "rolls-for", "Name of the SPECIAL or Skill to roll from the sheet, written plainly. Spaces and three letter shortenings for SPECIALs are allowed",
+           "rolls-for", "Name of the SPECIAL or Skill to roll from the sheet, written plainly. Spaces are allowed",
            "with-step-bonus", "Step bonus or penalty to apply to the roll. Bonus is positive, penalty is negative")),
 
     ROLL("roll", "Rolls one or several dice",

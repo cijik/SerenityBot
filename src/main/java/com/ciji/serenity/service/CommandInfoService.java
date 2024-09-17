@@ -31,6 +31,8 @@ public class CommandInfoService {
     
     public Mono<Message> getHelp(ChatInputInteractionEvent event) {
         String command = getParameterValue(event, "command");
+        event.deferReply().withEphemeral(true).block();
+
         if (command.isBlank()) {
             StringBuilder response = new StringBuilder();
             response
