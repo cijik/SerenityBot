@@ -1,16 +1,5 @@
 package com.ciji.serenity.service;
 
-import static com.ciji.serenity.enums.Commands.ADD_CHARACTER;
-import static com.ciji.serenity.enums.Commands.GET_ALL_CHARACTERS;
-import static com.ciji.serenity.enums.Commands.GET_CHARACTER;
-import static com.ciji.serenity.enums.Commands.HELP;
-import static com.ciji.serenity.enums.Commands.READ_SHEET;
-import static com.ciji.serenity.enums.Commands.REMOVE_CHARACTER;
-import static com.ciji.serenity.enums.Commands.ROLL;
-import static com.ciji.serenity.enums.Commands.ROLL_TARGETED;
-import static com.ciji.serenity.enums.Commands.ROLL_UNTARGETED;
-import static com.ciji.serenity.enums.Commands.SHORT_ROLL;
-
 import org.springframework.stereotype.Service;
 
 import com.ciji.serenity.enums.Commands;
@@ -25,6 +14,8 @@ import discord4j.core.spec.InteractionFollowupCreateSpec;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
+
+import static com.ciji.serenity.enums.Commands.*;
 
 @Service
 public class CommandInfoService {
@@ -48,7 +39,8 @@ public class CommandInfoService {
                 .append("**Generic roll commands**:\n")
                 .append("`/").append(ROLL.getCommand()).append("`, `/").append(SHORT_ROLL.getCommand()).append("`: ").append(ROLL.getShortDesc()).append("\n")
                 .append("**Help commands**:\n")
-                .append("`/").append(HELP.getCommand()).append("`: ").append(HELP.getShortDesc()).append("\n");
+                .append("`/").append(HELP.getCommand()).append("`: ").append(HELP.getShortDesc()).append("\n")
+                .append("`/").append(DOCS.getCommand()).append("`: ").append(DOCS.getShortDesc()).append("\n");
             return event.createFollowup(response.toString());
         } else {
             switch (Commands.fromString(command)) {
@@ -79,6 +71,9 @@ public class CommandInfoService {
                 case HELP -> {
                     return constructHelpResponse(event, HELP);
                 }
+                case DOCS -> {
+                    return constructHelpResponse(event, DOCS);
+                }
                 default -> {
                     return event.createFollowup("No documentation found for command `" + command + "` or command does not exist");
                 }
@@ -107,7 +102,7 @@ public class CommandInfoService {
         StringBuilder response = new StringBuilder();
         response.append("`/").append(command.getCommand()).append("`:\n")
                 .append(command.getFullDesc()).append("\n");
-        command.getParamDescs().forEach((param, desc) -> {response.append(" - `").append(param).append("`: ").append(desc).append("\n");});
+        command.getParamDescs().forEach((param, desc) -> response.append(" - `").append(param).append("`: ").append(desc).append("\n"));
         return event.createFollowup(response.toString());
     }
 }
