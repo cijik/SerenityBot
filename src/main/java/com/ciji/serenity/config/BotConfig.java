@@ -38,7 +38,7 @@ public class BotConfig {
     public RedisCacheManagerBuilderCustomizer cacheConfiguration() {
         return (builder) -> builder
                 .withCacheConfiguration("sheets", RedisCacheConfiguration.defaultCacheConfig()
-                .entryTtl(Duration.ofHours(1))
+                .entryTtl(Duration.ofHours(12))
                 .disableCachingNullValues()
                 .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(new GenericJackson2JsonRedisSerializer())));
     }

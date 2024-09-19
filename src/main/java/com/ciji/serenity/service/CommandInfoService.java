@@ -2,7 +2,7 @@ package com.ciji.serenity.service;
 
 import org.springframework.stereotype.Service;
 
-import com.ciji.serenity.enums.Commands;
+import com.ciji.serenity.enums.Command;
 
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
 import discord4j.core.object.command.ApplicationCommandInteractionOption;
@@ -15,7 +15,7 @@ import reactor.core.publisher.Mono;
 
 import java.util.List;
 
-import static com.ciji.serenity.enums.Commands.*;
+import static com.ciji.serenity.enums.Command.*;
 
 @Service
 public class CommandInfoService {
@@ -43,7 +43,7 @@ public class CommandInfoService {
                 .append("`/").append(DOCS.getCommand()).append("`: ").append(DOCS.getShortDesc()).append("\n");
             return event.createFollowup(response.toString());
         } else {
-            switch (Commands.fromString(command)) {
+            switch (Command.fromString(command)) {
                 case ADD_CHARACTER -> {
                     return constructHelpResponse(event, ADD_CHARACTER);
                 }
@@ -98,7 +98,7 @@ public class CommandInfoService {
                 .orElse("");
     }
 
-    private static Mono<Message> constructHelpResponse(ChatInputInteractionEvent event, Commands command) {
+    private static Mono<Message> constructHelpResponse(ChatInputInteractionEvent event, Command command) {
         StringBuilder response = new StringBuilder();
         response.append("`/").append(command.getCommand()).append("`:\n")
                 .append(command.getFullDesc()).append("\n");

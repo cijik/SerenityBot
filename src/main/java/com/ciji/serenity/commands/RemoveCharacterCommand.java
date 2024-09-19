@@ -11,7 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
-import static com.ciji.serenity.enums.Commands.REMOVE_CHARACTER;
+import static com.ciji.serenity.enums.Command.REMOVE_CHARACTER;
 
 @Component
 @Slf4j

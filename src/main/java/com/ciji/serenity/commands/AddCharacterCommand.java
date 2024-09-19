@@ -11,7 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
-import static com.ciji.serenity.enums.Commands.ADD_CHARACTER;
+import static com.ciji.serenity.enums.Command.ADD_CHARACTER;
 
 @Component
 @Slf4j

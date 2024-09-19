@@ -9,7 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
-import static com.ciji.serenity.enums.Commands.GET_ALL_CHARACTERS;
+import static com.ciji.serenity.enums.Command.GET_ALL_CHARACTERS;
 
 @Component
 @Slf4j

@@ -2,7 +2,7 @@ package com.ciji.serenity.enums;
 
 import java.util.Arrays;
 
-public enum Specials {
+public enum Special {
 
     STRENGTH(new String[]{"S", "Str", "Strength"}),
     PERCEPTION(new String[]{"P", "Per", "Perception"}),
@@ -14,13 +14,13 @@ public enum Specials {
 
     private final String[] aliases;
 
-    Specials(String[] aliases) {
+    Special(String[] aliases) {
         this.aliases = aliases;
     }
 
-    public static Specials fromString(String value) {
-        Specials result = null;
-        for (Specials s : Specials.values()) {
+    public static Special fromString(String value) {
+        Special result = null;
+        for (Special s : Special.values()) {
             if (Arrays.stream(s.aliases).anyMatch(alias -> alias.equalsIgnoreCase(value))) {
                 result = s;
                 break;

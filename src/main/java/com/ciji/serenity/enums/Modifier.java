@@ -3,7 +3,7 @@ package com.ciji.serenity.enums;
 import lombok.Getter;
 
 @Getter
-public enum Modifiers {
+public enum Modifier {
     TWO("2"),
     ONE_AND_ONE_HALF("1 1/2"),
     ONE("1"),
@@ -14,12 +14,12 @@ public enum Modifiers {
 
     private final String modifier;
 
-    Modifiers(String modifier) {
+    Modifier(String modifier) {
         this.modifier = modifier;
     }
 
-    public static Modifiers fromString(String value) {
-        for (Modifiers m : Modifiers.values()) {
+    public static Modifier fromString(String value) {
+        for (Modifier m : Modifier.values()) {
             if (m.modifier.equalsIgnoreCase(value)) {
                 return m;
             }

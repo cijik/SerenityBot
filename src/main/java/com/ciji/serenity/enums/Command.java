@@ -6,7 +6,7 @@ import java.util.Map;
 import java.util.Collections;
 
 @Getter
-public enum Commands {
+public enum Command {
 
     ADD_CHARACTER("add-character", "Adds a character sheet to the database",
     "Add a character to the database with a name and link to their Google Sheet. To make the sheet accessible for interactions, please add the bot (serenity-bot@serenitybot.iam.gserviceaccount.com) as an editor to the character sheet and make the sheet viewable to everyone with the link",
@@ -69,16 +69,16 @@ public enum Commands {
 
     private final Map<String, String> paramDescs;
 
-    Commands(String command, String shortDesc, String fullDesc, Map<String, String> paramDescs) {
+    Command(String command, String shortDesc, String fullDesc, Map<String, String> paramDescs) {
         this.command = command;
         this.shortDesc = shortDesc;
         this.fullDesc = fullDesc;
         this.paramDescs = paramDescs;
     }
 
-    public static Commands fromString(String value) {
-        Commands command = null;
-        for (Commands c : Commands.values()) {
+    public static Command fromString(String value) {
+        Command command = null;
+        for (Command c : Command.values()) {
             if (c.command.equalsIgnoreCase(value)) {
                 command = c;
                 break;

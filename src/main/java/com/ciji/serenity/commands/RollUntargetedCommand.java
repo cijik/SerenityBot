@@ -11,7 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
-import static com.ciji.serenity.enums.Commands.ROLL_UNTARGETED;
+import static com.ciji.serenity.enums.Command.ROLL_UNTARGETED;
 
 @Component
 @Slf4j

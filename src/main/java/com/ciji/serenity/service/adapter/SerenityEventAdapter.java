@@ -6,7 +6,7 @@ import org.reactivestreams.Publisher;
 import org.springframework.stereotype.Component;
 
 import com.ciji.serenity.config.Client;
-import com.ciji.serenity.enums.Commands;
+import com.ciji.serenity.enums.Command;
 import com.ciji.serenity.service.CharacterSheetService;
 import com.ciji.serenity.service.CommandInfoService;
 import com.ciji.serenity.service.RollProcessingService;
@@ -37,7 +37,7 @@ public class SerenityEventAdapter extends ReactiveEventAdapter {
 
     @Override
     public Publisher<?> onChatInputInteraction(ChatInputInteractionEvent event) {
-        switch (Commands.fromString(event.getCommandName())) {
+        switch (Command.fromString(event.getCommandName())) {
             case GET_CHARACTER -> {
                 return characterSheetService.getCharacter(event);
             }

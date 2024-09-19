@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 
 import com.ciji.serenity.commands.SerenityCommand;
 import com.ciji.serenity.config.mapper.ApplicationCommandRequestMapper;
-import com.ciji.serenity.enums.Commands;
+import com.ciji.serenity.enums.Command;
 import com.ciji.serenity.service.adapter.SerenityEventAdapter;
 
 import discord4j.discordjson.json.ApplicationCommandData;
@@ -31,8 +31,8 @@ public class CommandInitializer {
 
         List<ApplicationCommandData> existingCommands = client.getClient().getRestClient().getApplicationService().getGlobalApplicationCommands(applicationId).collectList().block();
         if (existingCommands != null && //could be null
-                (existingCommands.removeIf(existingCommand -> Commands.fromString(existingCommand.name()) == null) //check for any deprecated commands
-                        || !Arrays.stream(Commands.values()).allMatch(command -> existingCommands.stream().anyMatch(existingCommand -> existingCommand.name().equals(command.getCommand()))))) { //check for any new commands
+                (existingCommands.removeIf(existingCommand -> Command.fromString(existingCommand.name()) == null) //check for any deprecated commands
+                        || !Arrays.stream(Command.values()).allMatch(command -> existingCommands.stream().anyMatch(existingCommand -> existingCommand.name().equals(command.getCommand()))))) { //check for any new commands
             restClient.getApplicationService().bulkOverwriteGlobalApplicationCommand(applicationId, existingCommands.stream().map(ApplicationCommandRequestMapper::map).toList()).subscribe();
             for (SerenityCommand command : commandList) {
                 command.register();

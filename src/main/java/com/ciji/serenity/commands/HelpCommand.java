@@ -1,6 +1,6 @@
 package com.ciji.serenity.commands;
 
-import static com.ciji.serenity.enums.Commands.HELP;
+import static com.ciji.serenity.enums.Command.HELP;
 
 import org.springframework.stereotype.Component;
 

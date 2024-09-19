@@ -1,16 +1,31 @@
 package com.ciji.serenity.service;
 
-import com.ciji.serenity.enums.Modifiers;
-import com.ciji.serenity.enums.Specials;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Random;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.regex.MatchResult;
+import java.util.regex.Pattern;
+
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.text.WordUtils;
+import org.springframework.stereotype.Service;
+
+import com.ciji.serenity.enums.Modifier;
+import com.ciji.serenity.enums.Special;
 import com.ciji.serenity.exception.OptionNotFoundException;
 import com.ciji.serenity.model.CharacterSheet;
+import com.ciji.serenity.model.CharacterSheetDetails;
 import com.ezylang.evalex.EvaluationException;
 import com.ezylang.evalex.Expression;
 import com.ezylang.evalex.data.EvaluationValue;
 import com.ezylang.evalex.parser.ParseException;
-import com.google.api.client.googleapis.json.GoogleJsonResponseException;
-import com.google.api.services.sheets.v4.model.BatchGetValuesResponse;
 import com.google.api.services.sheets.v4.model.ValueRange;
+
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
 import discord4j.core.object.command.ApplicationCommandInteractionOption;
 import discord4j.core.object.command.ApplicationCommandInteractionOptionValue;
@@ -19,17 +34,7 @@ import discord4j.core.spec.InteractionFollowupCreateSpec;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.text.WordUtils;
-import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
-
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.regex.MatchResult;
-import java.util.regex.Pattern;
 
 @Service
 @Slf4j
@@ -37,6 +42,8 @@ import java.util.regex.Pattern;
 public class RollProcessingService {
 
     private final CharacterSheetService characterSheetService;
+
+    private final CharacterSheetDetailsService characterSheetDetailsService;
 
     private static final String DICE_REGEX = "\\d*d\\d+";
 
@@ -57,34 +64,37 @@ public class RollProcessingService {
         if (characterSheet == null) {
             return event.createFollowup("Character not found");
         } else {
-            List<String> ranges;
+            boolean isSpecial;
             int cellModifier;
-            if (Specials.fromString(attributeName.toLowerCase(Locale.ROOT)) != null) {
-                attributeName = Specials.fromString(attributeName.toLowerCase(Locale.ROOT)).name().toLowerCase(Locale.ROOT);
-                ranges = List.of("'Sheet'!AN27:AO40", "'Sheet'!AP27:AV40");
+            if (Special.fromString(attributeName.toLowerCase(Locale.ROOT)) != null) {
+                attributeName = Special.fromString(attributeName.toLowerCase(Locale.ROOT)).name().toLowerCase(Locale.ROOT);
+                isSpecial = true;
                 cellModifier = 1;
             } else if (SKILLS.contains(attributeName.toLowerCase(Locale.ROOT))) {
-                ranges = List.of("'Sheet'!BF7:BJ40", "'Sheet'!BW7:CJ40");
+                isSpecial = false;
                 cellModifier = 2;
             } else {
                 log.error("Invalid attribute: {}", attributeName);
                 return event.createFollowup(attributeName + " is not a valid attribute");
             }
 
-            BatchGetValuesResponse readResult;
-            try {
-                readResult = characterSheetService.getSpreadsheetMatrix(characterSheet, ranges);
-            } catch (GoogleJsonResponseException e) {
-                log.error("Cannot access character sheet");
-                return event.createFollowup("Cannot access character sheet. Please add the bot (serenity-bot@serenitybot.iam.gserviceaccount.com) as an editor to the character sheet and/or make the sheet viewable to everyone with the link.");
-            }
+            CharacterSheetDetails sheetDetails = characterSheetDetailsService.getCharacterSheetDetails(characterSheet);
             attributeName = WordUtils.capitalize(attributeName.toLowerCase(Locale.ROOT));
-            ValueRange attributeNames = readResult.getValueRanges().getFirst();
-            ValueRange attributeValueMatrix = readResult.getValueRanges().get(1);
+            
+            ValueRange attributeNames;
+            ValueRange attributeValueMatrix;
+            if (isSpecial) {
+                attributeNames = sheetDetails.getSpecialsMatrix().getFirst();
+                attributeValueMatrix = sheetDetails.getSpecialsMatrix().get(1);
+            } else {
+                attributeNames = sheetDetails.getSkillMatrix().getFirst();
+                attributeValueMatrix = sheetDetails.getSkillMatrix().get(1);
+            }
+            
             int requestedAttribute;
-            if (Specials.fromString(attributeName.toLowerCase(Locale.ROOT)) != null) {
+            if (Special.fromString(attributeName.toLowerCase(Locale.ROOT)) != null) {
                 try {
-                    Specials.fromString(StringUtils.toRootUpperCase(attributeName));
+                    Special.fromString(StringUtils.toRootUpperCase(attributeName));
                 } catch (IllegalArgumentException e) {
                     return event.createFollowup("**" + characterName + "** does not have this attribute");
                 }
@@ -94,7 +104,7 @@ public class RollProcessingService {
             }
             int requestedModifier;
             try {
-                requestedModifier = Modifiers.fromString(targetMFD).ordinal() * cellModifier;
+                requestedModifier = Modifier.fromString(targetMFD).ordinal() * cellModifier;
             } catch (IllegalArgumentException e) {
                 log.error("Invalid target MFD: {}", targetMFD);
                 return event.createFollowup(targetMFD + " is not a valid target MFD. Please specify one from the following list: 2, 1 1/2, 1, 3/4, 1/2, 1/4, 1/10");
@@ -123,35 +133,36 @@ public class RollProcessingService {
         if (characterSheet == null) {
             return event.createFollowup("Character not found");
         } else {
-            List<String> ranges;
+            boolean isSpecial;
             int cellModifier;
-            if (Specials.fromString(attributeName.toLowerCase(Locale.ROOT)) != null) {
-                attributeName = Specials.fromString(attributeName.toLowerCase(Locale.ROOT)).name().toLowerCase(Locale.ROOT);
-                ranges = List.of("'Sheet'!AN27:AO40", "'Sheet'!AP27:AV40");
+            if (Special.fromString(attributeName.toLowerCase(Locale.ROOT)) != null) {
+                attributeName = Special.fromString(attributeName.toLowerCase(Locale.ROOT)).name().toLowerCase(Locale.ROOT);
+                isSpecial = true;
                 cellModifier = 1;
             } else if (SKILLS.contains(attributeName.toLowerCase(Locale.ROOT))) {
-                ranges = List.of("'Sheet'!BF7:BJ40", "'Sheet'!BW7:CJ40");
+                isSpecial = false;
                 cellModifier = 2;
             } else {
                 log.error("Invalid attribute: {}", attributeName);
                 return event.createFollowup(attributeName + " is not a valid attribute");
             }
 
-            BatchGetValuesResponse readResult;
-            try {
-                readResult = characterSheetService.getSpreadsheetMatrix(characterSheet, ranges);
-            } catch (GoogleJsonResponseException e) {
-                log.error("Cannot access character sheet");
-                return event.createFollowup("Cannot access character sheet. Please add the bot (serenity-bot@serenitybot.iam.gserviceaccount.com) as an editor to the character sheet and/or make the sheet viewable to everyone with the link.");
-            }
+            CharacterSheetDetails sheetDetails = characterSheetDetailsService.getCharacterSheetDetails(characterSheet);
             attributeName = WordUtils.capitalize(attributeName.toLowerCase(Locale.ROOT));
             characterName = WordUtils.capitalize(characterName.toLowerCase(Locale.ROOT));
-            ValueRange attributeNames = readResult.getValueRanges().getFirst();
-            ValueRange attributeValueMatrix = readResult.getValueRanges().get(1);
+            ValueRange attributeNames;
+            ValueRange attributeValueMatrix;
+            if (isSpecial) {
+                attributeNames = sheetDetails.getSpecialsMatrix().getFirst();
+                attributeValueMatrix = sheetDetails.getSpecialsMatrix().get(1);
+            } else {
+                attributeNames = sheetDetails.getSkillMatrix().getFirst();
+                attributeValueMatrix = sheetDetails.getSkillMatrix().get(1);
+            }
             int requestedAttribute;
-            if (Specials.fromString(attributeName.toLowerCase(Locale.ROOT)) != null) {
+            if (Special.fromString(attributeName.toLowerCase(Locale.ROOT)) != null) {
                 try {
-                    Specials.fromString(StringUtils.toRootUpperCase(attributeName));
+                    Special.fromString(StringUtils.toRootUpperCase(attributeName));
                 } catch (IllegalArgumentException e) {
                     return event.createFollowup("**" + characterName + "** does not have this attribute");
                 }
@@ -181,7 +192,7 @@ public class RollProcessingService {
                 return event.createFollowup("The roll of **" + roll + "** is above MFD 2 (**" + attributeValueMatrix.getValues().get(requestedAttribute).getFirst() + "**) for " + attributeName);
             } else {
                 int MFDIndex = attributeValueMatrix.getValues().get(requestedAttribute).indexOf(currentMFD);
-                String matchingMFD = Modifiers.values()[MFDIndex / cellModifier].getModifier();
+                String matchingMFD = Modifier.values()[MFDIndex / cellModifier].getModifier();
                 int matchingMFDValue = Integer.parseInt((String) attributeValueMatrix.getValues().get(requestedAttribute).get(MFDIndex));
                 String modifiedMatchingMFD;
                 try {
@@ -326,13 +337,13 @@ public class RollProcessingService {
         String modifiedMatchingMFD;
         int finalIndex = MFDIndex / cellModifier + Integer.parseInt(attributeModifier);
         try {
-            modifiedMatchingMFD = Modifiers.values()[finalIndex].getModifier();
+            modifiedMatchingMFD = Modifier.values()[finalIndex].getModifier();
         } catch (ArrayIndexOutOfBoundsException e) {
             log.warn("Matching MFD is outside of existing thresholds");
             if (finalIndex < 0) {
                 modifiedMatchingMFD = "Above 2";
             } else {
-                modifiedMatchingMFD = Modifiers.ONE_TENTH.getModifier();
+                modifiedMatchingMFD = Modifier.ONE_TENTH.getModifier();
             }
         }
         return modifiedMatchingMFD;

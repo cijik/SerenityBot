@@ -1,0 +1,4 @@
+runtime: java22
+instance_class: F1
+service: serenitybot
+service_account: serenity-bot@serenitybot.iam.gserviceaccount.com
