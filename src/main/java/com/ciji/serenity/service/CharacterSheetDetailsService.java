@@ -5,6 +5,7 @@ import java.security.GeneralSecurityException;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import com.ciji.serenity.model.mapper.SheetMatrixMapper;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -55,7 +56,7 @@ public class CharacterSheetDetailsService {
         });
     }
 
-    @Cacheable(cacheNames = "sheets", key = "#characterSheet.name + '@' + #ranges.get(1)")
+    @Cacheable(cacheNames = "sheets", key = "#sheet.name")
     public CharacterSheetDetails getCharacterSheetDetails(CharacterSheet sheet) {
         return characterSheetDetailsDao.findByName(sheet.getName()).orElseThrow();
     }
@@ -64,13 +65,13 @@ public class CharacterSheetDetailsService {
         BatchGetValuesResponse readResult;
         try {
             readResult = characterSheetService.getSpreadsheetMatrix(sheet, SPECIALS_RANGE);
-            sheetDetails.setSpecialsMatrix(readResult.getValueRanges());
+            sheetDetails.setSpecialsMatrix(SheetMatrixMapper.map(readResult.getValueRanges()));
         } catch (GeneralSecurityException | IOException e) {
             log.error("Cannot access character sheet of {} for SPECIALs. Possibly not enough permissions", sheet.getName());
         }
         try {
             readResult = characterSheetService.getSpreadsheetMatrix(sheet, SKILLS_RANGE);
-            sheetDetails.setSkillMatrix(readResult.getValueRanges());
+            sheetDetails.setSkillMatrix(SheetMatrixMapper.map(readResult.getValueRanges()));
         } catch (GeneralSecurityException | IOException e) {
             log.error("Cannot access character sheet of {} for skills. Possibly not enough permissions", sheet.getName());
         }

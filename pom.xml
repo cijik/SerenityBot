@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>com.ciji</groupId>
 	<artifactId>serenity-bot</artifactId>
-	<version>0.3.4</version>
+	<version>0.3.5</version>
 	<name>SerenityBot</name>
 	<description>A Discord bot for managing a TTRPG</description>
 	<properties>
@@ -128,7 +128,7 @@
 			<artifactId>google-api-services-sheets</artifactId>
 			<version>v4-rev612-1.25.0</version>
 		</dependency>
- </dependencies>
+ 	</dependencies>
 
 	<build>
 		<plugins>
