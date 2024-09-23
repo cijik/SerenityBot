@@ -32,9 +32,7 @@ public class CharacterSheetDetailsService {
     
     private final CharacterSheetDetailsDao characterSheetDetailsDao;
 
-    private static final List<String> SPECIALS_RANGE = List.of("'Sheet'!AN27:AO40", "'Sheet'!AP27:AV40");
-
-    private static final List<String> SKILLS_RANGE = List.of("'Sheet'!BF7:BJ40", "'Sheet'!BW7:CJ40");
+    private static final List<String> MATRIX_RANGES = List.of("'Sheet'!AN27:AO40", "'Sheet'!AP27:AV40", "'Sheet'!BF7:BJ40", "'Sheet'!BW7:CJ40");
 
     @Scheduled(fixedRate = 12, timeUnit = TimeUnit.HOURS)
     @Transactional
@@ -64,16 +62,11 @@ public class CharacterSheetDetailsService {
     private void retrieveMatrixValues(CharacterSheet sheet, CharacterSheetDetails sheetDetails) {
         BatchGetValuesResponse readResult;
         try {
-            readResult = characterSheetService.getSpreadsheetMatrix(sheet, SPECIALS_RANGE);
-            sheetDetails.setSpecialsMatrix(SheetMatrixMapper.map(readResult.getValueRanges()));
+            readResult = characterSheetService.getSpreadsheetMatrix(sheet, MATRIX_RANGES);
+            sheetDetails.setSpecialsMatrix(SheetMatrixMapper.map(List.of(readResult.getValueRanges().get(0), readResult.getValueRanges().get(1))));
+            sheetDetails.setSkillMatrix(SheetMatrixMapper.map(List.of(readResult.getValueRanges().get(2), readResult.getValueRanges().get(3))));
         } catch (GeneralSecurityException | IOException e) {
-            log.error("Cannot access character sheet of {} for SPECIALs. Possibly not enough permissions", sheet.getName());
-        }
-        try {
-            readResult = characterSheetService.getSpreadsheetMatrix(sheet, SKILLS_RANGE);
-            sheetDetails.setSkillMatrix(SheetMatrixMapper.map(readResult.getValueRanges()));
-        } catch (GeneralSecurityException | IOException e) {
-            log.error("Cannot access character sheet of {} for skills. Possibly not enough permissions", sheet.getName());
+            log.error("Cannot access character sheet of {}. Possibly not enough permissions", sheet.getName());
         }
     }
 }

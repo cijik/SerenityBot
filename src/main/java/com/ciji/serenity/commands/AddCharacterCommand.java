@@ -15,13 +15,10 @@ import static com.ciji.serenity.enums.Command.ADD_CHARACTER;
 
 @Component
 @Slf4j
-@AllArgsConstructor
 public class AddCharacterCommand implements SerenityCommand {
 
-    private final Client client;
-
     @Override
-    public void register() {
+    public void register(long applicationId, RestClient restClient) {
         ApplicationCommandRequest commandRequest = ApplicationCommandRequest.builder()
                 .name(ADD_CHARACTER.getCommand())
                 .description(ADD_CHARACTER.getShortDesc())
@@ -39,10 +36,6 @@ public class AddCharacterCommand implements SerenityCommand {
                         .required(true)
                         .build())
                 .build();
-
-        RestClient restClient = client.getClient().getRestClient();
-
-        long applicationId = restClient.getApplicationId().block();
 
         restClient.getApplicationService()
                 .createGlobalApplicationCommand(applicationId, commandRequest)

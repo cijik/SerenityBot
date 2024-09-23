@@ -18,10 +18,8 @@ import static com.ciji.serenity.enums.Command.SHORT_ROLL;
 @AllArgsConstructor
 public class ShortRollCommand implements SerenityCommand {
 
-    private final Client client;
-
     @Override
-    public void register() {
+    public void register(long applicationId, RestClient restClient) {
         ApplicationCommandRequest commandRequest = ApplicationCommandRequest.builder()
                 .name(SHORT_ROLL.getCommand())
                 .description(SHORT_ROLL.getShortDesc())
@@ -33,10 +31,6 @@ public class ShortRollCommand implements SerenityCommand {
                         .required(true)
                         .build())
                 .build();
-
-        RestClient restClient = client.getClient().getRestClient();
-
-        long applicationId = restClient.getApplicationId().block();
 
         restClient.getApplicationService()
                 .createGlobalApplicationCommand(applicationId, commandRequest)

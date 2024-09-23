@@ -18,19 +18,13 @@ import reactor.core.publisher.Mono;
 @AllArgsConstructor
 public class DocsCommand implements SerenityCommand {
 
-    private final Client client;
-
     @Override
-    public void register() {
+    public void register(long applicationId, RestClient restClient) {
         ApplicationCommandRequest commandRequest = ApplicationCommandRequest.builder()
                 .name(DOCS.getCommand())
                 .description(DOCS.getShortDesc())
                 .type(ApplicationCommand.Type.CHAT_INPUT.getValue())
                 .build();
-
-        RestClient restClient = client.getClient().getRestClient();
-
-        long applicationId = restClient.getApplicationId().block();
 
         restClient.getApplicationService()
                 .createGlobalApplicationCommand(applicationId, commandRequest)

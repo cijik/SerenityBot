@@ -1,18 +1,15 @@
 package com.ciji.serenity.config;
 
-import java.util.Arrays;
-import java.util.List;
-
-import org.springframework.stereotype.Component;
-
 import com.ciji.serenity.commands.SerenityCommand;
-import com.ciji.serenity.config.mapper.ApplicationCommandRequestMapper;
 import com.ciji.serenity.enums.Command;
 import com.ciji.serenity.service.adapter.SerenityEventAdapter;
-
-import discord4j.discordjson.json.ApplicationCommandData;
+import com.google.common.base.CaseFormat;
 import discord4j.rest.RestClient;
 import lombok.AllArgsConstructor;
+import org.springframework.stereotype.Component;
+
+import java.util.Arrays;
+import java.util.List;
 
 @Component
 @AllArgsConstructor
@@ -27,17 +24,18 @@ public class CommandInitializer {
     public void initializeCommands() {
         RestClient restClient = client.getClient().getRestClient();
 
-        long applicationId = restClient.getApplicationId().block();
-
-        List<ApplicationCommandData> existingCommands = client.getClient().getRestClient().getApplicationService().getGlobalApplicationCommands(applicationId).collectList().block();
-        if (existingCommands != null && //could be null
-                (existingCommands.removeIf(existingCommand -> Command.fromString(existingCommand.name()) == null) //check for any deprecated commands
-                        || Arrays.stream(Command.values()).allMatch(command -> existingCommands.stream().anyMatch(existingCommand -> existingCommand.name().equals(command.getCommand()))))) { //check for any new commands
-            restClient.getApplicationService().bulkOverwriteGlobalApplicationCommand(applicationId, existingCommands.stream().map(ApplicationCommandRequestMapper::map).toList()).subscribe();
-            for (SerenityCommand command : commandList) {
-                command.register();
-            }
-        }
+        restClient.getApplicationId().subscribe(applicationId ->
+                client.getClient().getRestClient().getApplicationService().getGlobalApplicationCommands(applicationId).collectList().subscribe(existingCommands -> {
+                    existingCommands.stream().dropWhile(existingCommand -> Command.fromString(existingCommand.name()) != null).forEach(
+                            removedCommand -> restClient.getApplicationService().deleteGlobalApplicationCommand(applicationId, removedCommand.id().asLong()).subscribe()
+                    );
+                    Arrays.stream(Command.values()).dropWhile(command -> existingCommands.stream().anyMatch(existingCommand -> command.getCommand().equals(existingCommand.name()))).forEach(
+                            addedCommand -> commandList.stream()
+                                    .takeWhile(serenityCommand -> CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_HYPHEN, serenityCommand.getClass().getName()).equals(addedCommand.getCommand()))
+                                    .forEach(command -> command.register(applicationId, restClient))
+                    );
+                })
+        );
 
         eventAdapter.updatePresenceOnCommandInit(client);
         client.getClient().on(eventAdapter).blockLast();

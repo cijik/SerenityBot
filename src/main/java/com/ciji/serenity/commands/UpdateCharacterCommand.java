@@ -18,10 +18,8 @@ import static com.ciji.serenity.enums.Command.UPDATE_CHARACTER;
 @AllArgsConstructor
 public class UpdateCharacterCommand implements SerenityCommand {
 
-    private final Client client;
-
     @Override
-    public void register() {
+    public void register(long applicationId, RestClient restClient) {
         ApplicationCommandRequest commandRequest = ApplicationCommandRequest.builder()
                 .name(UPDATE_CHARACTER.getCommand())
                 .description(UPDATE_CHARACTER.getShortDesc())
@@ -39,10 +37,6 @@ public class UpdateCharacterCommand implements SerenityCommand {
                         .required(true)
                         .build())
                 .build();
-
-        RestClient restClient = client.getClient().getRestClient();
-
-        long applicationId = restClient.getApplicationId().block();
 
         restClient.getApplicationService()
                 .createGuildApplicationCommand(applicationId, 177794959854796801L, commandRequest)

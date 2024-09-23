@@ -18,10 +18,8 @@ import static com.ciji.serenity.enums.Command.REMOVE_CHARACTER;
 @AllArgsConstructor
 public class RemoveCharacterCommand implements SerenityCommand {
 
-    private final Client client;
-
     @Override
-    public void register() {
+    public void register(long applicationId, RestClient restClient) {
         ApplicationCommandRequest commandRequest = ApplicationCommandRequest.builder()
                 .name(REMOVE_CHARACTER.getCommand())
                 .description(REMOVE_CHARACTER.getShortDesc())
@@ -33,10 +31,6 @@ public class RemoveCharacterCommand implements SerenityCommand {
                         .required(true)
                         .build())
                 .build();
-
-        RestClient restClient = client.getClient().getRestClient();
-
-        long applicationId = restClient.getApplicationId().block();
 
         restClient.getApplicationService()
                 .createGlobalApplicationCommand(applicationId, commandRequest)

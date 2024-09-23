@@ -16,19 +16,13 @@ import static com.ciji.serenity.enums.Command.GET_ALL_CHARACTERS;
 @AllArgsConstructor
 public class GetAllCharactersCommand implements SerenityCommand {
 
-    private final Client client;
-
     @Override
-    public void register() {
+    public void register(long applicationId, RestClient restClient) {
         ApplicationCommandRequest commandRequest = ApplicationCommandRequest.builder()
                 .name(GET_ALL_CHARACTERS.getCommand())
                 .description(GET_ALL_CHARACTERS.getShortDesc())
                 .type(ApplicationCommand.Type.CHAT_INPUT.getValue())
                 .build();
-
-        RestClient restClient = client.getClient().getRestClient();
-
-        long applicationId = restClient.getApplicationId().block();
 
         restClient.getApplicationService()
                 .createGlobalApplicationCommand(applicationId, commandRequest)

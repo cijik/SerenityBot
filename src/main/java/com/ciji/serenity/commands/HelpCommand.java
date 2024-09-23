@@ -20,10 +20,8 @@ import reactor.core.publisher.Mono;
 @AllArgsConstructor
 public class HelpCommand implements SerenityCommand {
 
-    private final Client client;
-
     @Override
-    public void register() {
+    public void register(long applicationId, RestClient restClient) {
         ApplicationCommandRequest commandRequest = ApplicationCommandRequest.builder()
                 .name(HELP.getCommand())
                 .description(HELP.getShortDesc())
@@ -35,10 +33,6 @@ public class HelpCommand implements SerenityCommand {
                         .required(false)
                         .build())
                 .build();
-
-        RestClient restClient = client.getClient().getRestClient();
-
-        long applicationId = restClient.getApplicationId().block();
 
         restClient.getApplicationService()
                 .createGlobalApplicationCommand(applicationId, commandRequest)

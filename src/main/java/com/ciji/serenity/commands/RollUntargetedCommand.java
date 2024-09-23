@@ -18,10 +18,8 @@ import static com.ciji.serenity.enums.Command.ROLL_UNTARGETED;
 @AllArgsConstructor
 public class RollUntargetedCommand implements SerenityCommand {
 
-    private final Client client;
-
     @Override
-    public void register() {
+    public void register(long applicationId, RestClient restClient) {
         ApplicationCommandRequest commandRequest = ApplicationCommandRequest.builder()
                 .name(ROLL_UNTARGETED.getCommand())
                 .description(ROLL_UNTARGETED.getShortDesc())
@@ -45,10 +43,6 @@ public class RollUntargetedCommand implements SerenityCommand {
                         .required(true)
                         .build())
                 .build();
-
-        RestClient restClient = client.getClient().getRestClient();
-
-        long applicationId = restClient.getApplicationId().block();
 
         restClient.getApplicationService()
                 .createGlobalApplicationCommand(applicationId, commandRequest)

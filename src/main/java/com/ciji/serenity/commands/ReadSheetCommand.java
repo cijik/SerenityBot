@@ -18,10 +18,8 @@ import static com.ciji.serenity.enums.Command.READ_SHEET;
 @AllArgsConstructor
 public class ReadSheetCommand implements SerenityCommand {
 
-    private final Client client;
-
     @Override
-    public void register() {
+    public void register(long applicationId, RestClient restClient) {
         ApplicationCommandRequest commandRequest = ApplicationCommandRequest.builder()
                 .name(READ_SHEET.getCommand())
                 .description(READ_SHEET.getShortDesc())
@@ -39,10 +37,6 @@ public class ReadSheetCommand implements SerenityCommand {
                         .required(true)
                         .build())
                 .build();
-
-        RestClient restClient = client.getClient().getRestClient();
-
-        long applicationId = restClient.getApplicationId().block();
 
         restClient.getApplicationService()
                 .createGlobalApplicationCommand(applicationId, commandRequest)

@@ -18,10 +18,8 @@ import static com.ciji.serenity.enums.Command.GET_CHARACTER;
 @AllArgsConstructor
 public class GetCharacterCommand implements SerenityCommand {
 
-    private final Client client;
-
     @Override
-    public void register() {
+    public void register(long applicationId, RestClient restClient) {
         ApplicationCommandRequest commandRequest = ApplicationCommandRequest.builder()
                 .name(GET_CHARACTER.getCommand())
                 .description(GET_CHARACTER.getShortDesc())
@@ -33,10 +31,6 @@ public class GetCharacterCommand implements SerenityCommand {
                         .required(true)
                         .build())
                 .build();
-
-        RestClient restClient = client.getClient().getRestClient();
-
-        long applicationId = restClient.getApplicationId().block();
 
         restClient.getApplicationService()
                 .createGlobalApplicationCommand(applicationId, commandRequest)
