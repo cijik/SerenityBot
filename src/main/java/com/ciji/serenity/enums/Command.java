@@ -59,7 +59,12 @@ public enum Command {
     
     DOCS("docs", "Gives a link to the documentation",
     "Returns a link to the full documentation of the bot",
-    Collections.emptyMap());
+    Collections.emptyMap()),
+
+    SAY("say", "Allows you to post in bot's name",
+            "Speak in the bot's name in a specified channel",
+            ImmutableMap.of("channel", "ID of the channel to post in",
+                            "message", "Message to post"));
 
     private final String command;
 

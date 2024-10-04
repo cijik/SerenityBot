@@ -29,9 +29,12 @@ public class CommandInitializer {
                     existingCommands.stream().dropWhile(existingCommand -> Command.fromString(existingCommand.name()) != null).forEach(
                             removedCommand -> restClient.getApplicationService().deleteGlobalApplicationCommand(applicationId, removedCommand.id().asLong()).subscribe()
                     );
-                    Arrays.stream(Command.values()).dropWhile(command -> existingCommands.stream().anyMatch(existingCommand -> command.getCommand().equals(existingCommand.name()))).forEach(
+                    Arrays.stream(Command.values()).filter(command -> existingCommands.stream().noneMatch(existingCommand -> command.getCommand().equals(existingCommand.name()))).forEach(
                             addedCommand -> commandList.stream()
-                                    .takeWhile(serenityCommand -> CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_HYPHEN, serenityCommand.getClass().getName()).equals(addedCommand.getCommand()))
+                                    .filter(serenityCommand -> {
+                                        String commandName = CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_HYPHEN, serenityCommand.getClass().getSimpleName());
+                                        return commandName.substring(0, commandName.indexOf("-command")).equals(addedCommand.getCommand());
+                                    })
                                     .forEach(command -> command.register(applicationId, restClient))
                     );
                 })

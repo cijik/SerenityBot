@@ -4,9 +4,9 @@ import com.ciji.serenity.config.Client;
 import com.ciji.serenity.enums.Command;
 import com.ciji.serenity.service.CharacterSheetService;
 import com.ciji.serenity.service.CommandInfoService;
+import com.ciji.serenity.service.MessageSendingService;
 import com.ciji.serenity.service.RollProcessingService;
 import discord4j.core.event.ReactiveEventAdapter;
-import discord4j.core.event.domain.interaction.ApplicationCommandInteractionEvent;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
 import discord4j.core.object.presence.ClientActivity;
 import discord4j.core.object.presence.ClientPresence;
@@ -26,10 +26,7 @@ public class SerenityEventAdapter extends ReactiveEventAdapter {
 
     private final CommandInfoService commandInfoService;
 
-    @Override
-    public Publisher<?> onApplicationCommandInteraction(ApplicationCommandInteractionEvent event) {
-        return Mono.empty();
-    }
+    private final MessageSendingService messageSendingService;
 
     @Override
     public Publisher<?> onChatInputInteraction(ChatInputInteractionEvent event) {
@@ -67,12 +64,15 @@ public class SerenityEventAdapter extends ReactiveEventAdapter {
             case DOCS -> {
                 return commandInfoService.getDocs(event);
             }
+            case SAY -> {
+                return messageSendingService.sendMessage(event);
+            }
         }
         return Mono.empty();
     }
 
     public void updatePresenceOnCommandInit(Client client) {
-        client.getClient().updatePresence(ClientPresence.of(Status.ONLINE, ClientActivity.listening("requests"))).subscribe();
-//        client.getClient().updatePresence(ClientPresence.of(Status.DO_NOT_DISTURB, ClientActivity.custom("Debugging, do not interact"))).subscribe();
+//        client.getClient().updatePresence(ClientPresence.of(Status.ONLINE, ClientActivity.listening("requests"))).subscribe();
+        client.getClient().updatePresence(ClientPresence.of(Status.DO_NOT_DISTURB, ClientActivity.custom("Debugging, do not interact"))).subscribe();
     }
 }

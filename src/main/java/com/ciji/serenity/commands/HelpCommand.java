@@ -2,6 +2,7 @@ package com.ciji.serenity.commands;
 
 import static com.ciji.serenity.enums.Command.HELP;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
 import com.ciji.serenity.config.Client;
@@ -36,6 +37,7 @@ public class HelpCommand implements SerenityCommand {
 
         restClient.getApplicationService()
                 .createGlobalApplicationCommand(applicationId, commandRequest)
+                .doOnSuccess(data -> log.info("{} command registered", StringUtils.capitalize(data.name())))
                 .doOnError(e -> log.error("Unable to create guild command", e))
                 .onErrorResume(_ -> Mono.empty())
                 .block();

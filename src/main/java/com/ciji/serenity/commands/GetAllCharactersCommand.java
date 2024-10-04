@@ -1,11 +1,11 @@
 package com.ciji.serenity.commands;
 
-import com.ciji.serenity.config.Client;
 import discord4j.core.object.command.ApplicationCommand;
 import discord4j.discordjson.json.ApplicationCommandRequest;
 import discord4j.rest.RestClient;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
@@ -26,6 +26,7 @@ public class GetAllCharactersCommand implements SerenityCommand {
 
         restClient.getApplicationService()
                 .createGlobalApplicationCommand(applicationId, commandRequest)
+                .doOnSuccess(data -> log.info("{} command registered", StringUtils.capitalize(data.name())))
                 .doOnError(e -> log.error("Unable to create guild command", e))
                 .onErrorResume(_ -> Mono.empty())
                 .block();
