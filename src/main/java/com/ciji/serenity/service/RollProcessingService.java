@@ -58,26 +58,53 @@ public class RollProcessingService {
         String characterName = getParameterValue(event, "character-name");
         String attributeName = getParameterValue(event, "rolls-for");
         String targetMFD = getParameterValue(event, "with-target-mfd");
-        event.deferReply().withEphemeral(false);
+        event.deferReply().withEphemeral(false).block();
 
         CharacterSheet characterSheet = characterSheetService.getCharacterSheet(characterName, event.getInteraction().getUser().getId().asString());
         if (characterSheet == null) {
             return event.createFollowup("Character not found");
         } else {
-            RollParameters rollParameters = getRollParameters(attributeName);
+            boolean isSpecial;
+            int cellModifier;
+            if (Special.fromString(attributeName.toLowerCase(Locale.ROOT)) != null) {
+                attributeName = Special.fromString(attributeName.toLowerCase(Locale.ROOT)).name().toLowerCase(Locale.ROOT);
+                isSpecial = true;
+                cellModifier = 1;
+            } else if (SKILLS.contains(attributeName.toLowerCase(Locale.ROOT))) {
+                isSpecial = false;
+                cellModifier = 2;
+            } else {
+                log.error("Invalid attribute: {}", attributeName);
+                return event.createFollowup(attributeName + " is not a valid attribute");
+            }
 
             CharacterSheetDetails sheetDetails = characterSheetDetailsService.getCharacterSheetDetails(characterSheet);
             attributeName = WordUtils.capitalize(attributeName.toLowerCase(Locale.ROOT));
+            
+            List<String> attributeNames;
+            List<SheetRow> attributeValueMatrix;
+            if (isSpecial) {
+                attributeNames = sheetDetails.getSpecialsMatrix().getHeaders();
+                attributeValueMatrix = sheetDetails.getSpecialsMatrix().getRows();
+            } else {
+                attributeNames = sheetDetails.getSkillMatrix().getHeaders();
+                attributeValueMatrix = sheetDetails.getSkillMatrix().getRows();
+            }
 
-            AttributeParameters attributeParameters;
-            try {
-                attributeParameters = getAttributeParameters(rollParameters, sheetDetails, attributeName);
-            } catch (IllegalArgumentException e) {
-                return event.createFollowup("**" + characterName + "** does not have this attribute");
+            int requestedAttribute;
+            if (Special.fromString(attributeName.toLowerCase(Locale.ROOT)) != null) {
+                try {
+                    Special.fromString(StringUtils.toRootUpperCase(attributeName));
+                } catch (IllegalArgumentException e) {
+                    return event.createFollowup("**" + characterName + "** does not have this attribute");
+                }
+                requestedAttribute = attributeNames.indexOf(StringUtils.truncate(attributeName, 1));
+            } else {
+                requestedAttribute = attributeNames.indexOf(attributeName);
             }
             int requestedModifier;
             try {
-                requestedModifier = Modifier.fromString(targetMFD).ordinal() * rollParameters.cellModifier();
+                requestedModifier = Modifier.fromString(targetMFD).ordinal() * cellModifier;
             } catch (IllegalArgumentException e) {
                 log.error("Invalid target MFD: {}", targetMFD);
                 return event.createFollowup(targetMFD + " is not a valid target MFD. Please specify one from the following list: 2, 1 1/2, 1, 3/4, 1/2, 1/4, 1/10");
@@ -86,7 +113,7 @@ public class RollProcessingService {
             int attributeThreshold;
             log.info("Parsing attribute threshold");
             try {
-                attributeThreshold = Integer.parseInt(attributeParameters.attributeValueMatrix().get(attributeParameters.requestedAttribute()).getRow().get(requestedModifier));
+                attributeThreshold = Integer.parseInt(attributeValueMatrix.get(requestedAttribute).getRow().get(requestedModifier));
             } catch (IndexOutOfBoundsException e) {
                 log.error("Attribute threshold out of bounds");
                 return event.createFollowup("**" + characterName + "** does not have this attribute");
@@ -100,27 +127,48 @@ public class RollProcessingService {
         String characterName = getParameterValue(event, "character-name");
         String attributeName = getParameterValue(event, "rolls-for");
         String stepModifier = getParameterValue(event, "with-step-bonus");
-        event.deferReply().withEphemeral(false);
+        event.deferReply().withEphemeral(false).block();
 
         CharacterSheet characterSheet = characterSheetService.getCharacterSheet(characterName, event.getInteraction().getUser().getId().asString());
         if (characterSheet == null) {
             return event.createFollowup("Character not found");
         } else {
-            RollParameters rollParameters = null;
-            try {
-                rollParameters = getRollParameters(attributeName);
-            } catch (IllegalArgumentException e) {
+            boolean isSpecial;
+            int cellModifier;
+            if (Special.fromString(attributeName.toLowerCase(Locale.ROOT)) != null) {
+                attributeName = Special.fromString(attributeName.toLowerCase(Locale.ROOT)).name().toLowerCase(Locale.ROOT);
+                isSpecial = true;
+                cellModifier = 1;
+            } else if (SKILLS.contains(attributeName.toLowerCase(Locale.ROOT))) {
+                isSpecial = false;
+                cellModifier = 2;
+            } else {
+                log.error("Invalid attribute: {}", attributeName);
                 return event.createFollowup(attributeName + " is not a valid attribute");
             }
 
             CharacterSheetDetails sheetDetails = characterSheetDetailsService.getCharacterSheetDetails(characterSheet);
-            attributeName = WordUtils.capitalize(rollParameters.attributeName().toLowerCase(Locale.ROOT));
+            attributeName = WordUtils.capitalize(attributeName.toLowerCase(Locale.ROOT));
             characterName = WordUtils.capitalize(characterName.toLowerCase(Locale.ROOT));
-            AttributeParameters attributeParameters;
-            try {
-                attributeParameters = getAttributeParameters(rollParameters, sheetDetails, attributeName);
-            } catch (IllegalArgumentException e) {
-                return event.createFollowup("**" + characterName + "** does not have this attribute");
+            List<String> attributeNames;
+            List<SheetRow> attributeValueMatrix;
+            if (isSpecial) {
+                attributeNames = sheetDetails.getSpecialsMatrix().getHeaders();
+                attributeValueMatrix = sheetDetails.getSpecialsMatrix().getRows();
+            } else {
+                attributeNames = sheetDetails.getSkillMatrix().getHeaders();
+                attributeValueMatrix = sheetDetails.getSkillMatrix().getRows();
+            }
+            int requestedAttribute;
+            if (Special.fromString(attributeName.toLowerCase(Locale.ROOT)) != null) {
+                try {
+                    Special.fromString(StringUtils.toRootUpperCase(attributeName));
+                } catch (IllegalArgumentException e) {
+                    return event.createFollowup("**" + characterName + "** does not have this attribute");
+                }
+                requestedAttribute = attributeNames.indexOf(StringUtils.truncate(attributeName, 1));
+            } else {
+                requestedAttribute = attributeNames.indexOf(attributeName);
             }
 
             int roll = new Random().nextInt(100) + 1;
@@ -133,7 +181,7 @@ public class RollProcessingService {
 
             Object currentMFD;
             try {
-                currentMFD = attributeParameters.attributeValueMatrix().get(attributeParameters.requestedAttribute()).getRow().reversed().stream()
+                currentMFD = attributeValueMatrix.get(requestedAttribute).getRow().reversed().stream()
                         .filter(mfd -> !mfd.isEmpty() && Integer.parseInt(mfd) >= roll).findFirst().orElse(null);
             } catch (IndexOutOfBoundsException e) {
                 log.error("Requested MFD value does not exist for attribute {}", attributeName);
@@ -141,14 +189,14 @@ public class RollProcessingService {
             }
             if (currentMFD == null) {
                 log.error("No higher MFD threshold found for {}", roll);
-                return event.createFollowup("The roll of **" + roll + "** is above MFD 2 (**" + attributeParameters.attributeValueMatrix().get(attributeParameters.requestedAttribute()).getRow().getFirst() + "**) for " + attributeName);
+                return event.createFollowup("The roll of **" + roll + "** is above MFD 2 (**" + attributeValueMatrix.get(requestedAttribute).getRow().getFirst() + "**) for " + attributeName);
             } else {
-                int MFDIndex = attributeParameters.attributeValueMatrix().get(attributeParameters.requestedAttribute()).getRow().indexOf(currentMFD);
-                String matchingMFD = Modifier.values()[MFDIndex / rollParameters.cellModifier()].getModifier();
-                int matchingMFDValue = Integer.parseInt(attributeParameters.attributeValueMatrix().get(attributeParameters.requestedAttribute()).getRow().get(MFDIndex));
+                int MFDIndex = attributeValueMatrix.get(requestedAttribute).getRow().indexOf(currentMFD);
+                String matchingMFD = Modifier.values()[MFDIndex / cellModifier].getModifier();
+                int matchingMFDValue = Integer.parseInt(attributeValueMatrix.get(requestedAttribute).getRow().get(MFDIndex));
                 String modifiedMatchingMFD;
                 try {
-                    modifiedMatchingMFD = getModifiedMFD(MFDIndex, rollParameters.cellModifier(), stepModifier);
+                    modifiedMatchingMFD = getModifiedMFD(MFDIndex, cellModifier, stepModifier);
                 } catch (NumberFormatException e) {
                     log.error("{} is not a valid step modifier", stepModifier);
                     return event.createFollowup(stepModifier + " is not a valid step modifier");
@@ -170,49 +218,6 @@ public class RollProcessingService {
                         .build());
             }
         }
-    }
-
-    private static AttributeParameters getAttributeParameters(RollParameters rollParameters, CharacterSheetDetails sheetDetails, String attributeName) {
-        List<String> attributeNames;
-        List<SheetRow> attributeValueMatrix;
-        if (rollParameters.isSpecial()) {
-            attributeNames = sheetDetails.getSpecialsMatrix().getHeaders();
-            attributeValueMatrix = sheetDetails.getSpecialsMatrix().getRows();
-        } else {
-            attributeNames = sheetDetails.getSkillMatrix().getHeaders();
-            attributeValueMatrix = sheetDetails.getSkillMatrix().getRows();
-        }
-        int requestedAttribute;
-        if (Special.fromString(attributeName.toLowerCase(Locale.ROOT)) != null) {
-            Special.fromString(StringUtils.toRootUpperCase(attributeName));
-            requestedAttribute = attributeNames.indexOf(StringUtils.truncate(attributeName, 1));
-        } else {
-            requestedAttribute = attributeNames.indexOf(attributeName);
-        }
-        return new AttributeParameters(attributeValueMatrix, requestedAttribute);
-    }
-
-    private record AttributeParameters(List<SheetRow> attributeValueMatrix, int requestedAttribute) {
-    }
-
-    private static RollParameters getRollParameters(String attributeName) {
-        boolean isSpecial;
-        int cellModifier;
-        if (Special.fromString(attributeName.toLowerCase(Locale.ROOT)) != null) {
-            attributeName = Special.fromString(attributeName.toLowerCase(Locale.ROOT)).name().toLowerCase(Locale.ROOT);
-            isSpecial = true;
-            cellModifier = 1;
-        } else if (SKILLS.contains(attributeName.toLowerCase(Locale.ROOT))) {
-            isSpecial = false;
-            cellModifier = 2;
-        } else {
-            log.error("Invalid attribute: {}", attributeName);
-            throw new IllegalArgumentException();
-        }
-        return new RollParameters(attributeName, isSpecial, cellModifier);
-    }
-
-    private record RollParameters(String attributeName, boolean isSpecial, int cellModifier) {
     }
 
     public Mono<Message> roll(ChatInputInteractionEvent event) {
