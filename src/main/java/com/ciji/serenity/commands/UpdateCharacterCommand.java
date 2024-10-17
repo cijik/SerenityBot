@@ -42,7 +42,7 @@ public class UpdateCharacterCommand implements SerenityCommand {
                 .createGuildApplicationCommand(applicationId, 177794959854796801L, commandRequest)
                 .doOnSuccess(data -> log.info("{} command registered", StringUtils.capitalize(data.name())))
                 .doOnError(e -> log.error("Unable to create guild command", e))
-                .onErrorResume(_ -> Mono.empty())
+                .onErrorResume(e -> Mono.empty())
                 .block();
     }
 }

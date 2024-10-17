@@ -18,7 +18,7 @@ public class SheetMatrixMapper {
         valueRangeHeaders.getValues().forEach(header -> {
             try {
                 headers.add(header.getFirst().toString());
-            } catch (NoSuchElementException _) {
+            } catch (NoSuchElementException e) {
                 //skip empty columns
             }
         });
