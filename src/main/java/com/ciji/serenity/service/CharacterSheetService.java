@@ -1,6 +1,6 @@
 package com.ciji.serenity.service;
 
-import com.ciji.serenity.dao.CharacterSheetDao;
+import com.ciji.serenity.repository.CharacterSheetRepository;
 import com.ciji.serenity.exception.OptionNotFoundException;
 import com.ciji.serenity.model.CharacterSheet;
 import com.google.api.client.googleapis.json.GoogleJsonResponseException;
@@ -32,7 +32,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class CharacterSheetService {
 
-    private final CharacterSheetDao characterSheetDao;
+    private final CharacterSheetRepository characterSheetRepository;
 
     public Mono<Message> getCharacter(ChatInputInteractionEvent event) {
         String characterName = getParameterValue(event, "name");
@@ -53,7 +53,7 @@ public class CharacterSheetService {
     public Mono<Message> getAllCharacters(ChatInputInteractionEvent event) {
         event.deferReply().withEphemeral(true).block();
 
-        List<CharacterSheet> characters = characterSheetDao.findAllByOwnerId(event.getInteraction().getUser().getId().asString());
+        List<CharacterSheet> characters = characterSheetRepository.findAllByOwnerId(event.getInteraction().getUser().getId().asString());
         String characterList = characters.stream().map(CharacterSheet::getName).collect(Collectors.joining(","));
 
         return event.createFollowup("Here's the list of all characters you own:\n**" + characterList + "**");
@@ -69,7 +69,7 @@ public class CharacterSheetService {
         event.deferReply().withEphemeral(true).block();
 
         log.info("Adding character {} to database", characterName);
-        characterSheetDao.save(characterSheet);
+        characterSheetRepository.save(characterSheet);
         return event.createFollowup("Character sheet added");
     }
 
@@ -78,12 +78,12 @@ public class CharacterSheetService {
         String ownerId = getParameterValue(event, "owner-id");
         event.deferReply().withEphemeral(true).block();
 
-        CharacterSheet characterSheet = characterSheetDao.findByName(WordUtils.capitalize(characterName.toLowerCase(Locale.ROOT)));
+        CharacterSheet characterSheet = characterSheetRepository.findByName(WordUtils.capitalize(characterName.toLowerCase(Locale.ROOT)));
         if (characterSheet == null) {
             return createMissingCharacterFollowup(event, characterName);
         } else {
             characterSheet.setOwnerId(ownerId);
-            characterSheetDao.save(characterSheet);
+            characterSheetRepository.save(characterSheet);
             return event.createFollowup(InteractionFollowupCreateSpec.builder()
                     .content("Character **" + characterName + "** has been updated with ownerId " + ownerId + ".")
                     .build());
@@ -99,7 +99,7 @@ public class CharacterSheetService {
             return createMissingCharacterFollowup(event, characterName);
         } else {
             log.info("Removing character {} from database", characterName);
-            characterSheetDao.delete(characterSheet);
+            characterSheetRepository.delete(characterSheet);
             return event.createFollowup("Character sheet deleted");
         }
     }
@@ -136,7 +136,7 @@ public class CharacterSheetService {
 
     public CharacterSheet getCharacterSheet(String characterName, String ownerId) {
         log.info("Retrieving character {} for user {}", characterName, ownerId);
-        return characterSheetDao.findByNameAndOwnerId(WordUtils.capitalize(characterName.toLowerCase(Locale.ROOT)), ownerId);
+        return characterSheetRepository.findByNameAndOwnerId(WordUtils.capitalize(characterName.toLowerCase(Locale.ROOT)), ownerId);
     }
 
     @Cacheable(cacheNames = "sheets", key = "#characterSheet.name + '@' + #ranges.get(1)")

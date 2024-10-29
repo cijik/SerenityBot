@@ -1,4 +1,4 @@
-package com.ciji.serenity.dao;
+package com.ciji.serenity.repository;
 
 import java.util.Optional;
 
@@ -9,7 +9,7 @@ import com.ciji.serenity.model.CharacterSheetDetails;
 
 
 @Repository
-public interface CharacterSheetDetailsDao extends CrudRepository<CharacterSheetDetails, String> {
+public interface CharacterSheetDetailsRepository extends CrudRepository<CharacterSheetDetails, String> {
 
     Optional<CharacterSheetDetails> findByName(String name);
 }
