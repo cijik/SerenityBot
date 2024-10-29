@@ -1,4 +1,4 @@
-package com.ciji.serenity.dao;
+package com.ciji.serenity.repository;
 
 import com.ciji.serenity.model.CharacterSheet;
 import org.springframework.data.repository.CrudRepository;
@@ -7,7 +7,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface CharacterSheetDao extends CrudRepository<CharacterSheet, String> {
+public interface CharacterSheetRepository extends CrudRepository<CharacterSheet, String> {
 
     CharacterSheet findByName(String name);
 

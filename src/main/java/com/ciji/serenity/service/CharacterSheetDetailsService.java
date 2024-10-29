@@ -11,8 +11,8 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.ciji.serenity.dao.CharacterSheetDao;
-import com.ciji.serenity.dao.CharacterSheetDetailsDao;
+import com.ciji.serenity.repository.CharacterSheetRepository;
+import com.ciji.serenity.repository.CharacterSheetDetailsRepository;
 import com.ciji.serenity.model.CharacterSheet;
 import com.ciji.serenity.model.CharacterSheetDetails;
 import com.google.api.services.sheets.v4.model.BatchGetValuesResponse;
@@ -28,9 +28,9 @@ public class CharacterSheetDetailsService {
 
     private final CharacterSheetService characterSheetService;
 
-    private final CharacterSheetDao characterSheetDao;
+    private final CharacterSheetRepository characterSheetRepository;
     
-    private final CharacterSheetDetailsDao characterSheetDetailsDao;
+    private final CharacterSheetDetailsRepository characterSheetDetailsRepository;
 
     private static final List<String> MATRIX_RANGES = List.of("'Sheet'!AN27:AO40", "'Sheet'!AP27:AV40", "'Sheet'!BF7:BJ40", "'Sheet'!BW7:CJ40");
 
@@ -38,25 +38,25 @@ public class CharacterSheetDetailsService {
     @Transactional
     public void refreshSheetData() {
         log.info("Refreshing character sheet data of all users");
-        List<CharacterSheet> sheetList = Lists.newArrayList(characterSheetDao.findAll());
+        List<CharacterSheet> sheetList = Lists.newArrayList(characterSheetRepository.findAll());
         sheetList.forEach(sheet -> {
             log.debug("Refreshing sheet data for {}", sheet.getName());
-            characterSheetDetailsDao.findByName(sheet.getName()).ifPresentOrElse(sheetDetails -> {
+            characterSheetDetailsRepository.findByName(sheet.getName()).ifPresentOrElse(sheetDetails -> {
                 retrieveMatrixValues(sheet, sheetDetails);
-                characterSheetDetailsDao.save(sheetDetails);
+                characterSheetDetailsRepository.save(sheetDetails);
             },
             () -> {
                 CharacterSheetDetails sheetDetails = new CharacterSheetDetails();
                 sheetDetails.setName(sheet.getName());
                 retrieveMatrixValues(sheet, sheetDetails);
-                characterSheetDetailsDao.save(sheetDetails);
+                characterSheetDetailsRepository.save(sheetDetails);
             });
         });
     }
 
     @Cacheable(cacheNames = "sheets", key = "#sheet.name")
     public CharacterSheetDetails getCharacterSheetDetails(CharacterSheet sheet) {
-        return characterSheetDetailsDao.findByName(sheet.getName()).orElseThrow();
+        return characterSheetDetailsRepository.findByName(sheet.getName()).orElseThrow();
     }
 
     private void retrieveMatrixValues(CharacterSheet sheet, CharacterSheetDetails sheetDetails) {
