@@ -32,37 +32,37 @@ public class SerenityEventAdapter extends ReactiveEventAdapter {
     public Publisher<?> onChatInputInteraction(ChatInputInteractionEvent event) {
         switch (Command.fromString(event.getCommandName())) {
             case GET_CHARACTER -> {
-                return characterSheetService.getCharacter(event);
+                return event.deferReply().withEphemeral(true).then(characterSheetService.getCharacter(event));
             }
             case GET_ALL_CHARACTERS -> {
-                return characterSheetService.getAllCharacters(event);
+                return event.deferReply().withEphemeral(true).then(characterSheetService.getAllCharacters(event));
             }
             case ADD_CHARACTER -> {
-                return characterSheetService.addCharacter(event);
+                return event.deferReply().withEphemeral(true).then(characterSheetService.addCharacter(event));
             }
             case UPDATE_CHARACTER -> {
-                return characterSheetService.updateCharacter(event);
+                return event.deferReply().withEphemeral(true).then(characterSheetService.updateCharacter(event));
             }
             case REMOVE_CHARACTER -> {
-                return characterSheetService.removeCharacter(event);
+                return event.deferReply().withEphemeral(true).then(characterSheetService.removeCharacter(event));
             }
             case READ_SHEET -> {
-                return characterSheetService.readSheetValue(event);
+                return event.deferReply().withEphemeral(true).then(characterSheetService.readSheetValue(event));
             }
             case ROLL_TARGETED -> {
-                return rollProcessingService.rollTargeted(event);
+                return event.deferReply().then(rollProcessingService.rollTargeted(event));
             }
             case ROLL_UNTARGETED -> {
-                return rollProcessingService.rollUntargeted(event);
+                return event.deferReply().then(rollProcessingService.rollUntargeted(event));
             }
             case ROLL, SHORT_ROLL -> {
-                return rollProcessingService.roll(event);
+                return event.deferReply().then(rollProcessingService.roll(event));
             }
             case HELP -> {
-                return commandInfoService.getHelp(event);
+                return event.deferReply().withEphemeral(true).then(commandInfoService.getHelp(event));
             }
             case DOCS -> {
-                return commandInfoService.getDocs(event);
+                return event.deferReply().withEphemeral(true).then(commandInfoService.getDocs(event));
             }
             case SAY -> {
                 return messageSendingService.sendMessage(event);

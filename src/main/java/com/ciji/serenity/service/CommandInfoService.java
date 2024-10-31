@@ -22,26 +22,23 @@ public class CommandInfoService {
     
     public Mono<Message> getHelp(ChatInputInteractionEvent event) {
         String command = getParameterValue(event, "command");
-        event.deferReply().withEphemeral(true).block();
 
         if (command.isBlank()) {
-            StringBuilder response = new StringBuilder();
-            response
-                .append("**Character database commands**:\n")
-                .append("`/").append(ADD_CHARACTER.getCommand()).append("`: ").append(ADD_CHARACTER.getShortDesc()).append("\n")
-                .append("`/").append(GET_CHARACTER.getCommand()).append("`: ").append(GET_CHARACTER.getShortDesc()).append("\n")
-                .append("`/").append(GET_ALL_CHARACTERS.getCommand()).append("`: ").append(GET_ALL_CHARACTERS.getShortDesc()).append("\n")
-                .append("`/").append(REMOVE_CHARACTER.getCommand()).append("`: ").append(REMOVE_CHARACTER.getShortDesc()).append("\n")
-                .append("**Sheet interaction commands**:\n")
-                .append("`/").append(READ_SHEET.getCommand()).append("`: ").append(READ_SHEET.getShortDesc()).append("\n")
-                .append("`/").append(ROLL_TARGETED.getCommand()).append("`: ").append(ROLL_TARGETED.getShortDesc()).append("\n")
-                .append("`/").append(ROLL_UNTARGETED.getCommand()).append("`: ").append(ROLL_UNTARGETED.getShortDesc()).append("\n")
-                .append("**Generic roll commands**:\n")
-                .append("`/").append(ROLL.getCommand()).append("`, `/").append(SHORT_ROLL.getCommand()).append("`: ").append(ROLL.getShortDesc()).append("\n")
-                .append("**Help commands**:\n")
-                .append("`/").append(HELP.getCommand()).append("`: ").append(HELP.getShortDesc()).append("\n")
-                .append("`/").append(DOCS.getCommand()).append("`: ").append(DOCS.getShortDesc()).append("\n");
-            return event.createFollowup(response.toString());
+            String response = "**Character database commands**:\n" +
+                    "`/" + ADD_CHARACTER.getCommand() + "`: " + ADD_CHARACTER.getShortDesc() + "\n" +
+                    "`/" + GET_CHARACTER.getCommand() + "`: " + GET_CHARACTER.getShortDesc() + "\n" +
+                    "`/" + GET_ALL_CHARACTERS.getCommand() + "`: " + GET_ALL_CHARACTERS.getShortDesc() + "\n" +
+                    "`/" + REMOVE_CHARACTER.getCommand() + "`: " + REMOVE_CHARACTER.getShortDesc() + "\n" +
+                    "**Sheet interaction commands**:\n" +
+                    "`/" + READ_SHEET.getCommand() + "`: " + READ_SHEET.getShortDesc() + "\n" +
+                    "`/" + ROLL_TARGETED.getCommand() + "`: " + ROLL_TARGETED.getShortDesc() + "\n" +
+                    "`/" + ROLL_UNTARGETED.getCommand() + "`: " + ROLL_UNTARGETED.getShortDesc() + "\n" +
+                    "**Generic roll commands**:\n" +
+                    "`/" + ROLL.getCommand() + "`, `/" + SHORT_ROLL.getCommand() + "`: " + ROLL.getShortDesc() + "\n" +
+                    "**Help commands**:\n" +
+                    "`/" + HELP.getCommand() + "`: " + HELP.getShortDesc() + "\n" +
+                    "`/" + DOCS.getCommand() + "`: " + DOCS.getShortDesc() + "\n";
+            return event.createFollowup(response);
         } else {
             switch (Command.fromString(command)) {
                 case ADD_CHARACTER -> {
@@ -82,12 +79,10 @@ public class CommandInfoService {
     }
 
     public Mono<Message> getDocs(ChatInputInteractionEvent event) {
-        event.deferReply().withEphemeral(true).block();
-
         Button button = Button.link("https://github.com/cijik/SerenityBot/wiki", "Documentation");
-            return event.createFollowup(InteractionFollowupCreateSpec.builder()
-                            .components(List.of(ActionRow.of(button)))
-                            .build());
+        return event.createFollowup(InteractionFollowupCreateSpec.builder()
+                        .components(List.of(ActionRow.of(button)))
+                        .build());
     }
 
     private static String getParameterValue(ChatInputInteractionEvent event, String name) {

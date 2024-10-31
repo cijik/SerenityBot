@@ -1,11 +1,10 @@
 package com.ciji.serenity.repository;
 
-import java.util.Optional;
-
+import com.ciji.serenity.model.CharacterSheetDetails;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
-import com.ciji.serenity.model.CharacterSheetDetails;
+import java.util.Optional;
 
 
 @Repository
