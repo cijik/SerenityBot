@@ -20,4 +20,6 @@ public class CharacterSheetDetails {
 
     @Indexed
     private SheetMatrix skillMatrix;
+
+    private int rads;
 }

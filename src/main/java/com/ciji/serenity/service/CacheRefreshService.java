@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
+import java.text.ParseException;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -28,7 +29,7 @@ public class CacheRefreshService {
 
     private final CharacterSheetDetailsRepository characterSheetDetailsRepository;
 
-    private static final List<String> MATRIX_RANGES = List.of("'Sheet'!AN27:AO40", "'Sheet'!AP27:AV40", "'Sheet'!BF7:BJ40", "'Sheet'!BW7:CJ40");
+    static final List<String> MATRIX_RANGES = List.of("'Sheet'!AN27:AO40", "'Sheet'!AP27:AV40", "'Sheet'!BF7:BJ40", "'Sheet'!BW7:CJ40", "'Sheet'!DA10");
 
     @Scheduled(fixedRate = 12, timeUnit = TimeUnit.HOURS)
     @Transactional
@@ -55,6 +56,7 @@ public class CacheRefreshService {
             readResult = characterSheetDetailsService.getSpreadsheetMatrix(sheet, MATRIX_RANGES);
             sheetDetails.setSpecialsMatrix(SheetMatrixMapper.map(List.of(readResult.getValueRanges().get(0), readResult.getValueRanges().get(1))));
             sheetDetails.setSkillMatrix(SheetMatrixMapper.map(List.of(readResult.getValueRanges().get(2), readResult.getValueRanges().get(3))));
+            sheetDetails.setRads(Integer.parseInt(readResult.getValueRanges().get(5).getValues().getFirst().getFirst().toString()));
         } catch (GeneralSecurityException | IOException e) {
             log.error("Cannot access character sheet of {}. Possibly not enough permissions", sheet.getName());
         }

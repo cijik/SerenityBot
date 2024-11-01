@@ -2,12 +2,10 @@ package com.ciji.serenity.service.adapter;
 
 import com.ciji.serenity.config.Client;
 import com.ciji.serenity.enums.Command;
-import com.ciji.serenity.service.CharacterSheetService;
-import com.ciji.serenity.service.CommandInfoService;
-import com.ciji.serenity.service.MessageSendingService;
-import com.ciji.serenity.service.RollProcessingService;
+import com.ciji.serenity.service.*;
 import discord4j.core.event.ReactiveEventAdapter;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
+import discord4j.core.object.entity.ApplicationInfo;
 import discord4j.core.object.presence.ClientActivity;
 import discord4j.core.object.presence.ClientPresence;
 import discord4j.core.object.presence.Status;
@@ -27,6 +25,8 @@ public class SerenityEventAdapter extends ReactiveEventAdapter {
     private final CommandInfoService commandInfoService;
 
     private final MessageSendingService messageSendingService;
+
+    private final EffectsService effectsService;
 
     @Override
     public Publisher<?> onChatInputInteraction(ChatInputInteractionEvent event) {
@@ -67,11 +67,15 @@ public class SerenityEventAdapter extends ReactiveEventAdapter {
             case SAY -> {
                 return messageSendingService.sendMessage(event);
             }
+            case SET_RADIATION -> {
+                return event.deferReply().then(effectsService.setRadiation(event));
+            }
         }
         return Mono.empty();
     }
 
     public void updatePresenceOnCommandInit(Client client) {
+        ApplicationInfo.Flag.
         client.getClient().updatePresence(ClientPresence.of(Status.ONLINE, ClientActivity.listening("requests"))).subscribe();
 //        client.getClient().updatePresence(ClientPresence.of(Status.DO_NOT_DISTURB, ClientActivity.custom("Debugging, do not interact"))).subscribe();
     }

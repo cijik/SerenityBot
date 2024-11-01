@@ -64,7 +64,12 @@ public enum Command {
     SAY("say", "Allows you to post in bot's name",
             "Speak in the bot's name in a specified channel",
             ImmutableMap.of("channel", "ID of the channel to post in",
-                            "message", "Message to post"));
+                            "message", "Message to post")),
+
+    SET_RADIATION("set-radiation", "Set the Rads value of a character",
+            "Set the Rads for a specified character",
+            ImmutableMap.of("character-name", "Name of the character sheet to read from as they written when they were added (case insensitive)",
+                            "rads", "The amount of rads to set to the character"));
 
     private final String command;
 
