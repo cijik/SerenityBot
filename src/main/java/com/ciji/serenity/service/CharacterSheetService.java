@@ -22,6 +22,8 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
+import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
@@ -111,7 +113,7 @@ public class CharacterSheetService {
                     BatchGetValuesResponse readResult;
                     try {
                         readResult = characterSheetDetailsService.getSpreadsheetMatrix(characterSheet, ranges);
-                    } catch (GoogleJsonResponseException e) {
+                    } catch (IOException | GeneralSecurityException e) {
                         log.error("Cannot access character sheet");
                         return event.createFollowup("Cannot access character sheet. Please add the bot (serenity-bot@serenitybot.iam.gserviceaccount.com) as an editor to the character sheet and/or make the sheet viewable to everyone with the link.");
                     }

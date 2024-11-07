@@ -11,6 +11,7 @@ import discord4j.core.object.presence.ClientPresence;
 import discord4j.core.object.presence.Status;
 import lombok.AllArgsConstructor;
 import org.reactivestreams.Publisher;
+import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
@@ -74,9 +75,12 @@ public class SerenityEventAdapter extends ReactiveEventAdapter {
         return Mono.empty();
     }
 
-    public void updatePresenceOnCommandInit(Client client) {
-        ApplicationInfo.Flag.
-        client.getClient().updatePresence(ClientPresence.of(Status.ONLINE, ClientActivity.listening("requests"))).subscribe();
-//        client.getClient().updatePresence(ClientPresence.of(Status.DO_NOT_DISTURB, ClientActivity.custom("Debugging, do not interact"))).subscribe();
+    public void updatePresenceOnCommandInit(ConfigurableEnvironment environment, Client client) {
+        String debug = environment.getProperty("debug");
+        if (debug != null && !debug.equals("false")) {
+            client.getClient().updatePresence(ClientPresence.of(Status.DO_NOT_DISTURB, ClientActivity.custom("Debugging, do not interact"))).subscribe();
+        } else {
+            client.getClient().updatePresence(ClientPresence.of(Status.ONLINE, ClientActivity.listening("requests"))).subscribe();
+        }
     }
 }

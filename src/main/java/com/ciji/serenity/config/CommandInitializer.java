@@ -6,6 +6,7 @@ import com.ciji.serenity.service.adapter.SerenityEventAdapter;
 import com.google.common.base.CaseFormat;
 import discord4j.rest.RestClient;
 import lombok.AllArgsConstructor;
+import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
@@ -14,6 +15,8 @@ import java.util.List;
 @Component
 @AllArgsConstructor
 public class CommandInitializer {
+
+    private final ConfigurableEnvironment environment;
 
     private final Client client;
 
@@ -40,7 +43,7 @@ public class CommandInitializer {
                 })
         );
 
-        eventAdapter.updatePresenceOnCommandInit(client);
+        eventAdapter.updatePresenceOnCommandInit(environment, client);
         client.getClient().on(eventAdapter).blockLast();
     }
 }
