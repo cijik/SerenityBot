@@ -56,7 +56,7 @@ public class CacheRefreshService {
             readResult = characterSheetDetailsService.getSpreadsheetMatrix(sheet, MATRIX_RANGES);
             sheetDetails.setSpecialsMatrix(SheetMatrixMapper.map(List.of(readResult.getValueRanges().get(0), readResult.getValueRanges().get(1))));
             sheetDetails.setSkillMatrix(SheetMatrixMapper.map(List.of(readResult.getValueRanges().get(2), readResult.getValueRanges().get(3))));
-            sheetDetails.setRads(Integer.parseInt(readResult.getValueRanges().get(5).getValues().getFirst().getFirst().toString()));
+            sheetDetails.setRads(Integer.parseInt(readResult.getValueRanges().get(4).getValues().getFirst().getFirst().toString()));
         } catch (GeneralSecurityException | IOException e) {
             log.error("Cannot access character sheet of {}. Possibly not enough permissions", sheet.getName());
         }
