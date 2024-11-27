@@ -1,14 +1,10 @@
 package com.ciji.serenity.service;
 
-import com.ciji.serenity.exception.OptionNotFoundException;
 import com.ciji.serenity.model.CharacterSheet;
 import com.ciji.serenity.repository.CharacterSheetRepository;
-import com.google.api.client.googleapis.json.GoogleJsonResponseException;
 import com.google.api.services.sheets.v4.model.BatchGetValuesResponse;
 import com.google.api.services.sheets.v4.model.ValueRange;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
-import discord4j.core.object.command.ApplicationCommandInteractionOption;
-import discord4j.core.object.command.ApplicationCommandInteractionOptionValue;
 import discord4j.core.object.component.ActionRow;
 import discord4j.core.object.component.Button;
 import discord4j.core.object.entity.Message;
@@ -37,7 +33,7 @@ public class CharacterSheetService {
     private final CharacterSheetDetailsService characterSheetDetailsService;
 
     public Mono<Message> getCharacter(ChatInputInteractionEvent event) {
-        String characterName = getParameterValue(event, "name");
+        String characterName = SheetsUtil.getParameterValue(event, "name");
 
         return getCharacterSheet(characterName, event.getInteraction().getUser().getId().asString())
                 .flatMap(characterSheet -> {
@@ -58,8 +54,8 @@ public class CharacterSheetService {
     }
 
     public Mono<Message> addCharacter(ChatInputInteractionEvent event) {
-        String characterSheetUrl = getParameterValue(event, "url");
-        String characterName = getParameterValue(event, "name");
+        String characterSheetUrl = SheetsUtil.getParameterValue(event, "url");
+        String characterName = SheetsUtil.getParameterValue(event, "name");
         CharacterSheet characterSheet = new CharacterSheet();
         characterSheet.setId(characterSheetUrl.split("/")[5]);
         characterSheet.setName(WordUtils.capitalize(characterName.toLowerCase(Locale.ROOT)));
@@ -72,8 +68,8 @@ public class CharacterSheetService {
     }
 
     public Mono<Message> updateCharacter(ChatInputInteractionEvent event) {
-        String characterName = getParameterValue(event, "name");
-        String ownerId = getParameterValue(event, "owner-id");
+        String characterName = SheetsUtil.getParameterValue(event, "name");
+        String ownerId = SheetsUtil.getParameterValue(event, "owner-id");
 
         return Mono.fromCallable(() -> characterSheetRepository.findByName(WordUtils.capitalize(characterName.toLowerCase(Locale.ROOT))))
                 .subscribeOn(Schedulers.boundedElastic())
@@ -89,7 +85,7 @@ public class CharacterSheetService {
     }
 
     public Mono<Message> removeCharacter(ChatInputInteractionEvent event) {
-        String characterName = getParameterValue(event, "name");
+        String characterName = SheetsUtil.getParameterValue(event, "name");
 
         return getCharacterSheet(characterName, event.getInteraction().getUser().getId().asString())
                 .flatMap(characterSheet -> {
@@ -103,11 +99,11 @@ public class CharacterSheetService {
 
     @SneakyThrows
     public Mono<Message> readSheetValue(ChatInputInteractionEvent event) {
-        String characterName = getParameterValue(event, "name");
+        String characterName = SheetsUtil.getParameterValue(event, "name");
 
         return getCharacterSheet(characterName, event.getInteraction().getUser().getId().asString())
                 .flatMap(characterSheet -> {
-                    String sheetValue = getParameterValue(event, "value");
+                    String sheetValue = SheetsUtil.getParameterValue(event, "value");
                     List<String> ranges = List.of("'Shadow Spells'!C2:C115", "'Shadow Spells'!I2:I115");
 
                     BatchGetValuesResponse readResult;
@@ -133,14 +129,6 @@ public class CharacterSheetService {
         log.info("Retrieving character {} for user {}", characterName, ownerId);
         return Mono.fromCallable(() -> characterSheetRepository.findByNameAndOwnerId(WordUtils.capitalize(characterName.toLowerCase(Locale.ROOT)), ownerId))
                 .subscribeOn(Schedulers.boundedElastic());
-    }
-
-    private static String getParameterValue(ChatInputInteractionEvent event, String name) {
-        return event
-                .getOption(name)
-                .flatMap(ApplicationCommandInteractionOption::getValue)
-                .map(ApplicationCommandInteractionOptionValue::asString)
-                .orElseThrow(OptionNotFoundException::new);
     }
 
     private static InteractionFollowupCreateMono createMissingCharacterFollowup(ChatInputInteractionEvent event, String characterName) {

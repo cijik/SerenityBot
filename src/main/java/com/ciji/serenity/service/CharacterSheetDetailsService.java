@@ -28,7 +28,7 @@ public class CharacterSheetDetailsService {
     @Cacheable(cacheNames = "sheet-ranges", key = "'ranges@' + #characterSheet.name")
     public BatchGetValuesResponse getSpreadsheetMatrix(CharacterSheet characterSheet, List<String> ranges) throws IOException, GeneralSecurityException {
         log.info("Retrieving sheet range matrix");
-        return SheetsServiceUtil.getSheetsService().spreadsheets().values()
+        return SheetsUtil.getSheetsService().spreadsheets().values()
                 .batchGet(characterSheet.getId())
                 .setRanges(ranges)
                 .execute();

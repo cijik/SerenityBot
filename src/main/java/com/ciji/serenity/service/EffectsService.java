@@ -2,8 +2,6 @@ package com.ciji.serenity.service;
 
 import com.google.api.services.sheets.v4.model.ValueRange;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
-import discord4j.core.object.command.ApplicationCommandInteractionOption;
-import discord4j.core.object.command.ApplicationCommandInteractionOptionValue;
 import discord4j.core.object.entity.Message;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,8 +21,14 @@ public class EffectsService {
     private final CharacterSheetDetailsService characterSheetDetailsService;
 
     public Mono<Message> setRadiation(ChatInputInteractionEvent event) {
-        String characterName = getParameterValue(event, "character-name");
-        String rads = getParameterValue(event, "rads");
+        String characterName = SheetsUtil.getParameterValue(event, "character-name");
+        String rads = SheetsUtil.getParameterValue(event, "rads");
+        try {
+            Integer.parseInt(rads);
+        } catch (NumberFormatException e) {
+            log.error("Invalid radiation value: {}", rads);
+            return event.createFollowup(rads + " is not a valid radiation value");
+        }
 
         return characterSheetService.getCharacterSheet(characterName, event.getInteraction().getUser().getId().asString())
                         .flatMap(characterSheet -> {
@@ -37,7 +41,7 @@ public class EffectsService {
                             }
                             radsCell.getValues().getFirst().set(0, rads);
                             try {
-                                SheetsServiceUtil.getSheetsService()
+                                SheetsUtil.getSheetsService()
                                         .spreadsheets().values()
                                         .update(characterSheet.getId(), CacheRefreshService.MATRIX_RANGES.get(4).replace("'", ""), radsCell)
                                         .setValueInputOption("RAW")
@@ -49,13 +53,5 @@ public class EffectsService {
                             log.info("Changed radiation for {} to {}", characterName, rads);
                             return event.createFollowup("Radiation changed to **" + rads + "** for " + characterName);
                         });
-    }
-
-    private static String getParameterValue(ChatInputInteractionEvent event, String name) {
-        return event
-                .getOption(name)
-                .flatMap(ApplicationCommandInteractionOption::getValue)
-                .map(ApplicationCommandInteractionOptionValue::asString)
-                .orElse("");
     }
 }

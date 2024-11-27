@@ -5,8 +5,6 @@ import org.springframework.stereotype.Service;
 import com.ciji.serenity.enums.Command;
 
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
-import discord4j.core.object.command.ApplicationCommandInteractionOption;
-import discord4j.core.object.command.ApplicationCommandInteractionOptionValue;
 import discord4j.core.object.component.ActionRow;
 import discord4j.core.object.component.Button;
 import discord4j.core.object.entity.Message;
@@ -21,7 +19,7 @@ import static com.ciji.serenity.enums.Command.*;
 public class CommandInfoService {
     
     public Mono<Message> getHelp(ChatInputInteractionEvent event) {
-        String command = getParameterValue(event, "command");
+        String command = SheetsUtil.getParameterValue(event, "command");
 
         if (command.isBlank()) {
             String response = "**Character database commands**:\n" +
@@ -83,14 +81,6 @@ public class CommandInfoService {
         return event.createFollowup(InteractionFollowupCreateSpec.builder()
                         .components(List.of(ActionRow.of(button)))
                         .build());
-    }
-
-    private static String getParameterValue(ChatInputInteractionEvent event, String name) {
-        return event
-                .getOption(name)
-                .flatMap(ApplicationCommandInteractionOption::getValue)
-                .map(ApplicationCommandInteractionOptionValue::asString)
-                .orElse("");
     }
 
     private static Mono<Message> constructHelpResponse(ChatInputInteractionEvent event, Command command) {

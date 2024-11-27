@@ -17,8 +17,6 @@ import org.springframework.stereotype.Service;
 
 import com.ciji.serenity.enums.Modifier;
 import com.ciji.serenity.enums.Special;
-import com.ciji.serenity.exception.OptionNotFoundException;
-import com.ciji.serenity.model.CharacterSheet;
 import com.ciji.serenity.model.CharacterSheetDetails;
 import com.ciji.serenity.model.SheetRow;
 import com.ezylang.evalex.EvaluationException;
@@ -27,8 +25,6 @@ import com.ezylang.evalex.data.EvaluationValue;
 import com.ezylang.evalex.parser.ParseException;
 
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
-import discord4j.core.object.command.ApplicationCommandInteractionOption;
-import discord4j.core.object.command.ApplicationCommandInteractionOptionValue;
 import discord4j.core.object.entity.Message;
 import discord4j.core.spec.InteractionFollowupCreateSpec;
 import lombok.RequiredArgsConstructor;
@@ -55,12 +51,12 @@ public class RollProcessingService {
 
     @SneakyThrows
     public Mono<Message> rollTargeted(ChatInputInteractionEvent event) {
-        String characterName = getParameterValue(event, "character-name");
-        String targetMFD = getParameterValue(event, "with-target-mfd");
+        String characterName = SheetsUtil.getParameterValue(event, "character-name");
+        String targetMFD = SheetsUtil.getParameterValue(event, "with-target-mfd");
 
         return characterSheetService.getCharacterSheet(characterName, event.getInteraction().getUser().getId().asString())
                 .flatMap(characterSheet -> {
-                    String attributeName = getParameterValue(event, "rolls-for");
+                    String attributeName = SheetsUtil.getParameterValue(event, "rolls-for");
 
                     boolean isSpecial;
                     int cellModifier;
@@ -123,12 +119,12 @@ public class RollProcessingService {
 
     @SneakyThrows
     public Mono<Message> rollUntargeted(ChatInputInteractionEvent event) {
-        String characterName = getParameterValue(event, "character-name");
-        String stepModifier = getParameterValue(event, "with-step-bonus");
+        String characterName = SheetsUtil.getParameterValue(event, "character-name");
+        String stepModifier = SheetsUtil.getParameterValue(event, "with-step-bonus");
 
         return characterSheetService.getCharacterSheet(characterName, event.getInteraction().getUser().getId().asString())
                 .flatMap(characterSheet -> {
-                    String attributeName = getParameterValue(event, "rolls-for");
+                    String attributeName = SheetsUtil.getParameterValue(event, "rolls-for");
 
                     boolean isSpecial;
                     int cellModifier;
@@ -218,7 +214,7 @@ public class RollProcessingService {
     }
 
     public Mono<Message> roll(ChatInputInteractionEvent event) {
-        String roll = getParameterValue(event, "roll");
+        String roll = SheetsUtil.getParameterValue(event, "roll");
 
         String comment = "";
         String user = getUser(event);
@@ -279,14 +275,6 @@ public class RollProcessingService {
 
         response.append("**").append(finalResult.getNumberValue().setScale(2, RoundingMode.DOWN).stripTrailingZeros().toPlainString()).append("**");
         return createResponse(event, comment, rollContainsComment, originalRoll, dice, individualPerformedRolls, response);
-    }
-
-    private static String getParameterValue(ChatInputInteractionEvent event, String name) {
-        return event
-                .getOption(name)
-                .flatMap(ApplicationCommandInteractionOption::getValue)
-                .map(ApplicationCommandInteractionOptionValue::asString)
-                .orElseThrow(OptionNotFoundException::new);
     }
 
     private static String getUser(ChatInputInteractionEvent event) {
