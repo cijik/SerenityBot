@@ -31,6 +31,8 @@ public class CommandInfoService {
                     "`/" + READ_SHEET.getCommand() + "`: " + READ_SHEET.getShortDesc() + "\n" +
                     "`/" + ROLL_TARGETED.getCommand() + "`: " + ROLL_TARGETED.getShortDesc() + "\n" +
                     "`/" + ROLL_UNTARGETED.getCommand() + "`: " + ROLL_UNTARGETED.getShortDesc() + "\n" +
+                    "`/" + SET_RADIATION.getCommand() + "`: " + SET_RADIATION.getShortDesc() + "\n" +
+                    "`/" + SET_TEMPERATURE.getCommand() + "`: " + SET_TEMPERATURE.getShortDesc() + "\n" +
                     "**Generic roll commands**:\n" +
                     "`/" + ROLL.getCommand() + "`, `/" + SHORT_ROLL.getCommand() + "`: " + ROLL.getShortDesc() + "\n" +
                     "**Help commands**:\n" +
@@ -68,6 +70,12 @@ public class CommandInfoService {
                 }
                 case DOCS -> {
                     return constructHelpResponse(event, DOCS);
+                }
+                case SET_RADIATION -> {
+                    return constructHelpResponse(event, SET_RADIATION);
+                }
+                case SET_TEMPERATURE -> {
+                    return constructHelpResponse(event, SET_TEMPERATURE);
                 }
                 default -> {
                     return event.createFollowup("No documentation found for command `" + command + "` or command does not exist");

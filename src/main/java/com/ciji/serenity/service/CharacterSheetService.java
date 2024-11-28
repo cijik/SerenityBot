@@ -73,6 +73,7 @@ public class CharacterSheetService {
 
         return Mono.fromCallable(() -> characterSheetRepository.findByName(WordUtils.capitalize(characterName.toLowerCase(Locale.ROOT))))
                 .subscribeOn(Schedulers.boundedElastic())
+                .flatMap(Mono::justOrEmpty)
                 .flatMap(characterSheet -> {
                     characterSheet.setOwnerId(ownerId);
                     return Mono.fromCallable(() -> characterSheetRepository.save(characterSheet))

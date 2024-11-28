@@ -71,6 +71,9 @@ public class SerenityEventAdapter extends ReactiveEventAdapter {
             case SET_RADIATION -> {
                 return event.deferReply().then(effectsService.setRadiation(event));
             }
+            case SET_TEMPERATURE -> {
+                return event.deferReply().then(effectsService.setTemperature(event));
+            }
         }
         return Mono.empty();
     }

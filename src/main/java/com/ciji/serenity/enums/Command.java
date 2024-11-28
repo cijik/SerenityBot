@@ -68,8 +68,13 @@ public enum Command {
 
     SET_RADIATION("set-radiation", "Set the Rads value of a character",
             "Set the Rads for a specified character",
-            ImmutableMap.of("character-name", "Name of the character sheet to read from as they written when they were added (case insensitive)",
-                            "rads", "The amount of rads to set to the character"));
+            ImmutableMap.of("character-name", "Name of the character sheet to read from as they are written when they were added (case insensitive)",
+                            "rads", "The amount of rads to set to the character")),
+
+    SET_TEMPERATURE("set-temperature", "Set the Temperature value of a character",
+            "Set the Temperature for a specified character0",
+            ImmutableMap.of("character-names", "List of names of character sheets to read from as they are written when they were added (case insensitive)",
+                            "temperature", "The temperature to set for the character"));
 
     private final String command;
 

@@ -22,4 +22,6 @@ public class CharacterSheetDetails {
     private SheetMatrix skillMatrix;
 
     private int rads;
+
+    private int temperature;
 }

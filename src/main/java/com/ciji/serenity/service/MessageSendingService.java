@@ -14,11 +14,11 @@ public class MessageSendingService {
         String channelId = SheetsUtil.getParameterValue(event, "channel");
         String message = SheetsUtil.getParameterValue(event, "message");
 
-        return event.reply()
-                .event().getClient()
+        return event.getClient()
                 .getChannelById(Snowflake.of(channelId))
                 .ofType(MessageChannel.class)
-                .flatMap(channel -> channel.createMessage(message));
+                .flatMap(channel -> channel.createMessage(message))
+                .doOnSuccess(replyMessage -> event.reply());
     }
 
 }

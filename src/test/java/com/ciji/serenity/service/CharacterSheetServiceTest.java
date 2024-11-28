@@ -212,7 +212,7 @@ class CharacterSheetServiceTest {
                 .build());
         when(event.createFollowup(any(InteractionFollowupCreateSpec.class)))
                 .thenReturn(Mono.just(messageResponse));
-        when(characterSheetRepository.findByName(anyString())).thenReturn(characterSheet);
+        when(characterSheetRepository.findByName(anyString())).thenReturn(Optional.of(characterSheet));
         when(characterSheetRepository.save(any(CharacterSheet.class))).thenReturn(characterSheet);
         when(event.createFollowup(anyString())).thenReturn(InteractionFollowupCreateMono.of(event).withContent(messageResponse.getContent()));
 
