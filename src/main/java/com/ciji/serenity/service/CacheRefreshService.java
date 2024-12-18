@@ -14,7 +14,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
-import java.text.ParseException;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -57,7 +56,7 @@ public class CacheRefreshService {
             sheetDetails.setSpecialsMatrix(SheetMatrixMapper.map(List.of(readResult.getValueRanges().get(0), readResult.getValueRanges().get(1))));
             sheetDetails.setSkillMatrix(SheetMatrixMapper.map(List.of(readResult.getValueRanges().get(2), readResult.getValueRanges().get(3))));
             sheetDetails.setRads(Integer.parseInt(readResult.getValueRanges().get(4).getValues().getFirst().getFirst().toString()));
-            sheetDetails.setTemperature(Integer.parseInt(readResult.getValueRanges().get(5).getValues().getFirst().getFirst().toString()));
+            sheetDetails.setTemperature(Integer.parseInt(readResult.getValueRanges().get(5).getValues().getFirst().getFirst().toString().replace("°C", "")));
         } catch (GeneralSecurityException | IOException e) {
             log.error("Cannot access character sheet of {}. Possibly not enough permissions", sheet.getName());
         }

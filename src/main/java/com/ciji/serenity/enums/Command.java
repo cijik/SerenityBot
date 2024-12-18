@@ -2,8 +2,9 @@ package com.ciji.serenity.enums;
 
 import com.google.common.collect.ImmutableMap;
 import lombok.Getter;
-import java.util.Map;
+
 import java.util.Collections;
+import java.util.Map;
 
 @Getter
 public enum Command {
@@ -73,7 +74,7 @@ public enum Command {
 
     SET_TEMPERATURE("set-temperature", "Set the Temperature value of a character",
             "Set the Temperature for a specified character0",
-            ImmutableMap.of("character-names", "List of names of character sheets to read from as they are written when they were added (case insensitive)",
+            ImmutableMap.of("character-names", "List of character sheets to read from as they are written when they were added (case insensitive)",
                             "temperature", "The temperature to set for the character"));
 
     private final String command;
