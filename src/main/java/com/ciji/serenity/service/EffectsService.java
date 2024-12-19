@@ -1,6 +1,5 @@
 package com.ciji.serenity.service;
 
-import com.ciji.serenity.model.CharacterSheet;
 import com.ciji.serenity.repository.CharacterSheetRepository;
 import com.google.api.services.sheets.v4.model.ValueRange;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
@@ -8,14 +7,12 @@ import discord4j.core.object.entity.Message;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -52,7 +49,7 @@ public class EffectsService {
                                 SheetsUtil.getSheetsService()
                                         .spreadsheets().values()
                                         .update(characterSheet.getId(), CacheRefreshService.MATRIX_RANGES.get(4).replace("'", ""), radsCell)
-                                        .setValueInputOption("RAW")
+                                        .setValueInputOption("USER_ENTERED")
                                         .execute();
                             } catch (IOException | GeneralSecurityException e) {
                                 log.error("Could not connect to Sheets Service. Cause: {}", e.getMessage());
@@ -88,7 +85,7 @@ public class EffectsService {
                                 SheetsUtil.getSheetsService()
                                         .spreadsheets().values()
                                         .update(characterSheet.getId(), CacheRefreshService.MATRIX_RANGES.get(5).replace("'", ""), tempCell)
-                                        .setValueInputOption("RAW")
+                                        .setValueInputOption("USER_ENTERED")
                                         .execute();
                             } catch (IOException | GeneralSecurityException e) {
                                 log.error("Could not connect to Sheets Service for {}. Cause: {}", characterName, e.getMessage());
@@ -101,11 +98,11 @@ public class EffectsService {
                 .toList();
 
         String successfulCharacterList = responses.stream()
-                .filter(response -> !response.contains("Could not") || !response.contains("not found"))
+                .filter(response -> !response.contains("Could not") && !response.contains("not found"))
                 .reduce((character1, character2) -> character1 + ", " + character2)
                 .orElse("");
 
-        if (responses.stream().filter(response -> !response.contains("Could not") || !response.contains("not found")).count() < characterNames.length()) {
+        if (responses.stream().filter(response -> !response.contains("Could not") && !response.contains("not found")).count() < characterNames.length()) {
             return event.createFollowup("Temperature changes applied with issues. The following characters' sheets have been updated: " + successfulCharacterList);
         } else {
             return event.createFollowup("Temperature changes applied successfully.");
