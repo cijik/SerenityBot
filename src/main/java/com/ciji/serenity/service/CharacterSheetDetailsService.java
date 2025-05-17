@@ -33,4 +33,12 @@ public class CharacterSheetDetailsService {
                 .setRanges(ranges)
                 .execute();
     }
+
+    public BatchGetValuesResponse getActualSpreadsheetMatrix(CharacterSheet characterSheet, List<String> ranges) throws IOException, GeneralSecurityException {
+        log.info("Retrieving actual sheet range matrix");
+        return SheetsUtil.getSheetsService().spreadsheets().values()
+                .batchGet(characterSheet.getId())
+                .setRanges(ranges)
+                .execute();
+    }
 }

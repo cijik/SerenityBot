@@ -5,6 +5,7 @@ import com.ciji.serenity.model.CharacterSheetDetails;
 import com.ciji.serenity.model.mapper.SheetMatrixMapper;
 import com.ciji.serenity.repository.CharacterSheetDetailsRepository;
 import com.ciji.serenity.repository.CharacterSheetRepository;
+import com.ciji.serenity.service.context.SchedulerContextHolder;
 import com.google.api.services.sheets.v4.model.BatchGetValuesResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,26 +34,31 @@ public class CacheRefreshService {
     @Scheduled(fixedRate = 12, timeUnit = TimeUnit.HOURS)
     @Transactional
     public void refreshSheetData() {
+        boolean isScheduled = SchedulerContextHolder.isCalledFromScheduler();
         log.info("Refreshing character sheet data of all users");
         characterSheetRepository.findAll().forEach(sheet -> {
             log.debug("Refreshing sheet data for {}", sheet.getName());
             characterSheetDetailsRepository.findByName(sheet.getName()).ifPresentOrElse(sheetDetails -> {
-                        retrieveMatrixValues(sheet, sheetDetails);
+                        retrieveMatrixValues(sheet, sheetDetails, isScheduled);
                         characterSheetDetailsRepository.save(sheetDetails);
                     },
                     () -> {
                         CharacterSheetDetails sheetDetails = new CharacterSheetDetails();
                         sheetDetails.setName(sheet.getName());
-                        retrieveMatrixValues(sheet, sheetDetails);
+                        retrieveMatrixValues(sheet, sheetDetails, isScheduled);
                         characterSheetDetailsRepository.save(sheetDetails);
                     });
         });
     }
 
-    private void retrieveMatrixValues(CharacterSheet sheet, CharacterSheetDetails sheetDetails) {
+    private void retrieveMatrixValues(CharacterSheet sheet, CharacterSheetDetails sheetDetails, boolean isScheduled) {
         BatchGetValuesResponse readResult;
         try {
-            readResult = characterSheetDetailsService.getSpreadsheetMatrix(sheet, MATRIX_RANGES);
+            readResult = isScheduled
+                    ?
+                    characterSheetDetailsService.getSpreadsheetMatrix(sheet, MATRIX_RANGES)
+                    :
+                    characterSheetDetailsService.getActualSpreadsheetMatrix(sheet, MATRIX_RANGES);
             sheetDetails.setSpecialsMatrix(SheetMatrixMapper.map(List.of(readResult.getValueRanges().get(0), readResult.getValueRanges().get(1))));
             sheetDetails.setSkillMatrix(SheetMatrixMapper.map(List.of(readResult.getValueRanges().get(2), readResult.getValueRanges().get(3))));
             sheetDetails.setRads(Integer.parseInt(readResult.getValueRanges().get(4).getValues().getFirst().getFirst().toString()));

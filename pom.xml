@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>com.ciji</groupId>
 	<artifactId>serenity-bot</artifactId>
-	<version>0.5.2</version>
+	<version>0.5.3</version>
 	<name>SerenityBot</name>
 	<description>A Discord bot for managing a TTRPG</description>
 	<properties>
@@ -82,6 +82,10 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-cache</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-aop</artifactId>
 		</dependency>
 	
 		<dependency>
