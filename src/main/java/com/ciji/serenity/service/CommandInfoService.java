@@ -10,6 +10,7 @@ import discord4j.core.object.component.Button;
 import discord4j.core.object.entity.Message;
 import discord4j.core.spec.InteractionFollowupCreateSpec;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 import java.util.List;
 
@@ -41,7 +42,9 @@ public class CommandInfoService {
             String followUpResponse = "`/" + SET_RADIATION.getCommand() + "`: " + SET_RADIATION.getShortDesc() + "\n" +
                     "`/" + SET_TEMPERATURE.getCommand() + "`: " + SET_TEMPERATURE.getShortDesc() + "\n" +
                     "`/" + REFRESH_CHARACTER_DATA.getCommand() + "`: " + REFRESH_CHARACTER_DATA.getShortDesc() + "\n";
-            return event.reply(response).event().createFollowup(followUpResponse);
+            return Mono.fromCallable(() -> event.createFollowup(response).subscribe())
+                    .flatMap(d -> event.createFollowup(followUpResponse))
+                    .subscribeOn(Schedulers.boundedElastic());
         } else {
             Command commandEnum = Command.fromString(command);
 

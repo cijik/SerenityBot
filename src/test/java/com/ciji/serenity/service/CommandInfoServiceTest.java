@@ -7,7 +7,6 @@ import discord4j.core.object.command.ApplicationCommandInteractionOption;
 import discord4j.core.object.command.ApplicationCommandOption;
 import discord4j.core.object.component.MessageComponent;
 import discord4j.core.object.entity.Message;
-import discord4j.core.spec.InteractionApplicationCommandCallbackReplyMono;
 import discord4j.core.spec.InteractionFollowupCreateMono;
 import discord4j.core.spec.InteractionFollowupCreateSpec;
 import discord4j.discordjson.json.*;
@@ -82,9 +81,6 @@ class CommandInfoServiceTest {
 
         when(event.createFollowup(any(InteractionFollowupCreateSpec.class))).thenReturn(Mono.just(messageResponse));
         when(event.createFollowup(anyString())).thenReturn(InteractionFollowupCreateMono.of(event).withContent(messageResponse.getContent()));
-        if (parameterValue.isEmpty()) {
-            when(event.reply(anyString())).thenReturn(InteractionApplicationCommandCallbackReplyMono.of(event).withContent(messageResponse.getContent()));
-        }
 
         Mono<Message> response = commandInfoService.getHelp(event);
 
