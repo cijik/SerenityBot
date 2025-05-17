@@ -6,6 +6,7 @@ import com.ciji.serenity.repository.CharacterSheetDetailsRepository;
 import com.google.api.services.sheets.v4.model.BatchGetValuesResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
@@ -32,6 +33,11 @@ public class CharacterSheetDetailsService {
                 .batchGet(characterSheet.getId())
                 .setRanges(ranges)
                 .execute();
+    }
+
+    @CacheEvict(cacheNames = "sheet-ranges", allEntries = true)
+    public void evictSheetRangesCache() {
+        log.info("Evicting range matrix cache for all sheets");
     }
 
     public BatchGetValuesResponse getActualSpreadsheetMatrix(CharacterSheet characterSheet, List<String> ranges) throws IOException, GeneralSecurityException {

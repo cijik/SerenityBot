@@ -5,7 +5,6 @@ import com.ciji.serenity.model.CharacterSheetDetails;
 import com.ciji.serenity.model.mapper.SheetMatrixMapper;
 import com.ciji.serenity.repository.CharacterSheetDetailsRepository;
 import com.ciji.serenity.repository.CharacterSheetRepository;
-import com.ciji.serenity.service.context.SchedulerContextHolder;
 import com.google.api.services.sheets.v4.model.BatchGetValuesResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -39,18 +38,19 @@ public class CacheRefreshService {
 
     public void refreshSheetData(boolean isScheduled) {
         log.info("Refreshing character sheet data of all users");
+        characterSheetDetailsService.evictSheetRangesCache();
         characterSheetRepository.findAll().forEach(sheet -> {
             log.debug("Refreshing sheet data for {}", sheet.getName());
             characterSheetDetailsRepository.findByName(sheet.getName()).ifPresentOrElse(sheetDetails -> {
-                        retrieveMatrixValues(sheet, sheetDetails, isScheduled);
-                        characterSheetDetailsRepository.save(sheetDetails);
-                    },
-                    () -> {
-                        CharacterSheetDetails sheetDetails = new CharacterSheetDetails();
-                        sheetDetails.setName(sheet.getName());
-                        retrieveMatrixValues(sheet, sheetDetails, isScheduled);
-                        characterSheetDetailsRepository.save(sheetDetails);
-                    });
+                    retrieveMatrixValues(sheet, sheetDetails, isScheduled);
+                    characterSheetDetailsRepository.save(sheetDetails);
+                },
+                () -> {
+                    CharacterSheetDetails sheetDetails = new CharacterSheetDetails();
+                    sheetDetails.setName(sheet.getName());
+                    retrieveMatrixValues(sheet, sheetDetails, isScheduled);
+                    characterSheetDetailsRepository.save(sheetDetails);
+                });
         });
     }
 
