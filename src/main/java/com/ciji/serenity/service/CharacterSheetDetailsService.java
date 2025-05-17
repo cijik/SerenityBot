@@ -37,6 +37,12 @@ public class CharacterSheetDetailsService {
                 .execute();
     }
 
+    @CacheEvict(cacheNames = "sheets", allEntries = true)
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void evictSheetDetailsCache() {
+        log.info("Evicting sheet details cache for all sheets");
+    }
+
     @CacheEvict(cacheNames = "sheet-ranges", allEntries = true)
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void evictSheetRangesCache() {

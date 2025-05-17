@@ -35,6 +35,7 @@ public class CacheRefreshService {
     public void refreshSheetData(boolean isScheduled) {
         log.info("Refreshing character sheet data of all users");
         // Evict cache in a separate transaction
+        characterSheetDetailsService.evictSheetDetailsCache();
         characterSheetDetailsService.evictSheetRangesCache();
 
         // Optional: Add a small delay to ensure cache eviction completes
