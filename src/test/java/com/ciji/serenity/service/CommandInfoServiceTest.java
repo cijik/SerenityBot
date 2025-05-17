@@ -1,15 +1,13 @@
 package com.ciji.serenity.service;
 
-import discord4j.common.util.Snowflake;
 import discord4j.core.DiscordClient;
 import discord4j.core.GatewayDiscordClient;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
 import discord4j.core.object.command.ApplicationCommandInteractionOption;
 import discord4j.core.object.command.ApplicationCommandOption;
-import discord4j.core.object.command.Interaction;
 import discord4j.core.object.component.MessageComponent;
 import discord4j.core.object.entity.Message;
-import discord4j.core.object.entity.User;
+import discord4j.core.spec.InteractionApplicationCommandCallbackReplyMono;
 import discord4j.core.spec.InteractionFollowupCreateMono;
 import discord4j.core.spec.InteractionFollowupCreateSpec;
 import discord4j.discordjson.json.*;
@@ -20,20 +18,15 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
-import java.util.Arrays;
-import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Named.named;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.mock;
@@ -89,6 +82,9 @@ class CommandInfoServiceTest {
 
         when(event.createFollowup(any(InteractionFollowupCreateSpec.class))).thenReturn(Mono.just(messageResponse));
         when(event.createFollowup(anyString())).thenReturn(InteractionFollowupCreateMono.of(event).withContent(messageResponse.getContent()));
+        if (parameterValue.isEmpty()) {
+            when(event.reply(anyString())).thenReturn(InteractionApplicationCommandCallbackReplyMono.of(event).withContent(messageResponse.getContent()));
+        }
 
         Mono<Message> response = commandInfoService.getHelp(event);
 

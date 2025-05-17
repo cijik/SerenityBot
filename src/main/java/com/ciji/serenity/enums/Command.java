@@ -75,7 +75,11 @@ public enum Command {
     SET_TEMPERATURE("set-temperature", "Set the Temperature value for a list of characters",
             "Set the Temperature for each character on a specified list",
             ImmutableMap.of("character-names", "List of character sheets to read from as they are written when they were added (case insensitive)",
-                            "temperature", "The temperature to set for the character"));
+                            "temperature", "The temperature to set for the character")),
+
+    REFRESH_CHARACTER_DATA("refresh-character-data", "Refresh character data in the database",
+            "Trigger a full database refresh of all characters currently stored in the database",
+            Collections.emptyMap());
 
     private final String command;
 

@@ -5,7 +5,6 @@ import com.ciji.serenity.enums.Command;
 import com.ciji.serenity.service.*;
 import discord4j.core.event.ReactiveEventAdapter;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
-import discord4j.core.object.entity.ApplicationInfo;
 import discord4j.core.object.presence.ClientActivity;
 import discord4j.core.object.presence.ClientPresence;
 import discord4j.core.object.presence.Status;
@@ -14,6 +13,7 @@ import org.reactivestreams.Publisher;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 @Component
 @AllArgsConstructor
@@ -28,6 +28,8 @@ public class SerenityEventAdapter extends ReactiveEventAdapter {
     private final MessageSendingService messageSendingService;
 
     private final EffectsService effectsService;
+
+    private final CacheRefreshService cacheRefreshService;
 
     @Override
     public Publisher<?> onChatInputInteraction(ChatInputInteractionEvent event) {
@@ -60,7 +62,7 @@ public class SerenityEventAdapter extends ReactiveEventAdapter {
                 return event.deferReply().then(rollProcessingService.roll(event));
             }
             case HELP -> {
-                return event.deferReply().withEphemeral(true).then(commandInfoService.getHelp(event));
+                return event.deferReply().then(commandInfoService.getHelp(event));
             }
             case DOCS -> {
                 return event.deferReply().withEphemeral(true).then(commandInfoService.getDocs(event));
@@ -73,6 +75,16 @@ public class SerenityEventAdapter extends ReactiveEventAdapter {
             }
             case SET_TEMPERATURE -> {
                 return event.deferReply().then(effectsService.setTemperature(event));
+            }
+            case REFRESH_CHARACTER_DATA -> {
+                return event.deferReply().then(Mono.empty()
+                        .publishOn(Schedulers.boundedElastic())
+                        .map(v -> event.createFollowup("Database will be refreshed in a few moments. This may take a while depending on the size of the database."))
+                        .map(v -> {
+                            cacheRefreshService.refreshSheetData();
+                            return event.createFollowup("Database has been refreshed successfully.");
+                        })
+                );
             }
         }
         return Mono.empty();

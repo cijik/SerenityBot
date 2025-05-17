@@ -38,9 +38,18 @@ public class CommandInfoService {
                     "**Help commands**:\n" +
                     "`/" + HELP.getCommand() + "`: " + HELP.getShortDesc() + "\n" +
                     "`/" + DOCS.getCommand() + "`: " + DOCS.getShortDesc() + "\n";
-            return event.createFollowup(response);
+            String followUpResponse = "`/" + SET_RADIATION.getCommand() + "`: " + SET_RADIATION.getShortDesc() + "\n" +
+                    "`/" + SET_TEMPERATURE.getCommand() + "`: " + SET_TEMPERATURE.getShortDesc() + "\n" +
+                    "`/" + REFRESH_CHARACTER_DATA.getCommand() + "`: " + REFRESH_CHARACTER_DATA.getShortDesc() + "\n";
+            return event.reply(response).event().createFollowup(followUpResponse);
         } else {
-            switch (Command.fromString(command)) {
+            Command commandEnum = Command.fromString(command);
+
+            if (commandEnum == null) {
+                return event.createFollowup("No documentation found for command `" + command + "` or command does not exist. Please check if the command you enter is written exactly as it is in the /help list.");
+            }
+
+            switch (commandEnum) {
                 case ADD_CHARACTER -> {
                     return constructHelpResponse(event, ADD_CHARACTER);
                 }
@@ -76,6 +85,9 @@ public class CommandInfoService {
                 }
                 case SET_TEMPERATURE -> {
                     return constructHelpResponse(event, SET_TEMPERATURE);
+                }
+                case REFRESH_CHARACTER_DATA -> {
+                    return constructHelpResponse(event, REFRESH_CHARACTER_DATA);
                 }
                 default -> {
                     return event.createFollowup("No documentation found for command `" + command + "` or command does not exist");
