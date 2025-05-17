@@ -39,7 +39,7 @@ public class EffectsService {
                         .flatMap(characterSheet -> {
                             ValueRange radsCell;
                             try {
-                                radsCell = characterSheetDetailsService.getSpreadsheetMatrix(characterSheet, CacheRefreshService.MATRIX_RANGES).getValueRanges().get(4);
+                                radsCell = characterSheetDetailsService.getSpreadsheetMatrix(characterSheet, SheetDataProcessorService.MATRIX_RANGES).getValueRanges().get(4);
                             } catch (IOException | GeneralSecurityException e) {
                                 log.error("Could not retrieve spreadsheet matrices for {}. Cause: {}", characterName, e.getMessage());
                                 return event.createFollowup("Could not retrieve sheet data for " + characterName);
@@ -48,7 +48,7 @@ public class EffectsService {
                             try {
                                 SheetsUtil.getSheetsService()
                                         .spreadsheets().values()
-                                        .update(characterSheet.getId(), CacheRefreshService.MATRIX_RANGES.get(4).replace("'", ""), radsCell)
+                                        .update(characterSheet.getId(), SheetDataProcessorService.MATRIX_RANGES.get(4).replace("'", ""), radsCell)
                                         .setValueInputOption("USER_ENTERED")
                                         .execute();
                             } catch (IOException | GeneralSecurityException e) {
@@ -75,7 +75,7 @@ public class EffectsService {
                         .map(characterSheet -> {
                             ValueRange tempCell;
                             try {
-                                tempCell = characterSheetDetailsService.getSpreadsheetMatrix(characterSheet, CacheRefreshService.MATRIX_RANGES).getValueRanges().get(5);
+                                tempCell = characterSheetDetailsService.getSpreadsheetMatrix(characterSheet, SheetDataProcessorService.MATRIX_RANGES).getValueRanges().get(5);
                             } catch (IOException | GeneralSecurityException e) {
                                 log.error("Could not retrieve spreadsheet matrices for {}. Cause: {}", characterName, e.getMessage());
                                 return "Could not retrieve sheet data for " + characterName;
@@ -84,7 +84,7 @@ public class EffectsService {
                             try {
                                 SheetsUtil.getSheetsService()
                                         .spreadsheets().values()
-                                        .update(characterSheet.getId(), CacheRefreshService.MATRIX_RANGES.get(5).replace("'", ""), tempCell)
+                                        .update(characterSheet.getId(), SheetDataProcessorService.MATRIX_RANGES.get(5).replace("'", ""), tempCell)
                                         .setValueInputOption("USER_ENTERED")
                                         .execute();
                             } catch (IOException | GeneralSecurityException e) {

@@ -9,6 +9,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
@@ -36,6 +38,7 @@ public class CharacterSheetDetailsService {
     }
 
     @CacheEvict(cacheNames = "sheet-ranges", allEntries = true)
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void evictSheetRangesCache() {
         log.info("Evicting range matrix cache for all sheets");
     }

@@ -8,6 +8,7 @@ import com.ciji.serenity.repository.CharacterSheetRepository;
 import com.google.api.services.sheets.v4.model.BatchGetValuesResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,52 +23,28 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 public class CacheRefreshService {
 
-    private final CharacterSheetRepository characterSheetRepository;
-
     private final CharacterSheetDetailsService characterSheetDetailsService;
 
-    private final CharacterSheetDetailsRepository characterSheetDetailsRepository;
-
-    static final List<String> MATRIX_RANGES = List.of("'Sheet'!AN27:AO40", "'Sheet'!AP27:AV40", "'Sheet'!BF7:BJ40", "'Sheet'!BW7:CJ40", "'Sheet'!DA10", "'Sheet'!DA26");
+    private final SheetDataProcessorService sheetDataProcessorService;
 
     @Scheduled(fixedRate = 12, timeUnit = TimeUnit.HOURS)
-    @Transactional
     public void refreshSheetData() {
         refreshSheetData(true);
     }
 
     public void refreshSheetData(boolean isScheduled) {
         log.info("Refreshing character sheet data of all users");
+        // Evict cache in a separate transaction
         characterSheetDetailsService.evictSheetRangesCache();
-        characterSheetRepository.findAll().forEach(sheet -> {
-            log.debug("Refreshing sheet data for {}", sheet.getName());
-            characterSheetDetailsRepository.findByName(sheet.getName()).ifPresentOrElse(sheetDetails -> {
-                    retrieveMatrixValues(sheet, sheetDetails, isScheduled);
-                    characterSheetDetailsRepository.save(sheetDetails);
-                },
-                () -> {
-                    CharacterSheetDetails sheetDetails = new CharacterSheetDetails();
-                    sheetDetails.setName(sheet.getName());
-                    retrieveMatrixValues(sheet, sheetDetails, isScheduled);
-                    characterSheetDetailsRepository.save(sheetDetails);
-                });
-        });
-    }
 
-    private void retrieveMatrixValues(CharacterSheet sheet, CharacterSheetDetails sheetDetails, boolean isScheduled) {
-        BatchGetValuesResponse readResult;
+        // Optional: Add a small delay to ensure cache eviction completes
         try {
-            readResult = isScheduled
-                    ?
-                    characterSheetDetailsService.getSpreadsheetMatrix(sheet, MATRIX_RANGES)
-                    :
-                    characterSheetDetailsService.getActualSpreadsheetMatrix(sheet, MATRIX_RANGES);
-            sheetDetails.setSpecialsMatrix(SheetMatrixMapper.map(List.of(readResult.getValueRanges().get(0), readResult.getValueRanges().get(1))));
-            sheetDetails.setSkillMatrix(SheetMatrixMapper.map(List.of(readResult.getValueRanges().get(2), readResult.getValueRanges().get(3))));
-            sheetDetails.setRads(Integer.parseInt(readResult.getValueRanges().get(4).getValues().getFirst().getFirst().toString()));
-            sheetDetails.setTemperature(Integer.parseInt(readResult.getValueRanges().get(5).getValues().getFirst().getFirst().toString().replace("°C", "")));
-        } catch (GeneralSecurityException | IOException e) {
-            log.error("Cannot access character sheet of {}. Possibly not enough permissions", sheet.getName());
+            Thread.sleep(100);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
         }
+
+        // Process data in a new transaction
+        sheetDataProcessorService.processSheetData(isScheduled);
     }
 }
