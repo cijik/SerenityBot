@@ -79,7 +79,7 @@ public class SerenityEventAdapter extends ReactiveEventAdapter {
             case REFRESH_CHARACTER_DATA -> {
                 return event.deferReply().then(Mono.fromCallable(() -> event.createFollowup("Database will be refreshed in a few moments. This may take a while depending on the size of the database.").subscribe())
                         .map(d -> {
-                            cacheRefreshService.refreshSheetData();
+                            cacheRefreshService.refreshSheetData(false);
                             return event.createFollowup("Database has been refreshed successfully.");
                         })
                         .subscribeOn(Schedulers.boundedElastic())

@@ -17,7 +17,7 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 import java.time.Duration;
 
 @Configuration
-@PropertySource({ "classpath:application.properties", "file:./token.properties" }) //token is added in a separate property file as the "token" property
+@PropertySource(value = { "classpath:application.properties", "classpath:token.properties", "file:./token.properties" }, ignoreResourceNotFound = true) //token is added in a separate property file as the "token" property
 @Slf4j
 @EnableCaching
 public class BotConfig {

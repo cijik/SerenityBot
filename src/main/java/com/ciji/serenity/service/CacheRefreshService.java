@@ -34,7 +34,10 @@ public class CacheRefreshService {
     @Scheduled(fixedRate = 12, timeUnit = TimeUnit.HOURS)
     @Transactional
     public void refreshSheetData() {
-        boolean isScheduled = SchedulerContextHolder.isCalledFromScheduler();
+        refreshSheetData(true);
+    }
+
+    public void refreshSheetData(boolean isScheduled) {
         log.info("Refreshing character sheet data of all users");
         characterSheetRepository.findAll().forEach(sheet -> {
             log.debug("Refreshing sheet data for {}", sheet.getName());
