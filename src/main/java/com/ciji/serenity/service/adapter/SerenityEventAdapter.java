@@ -77,13 +77,12 @@ public class SerenityEventAdapter extends ReactiveEventAdapter {
                 return event.deferReply().then(effectsService.setTemperature(event));
             }
             case REFRESH_CHARACTER_DATA -> {
-                return event.deferReply().then(Mono.empty()
-                        .publishOn(Schedulers.boundedElastic())
-                        .map(v -> event.createFollowup("Database will be refreshed in a few moments. This may take a while depending on the size of the database."))
+                return event.deferReply().then(Mono.fromCallable(() -> event.createFollowup("Database will be refreshed in a few moments. This may take a while depending on the size of the database."))
                         .map(v -> {
                             cacheRefreshService.refreshSheetData();
                             return event.createFollowup("Database has been refreshed successfully.");
                         })
+                        .subscribeOn(Schedulers.boundedElastic())
                 );
             }
         }
