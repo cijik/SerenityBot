@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>com.ciji</groupId>
 	<artifactId>serenity-bot</artifactId>
-	<version>0.5.8</version>
+	<version>0.5.9</version>
 	<name>SerenityBot</name>
 	<description>A Discord bot for managing a TTRPG</description>
 	<properties>
@@ -151,6 +151,10 @@
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 				<configuration>
+                    <executable>true</executable>
+                    <layers>
+                        <enabled>true</enabled>
+                    </layers>
 					<excludes>
 						<exclude>
 							<groupId>org.projectlombok</groupId>
