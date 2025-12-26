@@ -4,8 +4,6 @@ import discord4j.core.DiscordClientBuilder;
 import discord4j.core.GatewayDiscordClient;
 import discord4j.core.object.presence.ClientActivity;
 import discord4j.core.object.presence.ClientPresence;
-import discord4j.gateway.intent.Intent;
-import discord4j.gateway.intent.IntentSet;
 import jakarta.annotation.PreDestroy;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -31,12 +29,6 @@ public class Client {
             client = DiscordClientBuilder.create(token)
                     .build()
                     .gateway()
-                    .setEnabledIntents(IntentSet.of(
-                            Intent.GUILDS,
-                            Intent.GUILD_MESSAGES,
-                            Intent.GUILD_PRESENCES,
-                            Intent.MESSAGE_CONTENT
-                    ))
                     .setInitialPresence(s -> ClientPresence.online(ClientActivity.playing("Starting...")))
                     .login()
                     .retryWhen(Retry.backoff(5, Duration.ofSeconds(5))
