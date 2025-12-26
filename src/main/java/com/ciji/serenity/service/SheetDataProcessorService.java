@@ -55,10 +55,21 @@ public class SheetDataProcessorService {
                     characterSheetDetailsService.getActualSpreadsheetMatrix(sheet, MATRIX_RANGES);
             sheetDetails.setSpecialsMatrix(SheetMatrixMapper.map(List.of(readResult.getValueRanges().get(0), readResult.getValueRanges().get(1))));
             sheetDetails.setSkillMatrix(SheetMatrixMapper.map(List.of(readResult.getValueRanges().get(2), readResult.getValueRanges().get(3))));
-            sheetDetails.setRads(Integer.parseInt(readResult.getValueRanges().get(4).getValues().getFirst().getFirst().toString()));
-            sheetDetails.setTemperature(Integer.parseInt(readResult.getValueRanges().get(5).getValues().getFirst().getFirst().toString().replace("°C", "")));
+            if (readResult.getValueRanges().get(4).getValues() != null) {
+                sheetDetails.setRads(Integer.parseInt(readResult.getValueRanges().get(4).getValues().getFirst().getFirst().toString()));
+            } else {
+                sheetDetails.setRads(0);
+            }
+            if (readResult.getValueRanges().get(5).getValues() != null) {
+                sheetDetails.setTemperature(Integer.parseInt(readResult.getValueRanges().get(5).getValues().getFirst().getFirst().toString().replace("°C", "")));
+            } else {
+                sheetDetails.setTemperature(0);
+            }
         } catch (GeneralSecurityException | IOException e) {
             log.error("Cannot access character sheet of {}. Possibly not enough permissions", sheet.getName());
+        } catch (NullPointerException e) {
+            log.debug("No data entry found for {}", sheet.getName());
+            log.error(e.getMessage(), e);
         }
     }
 }
