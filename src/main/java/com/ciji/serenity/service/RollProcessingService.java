@@ -5,12 +5,13 @@ import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import java.util.Random;
 import java.util.Set;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.MatchResult;
 import java.util.regex.Pattern;
 
+import com.ciji.serenity.enums.RigType;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.WordUtils;
 import org.springframework.stereotype.Service;
@@ -40,6 +41,10 @@ public class RollProcessingService {
     private final CharacterSheetService characterSheetService;
 
     private final CharacterSheetDetailsService characterSheetDetailsService;
+
+    private RigType rigType = RigType.NONE;
+
+    private boolean isCrit;
 
     private static final String DICE_REGEX = "\\d*d\\d+";
 
@@ -164,7 +169,15 @@ public class RollProcessingService {
                         requestedAttribute = attributeNames.indexOf(attributeName);
                     }
 
-                    int roll = new Random().nextInt(100) + 1;
+                    int roll;
+
+                    if (!rigType.equals(RigType.NONE)) {
+                        int lowerBound = rigType.equals(RigType.FAIL) ? isCrit ? 96 : Integer.parseInt(attributeValueMatrix.get(requestedAttribute).getRow().reversed().get(1)) : 1;
+                        int upperBound = rigType.equals(RigType.PASS) ? isCrit ? 6 : Integer.parseInt(attributeValueMatrix.get(requestedAttribute).getRow().get(1)) : 101; //upper bound is exclusive
+                        roll = ThreadLocalRandom.current().nextInt(lowerBound, upperBound);
+                    } else {
+                        roll = ThreadLocalRandom.current().nextInt(101); //upper bound is exclusive
+                    }
                     if (roll > 95) {
                         return event.createFollowup(modifiableCharacterName + " rolls a **" + roll + "** on " + attributeName + ", **failing spectacularly**!");
                     }
@@ -241,7 +254,7 @@ public class RollProcessingService {
             int numberOfSides = Integer.parseInt(die.substring(die.indexOf("d")+1));
             BigDecimal finalSum = BigDecimal.ZERO;
             for (int i = 0; i < numberOfDice; i++) {
-                int rollResult = new Random().nextInt(numberOfSides) + 1;
+                int rollResult = ThreadLocalRandom.current().nextInt(numberOfSides + 1); //upper bound is exclusive
                 dieRolls.add(rollResult);
                 finalSum = finalSum.add(BigDecimal.valueOf(rollResult));
             }
@@ -277,6 +290,28 @@ public class RollProcessingService {
         return createResponse(event, comment, rollContainsComment, originalRoll, dice, individualPerformedRolls, response);
     }
 
+    public Mono<Message> rig(ChatInputInteractionEvent event) {
+        String type = SheetsUtil.getParameterValue(event, "type");
+        String isCrit = SheetsUtil.getParameterValue(event, "is-crit");
+
+        try {
+            rigType = RigType.valueOf(type.toUpperCase(Locale.ROOT));
+        } catch (IllegalArgumentException e) {
+            return event.createFollowup("Invalid type of rigging. Please use pass/fail.").withEphemeral(true);
+        }
+
+        this.isCrit = isCrit.toLowerCase(Locale.ROOT).equals("yes") || isCrit.toLowerCase(Locale.ROOT).equals("true");
+
+        return event.createFollowup("Next roll is rigged").withEphemeral(true);
+    }
+
+    public Mono<Message> unrig(ChatInputInteractionEvent event) {
+        rigType = RigType.NONE;
+        isCrit = false;
+
+        return event.createFollowup("Next roll is no longer rigged.").withEphemeral(true);
+    }
+
     private static String getUser(ChatInputInteractionEvent event) {
         return event.getInteraction().getMember().orElseThrow().getMemberData().nick().get().orElse(
                 event.getInteraction().getUser().getGlobalName().orElse(
@@ -310,7 +345,9 @@ public class RollProcessingService {
     }
 
     private Mono<Message> createRollResultFollowup(ChatInputInteractionEvent event, String characterName, String skillName, String skillModifier, int skillThreshold) {
-        int roll = new Random().nextInt(100);
+        final int lowerBound = rigType.equals(RigType.FAIL) ? isCrit ? 96 : skillThreshold : 1;
+        final int upperBound = rigType.equals(RigType.PASS) ? isCrit ? 6 : skillThreshold : 101; //upper bound is exclusive
+        final int roll = ThreadLocalRandom.current().nextInt(lowerBound, upperBound);
         String result = roll <= skillThreshold ? "Success!" : "Failure!";
 
         return event.createFollowup(InteractionFollowupCreateSpec.builder()

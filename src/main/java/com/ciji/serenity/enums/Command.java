@@ -79,6 +79,15 @@ public enum Command {
 
     REFRESH_CHARACTER_DATA("refresh-character-data", "Refresh character data in the database",
             "Trigger a full database refresh of all characters currently stored in the database",
+            Collections.emptyMap()),
+
+    RIG("rig", "Rig the upcoming roll",
+            "Cause the upcoming roll to fall into a preset range",
+            ImmutableMap.of("type", "Type of roll: pass/fail",
+                            "is-crit", "Whether the rigged roll should be critical or not: yes/no")),
+
+    UNRIG("unrig", "Unrig the upcoming roll",
+            "Cancel the rigging of the next roll",
             Collections.emptyMap());
 
     private final String command;

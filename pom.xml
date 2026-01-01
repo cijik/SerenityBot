@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>com.ciji</groupId>
 	<artifactId>serenity-bot</artifactId>
-	<version>0.5.10</version>
+	<version>0.5.11</version>
 	<name>SerenityBot</name>
 	<description>A Discord bot for managing a TTRPG</description>
 	<properties>
@@ -35,6 +35,7 @@
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-lang3</artifactId>
+			<version>3.18.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.commons</groupId>

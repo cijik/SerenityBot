@@ -19,6 +19,6 @@ public class ConnectionEventAdapter extends ReactiveEventAdapter {
 
     @Override
     public Publisher<?> onReconnect(ReconnectEvent event) {
-        return event.getClient().updatePresence(ClientPresence.of(Status.ONLINE, ClientActivity.listening("requests")));
+        return event.getClient().updatePresence(ClientPresence.of(Status.ONLINE, ClientActivity.custom("Ready for requests")));
     }
 }

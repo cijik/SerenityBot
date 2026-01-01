@@ -58,6 +58,12 @@ public class SerenityEventAdapter extends ReactiveEventAdapter {
             case ROLL_UNTARGETED -> {
                 return event.deferReply().then(rollProcessingService.rollUntargeted(event));
             }
+            case RIG -> {
+                return event.deferReply().then(rollProcessingService.rig(event));
+            }
+            case UNRIG -> {
+                return event.deferReply().then(rollProcessingService.unrig(event));
+            }
             case ROLL, SHORT_ROLL -> {
                 return event.deferReply().then(rollProcessingService.roll(event));
             }
@@ -94,7 +100,7 @@ public class SerenityEventAdapter extends ReactiveEventAdapter {
         if (debug != null && !debug.equals("false")) {
             client.getClient().updatePresence(ClientPresence.of(Status.DO_NOT_DISTURB, ClientActivity.custom("Debugging, do not interact"))).subscribe();
         } else {
-            client.getClient().updatePresence(ClientPresence.of(Status.ONLINE, ClientActivity.listening("requests"))).subscribe();
+            client.getClient().updatePresence(ClientPresence.of(Status.ONLINE, ClientActivity.custom("Ready for requests"))).subscribe();
         }
     }
 }
