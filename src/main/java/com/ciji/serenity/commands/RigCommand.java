@@ -26,7 +26,7 @@ public class RigCommand implements SerenityCommand{
                 .name(RIG.getCommand())
                 .description(RIG.getShortDesc())
                 .type(ApplicationCommand.Type.CHAT_INPUT.getValue())
-                .defaultMemberPermissions(String.valueOf(PermissionSet.of(Permission.ADMINISTRATOR)))
+                .defaultMemberPermissions(String.valueOf(PermissionSet.of(Permission.ADMINISTRATOR).getRawValue()))
                 .addOption(ApplicationCommandOptionData.builder()
                         .name("type")
                         .description(RIG.getParamDescs().get("type"))
