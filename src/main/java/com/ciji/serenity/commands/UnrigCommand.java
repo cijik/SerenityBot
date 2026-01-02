@@ -24,7 +24,7 @@ public class UnrigCommand implements SerenityCommand {
                 .name(UNRIG.getCommand())
                 .description(UNRIG.getShortDesc())
                 .type(ApplicationCommand.Type.CHAT_INPUT.getValue())
-                .defaultMemberPermissions(String.valueOf(PermissionSet.of(Permission.ADMINISTRATOR)))
+                .defaultMemberPermissions(String.valueOf(PermissionSet.of(Permission.ADMINISTRATOR).getRawValue()))
                 .build();
 
         restClient.getApplicationService()
