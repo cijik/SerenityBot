@@ -302,14 +302,14 @@ public class RollProcessingService {
 
         this.isCrit = isCrit.toLowerCase(Locale.ROOT).equals("yes") || isCrit.toLowerCase(Locale.ROOT).equals("true");
 
-        return event.createFollowup("Next roll is rigged").withEphemeral(true);
+        return event.createFollowup("All next rolls are rigged").withEphemeral(true);
     }
 
     public Mono<Message> unrig(ChatInputInteractionEvent event) {
         rigType = RigType.NONE;
         isCrit = false;
 
-        return event.createFollowup("Next roll is no longer rigged.").withEphemeral(true);
+        return event.createFollowup("All next rolls are no longer rigged.").withEphemeral(true);
     }
 
     private static String getUser(ChatInputInteractionEvent event) {
