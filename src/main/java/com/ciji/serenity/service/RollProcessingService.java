@@ -176,7 +176,7 @@ public class RollProcessingService {
                         int upperBound = rigType.equals(RigType.PASS) ? isCrit ? 6 : Integer.parseInt(attributeValueMatrix.get(requestedAttribute).getRow().get(1)) : 101; //upper bound is exclusive
                         roll = ThreadLocalRandom.current().nextInt(lowerBound, upperBound);
                     } else {
-                        roll = ThreadLocalRandom.current().nextInt(101); //upper bound is exclusive
+                        roll = ThreadLocalRandom.current().nextInt(1, 101); //upper bound is exclusive
                     }
                     if (roll > 95) {
                         return event.createFollowup(modifiableCharacterName + " rolls a **" + roll + "** on " + attributeName + ", **failing spectacularly**!");
@@ -254,7 +254,7 @@ public class RollProcessingService {
             int numberOfSides = Integer.parseInt(die.substring(die.indexOf("d")+1));
             BigDecimal finalSum = BigDecimal.ZERO;
             for (int i = 0; i < numberOfDice; i++) {
-                int rollResult = ThreadLocalRandom.current().nextInt(numberOfSides + 1); //upper bound is exclusive
+                int rollResult = ThreadLocalRandom.current().nextInt(1, numberOfSides + 1); //upper bound is exclusive
                 dieRolls.add(rollResult);
                 finalSum = finalSum.add(BigDecimal.valueOf(rollResult));
             }
