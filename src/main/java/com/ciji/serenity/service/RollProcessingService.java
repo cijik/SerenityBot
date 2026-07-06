@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
-import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.MatchResult;
 import java.util.regex.Pattern;
@@ -42,6 +41,8 @@ public class RollProcessingService {
 
     private final CharacterSheetDetailsService characterSheetDetailsService;
 
+    private final RollRandomSource rollRandomSource;
+
     private RigType rigType = RigType.NONE;
 
     private boolean isCrit;
@@ -54,6 +55,12 @@ public class RollProcessingService {
             "speechcraft", "magic", "medicine",
             "repair", "science", "flight", "small guns", "sneak");
 
+    private record AttributeSelection(String attributeName, boolean special, int cellModifier) {
+    }
+
+    private record AttributeMatrix(List<String> headers, List<SheetRow> rows) {
+    }
+
     @SneakyThrows
     public Mono<Message> rollTargeted(ChatInputInteractionEvent event) {
         String characterName = SheetsUtil.getParameterValue(event, "character-name");
@@ -62,48 +69,20 @@ public class RollProcessingService {
         return characterSheetService.getCharacterSheet(characterName, event.getInteraction().getUser().getId().asString())
                 .flatMap(characterSheet -> {
                     String attributeName = SheetsUtil.getParameterValue(event, "rolls-for");
-
-                    boolean isSpecial;
-                    int cellModifier;
-                    if (Special.fromString(attributeName.toLowerCase(Locale.ROOT)) != null) {
-                        attributeName = Special.fromString(attributeName.toLowerCase(Locale.ROOT)).name().toLowerCase(Locale.ROOT);
-                        isSpecial = true;
-                        cellModifier = 1;
-                    } else if (SKILLS.contains(attributeName.toLowerCase(Locale.ROOT))) {
-                        isSpecial = false;
-                        cellModifier = 2;
-                    } else {
-                        log.error("Invalid attribute: {}", attributeName);
+                    AttributeSelection attributeSelection = resolveAttributeSelection(attributeName);
+                    if (attributeSelection == null) {
                         return event.createFollowup(attributeName + " is not a valid attribute");
                     }
-
                     CharacterSheetDetails sheetDetails = characterSheetDetailsService.getCharacterSheetDetails(characterSheet);
-                    attributeName = WordUtils.capitalize(attributeName.toLowerCase(Locale.ROOT));
-
-                    List<String> attributeNames;
-                    List<SheetRow> attributeValueMatrix;
-                    if (isSpecial) {
-                        attributeNames = sheetDetails.getSpecialsMatrix().getHeaders();
-                        attributeValueMatrix = sheetDetails.getSpecialsMatrix().getRows();
-                    } else {
-                        attributeNames = sheetDetails.getSkillMatrix().getHeaders();
-                        attributeValueMatrix = sheetDetails.getSkillMatrix().getRows();
-                    }
-
-                    int requestedAttribute;
-                    if (Special.fromString(attributeName.toLowerCase(Locale.ROOT)) != null) {
-                        try {
-                            Special.fromString(StringUtils.toRootUpperCase(attributeName));
-                        } catch (IllegalArgumentException e) {
-                            return event.createFollowup("**" + characterName + "** does not have this attribute");
-                        }
-                        requestedAttribute = attributeNames.indexOf(StringUtils.truncate(attributeName, 1));
-                    } else {
-                        requestedAttribute = attributeNames.indexOf(attributeName);
+                    AttributeMatrix attributeMatrix = resolveAttributeMatrix(sheetDetails, attributeSelection.special());
+                    String normalizedAttributeName = WordUtils.capitalize(attributeSelection.attributeName());
+                    int requestedAttribute = getRequestedAttributeIndex(attributeMatrix.headers(), normalizedAttributeName, attributeSelection.special());
+                    if (requestedAttribute < 0) {
+                        return event.createFollowup("**" + characterName + "** does not have this attribute");
                     }
                     int requestedModifier;
                     try {
-                        requestedModifier = Modifier.fromString(targetMFD).ordinal() * cellModifier;
+                        requestedModifier = Modifier.fromString(targetMFD).ordinal() * attributeSelection.cellModifier();
                     } catch (IllegalArgumentException e) {
                         log.error("Invalid target MFD: {}", targetMFD);
                         return event.createFollowup(targetMFD + " is not a valid target MFD. Please specify one from the following list: 2, 1 1/2, 1, 3/4, 1/2, 1/4, 1/10");
@@ -112,12 +91,12 @@ public class RollProcessingService {
                     int attributeThreshold;
                     log.info("Parsing attribute threshold");
                     try {
-                        attributeThreshold = Integer.parseInt(attributeValueMatrix.get(requestedAttribute).getRow().get(requestedModifier));
+                        attributeThreshold = Integer.parseInt(attributeMatrix.rows().get(requestedAttribute).getRow().get(requestedModifier));
                     } catch (IndexOutOfBoundsException e) {
                         log.error("Attribute threshold out of bounds");
                         return event.createFollowup("**" + characterName + "** does not have this attribute");
                     }
-                    return createRollResultFollowup(event, characterName, attributeName, targetMFD, attributeThreshold);
+                    return createRollResultFollowup(event, characterName, normalizedAttributeName, targetMFD, attributeThreshold);
                 })
                 .switchIfEmpty(event.createFollowup("Character not found"));
     }
@@ -130,79 +109,53 @@ public class RollProcessingService {
         return characterSheetService.getCharacterSheet(characterName, event.getInteraction().getUser().getId().asString())
                 .flatMap(characterSheet -> {
                     String attributeName = SheetsUtil.getParameterValue(event, "rolls-for");
-
-                    boolean isSpecial;
-                    int cellModifier;
-                    if (Special.fromString(attributeName.toLowerCase(Locale.ROOT)) != null) {
-                        attributeName = Special.fromString(attributeName.toLowerCase(Locale.ROOT)).name().toLowerCase(Locale.ROOT);
-                        isSpecial = true;
-                        cellModifier = 1;
-                    } else if (SKILLS.contains(attributeName.toLowerCase(Locale.ROOT))) {
-                        isSpecial = false;
-                        cellModifier = 2;
-                    } else {
-                        log.error("Invalid attribute: {}", attributeName);
+                    AttributeSelection attributeSelection = resolveAttributeSelection(attributeName);
+                    if (attributeSelection == null) {
                         return event.createFollowup(attributeName + " is not a valid attribute");
                     }
-
                     CharacterSheetDetails sheetDetails = characterSheetDetailsService.getCharacterSheetDetails(characterSheet);
-                    attributeName = WordUtils.capitalize(attributeName.toLowerCase(Locale.ROOT));
                     String modifiableCharacterName = WordUtils.capitalize(characterName.toLowerCase(Locale.ROOT));
-                    List<String> attributeNames;
-                    List<SheetRow> attributeValueMatrix;
-                    if (isSpecial) {
-                        attributeNames = sheetDetails.getSpecialsMatrix().getHeaders();
-                        attributeValueMatrix = sheetDetails.getSpecialsMatrix().getRows();
-                    } else {
-                        attributeNames = sheetDetails.getSkillMatrix().getHeaders();
-                        attributeValueMatrix = sheetDetails.getSkillMatrix().getRows();
-                    }
-                    int requestedAttribute;
-                    if (Special.fromString(attributeName.toLowerCase(Locale.ROOT)) != null) {
-                        try {
-                            Special.fromString(StringUtils.toRootUpperCase(attributeName));
-                        } catch (IllegalArgumentException e) {
-                            return event.createFollowup("**" + modifiableCharacterName + "** does not have this attribute");
-                        }
-                        requestedAttribute = attributeNames.indexOf(StringUtils.truncate(attributeName, 1));
-                    } else {
-                        requestedAttribute = attributeNames.indexOf(attributeName);
+                    AttributeMatrix attributeMatrix = resolveAttributeMatrix(sheetDetails, attributeSelection.special());
+                    String normalizedAttributeName = WordUtils.capitalize(attributeSelection.attributeName());
+                    int requestedAttribute = getRequestedAttributeIndex(attributeMatrix.headers(), normalizedAttributeName, attributeSelection.special());
+                    if (requestedAttribute < 0) {
+                        return event.createFollowup("**" + modifiableCharacterName + "** does not have this attribute");
                     }
 
                     int roll;
 
                     if (!rigType.equals(RigType.NONE)) {
-                        int lowerBound = rigType.equals(RigType.FAIL) ? isCrit ? 96 : Integer.parseInt(attributeValueMatrix.get(requestedAttribute).getRow().reversed().get(1)) : 1;
-                        int upperBound = rigType.equals(RigType.PASS) ? isCrit ? 6 : Integer.parseInt(attributeValueMatrix.get(requestedAttribute).getRow().get(1)) : 101; //upper bound is exclusive
-                        roll = ThreadLocalRandom.current().nextInt(lowerBound, upperBound);
+                        int lowerBound = rigType.equals(RigType.FAIL) ? isCrit ? 96 : Integer.parseInt(attributeMatrix.rows().get(requestedAttribute).getRow().reversed().get(1)) : 1;
+                        int upperBound = rigType.equals(RigType.PASS) ? isCrit ? 6 : Integer.parseInt(attributeMatrix.rows().get(requestedAttribute).getRow().get(1)) : 101; //upper bound is exclusive
+                        roll = rollRandomSource.nextInt(lowerBound, upperBound);
                     } else {
-                        roll = ThreadLocalRandom.current().nextInt(1, 101); //upper bound is exclusive
+                        roll = rollRandomSource.nextInt(1, 101); //upper bound is exclusive
                     }
                     if (roll > 95) {
-                        return event.createFollowup(modifiableCharacterName + " rolls a **" + roll + "** on " + attributeName + ", **failing spectacularly**!");
+                        return event.createFollowup(modifiableCharacterName + " rolls a **" + roll + "** on " + normalizedAttributeName + ", **failing spectacularly**!");
                     }
                     if (roll < 6) {
-                        return event.createFollowup(modifiableCharacterName + " rolls a **" + roll + "** on " + attributeName + ", **succeeding critically**!");
+                        return event.createFollowup(modifiableCharacterName + " rolls a **" + roll + "** on " + normalizedAttributeName + ", **succeeding critically**!");
                     }
 
                     Object currentMFD;
                     try {
-                        currentMFD = attributeValueMatrix.get(requestedAttribute).getRow().reversed().stream()
+                        currentMFD = attributeMatrix.rows().get(requestedAttribute).getRow().reversed().stream()
                                 .filter(mfd -> !mfd.isEmpty() && Integer.parseInt(mfd) >= roll).findFirst().orElse(null);
                     } catch (IndexOutOfBoundsException e) {
-                        log.error("Requested MFD value does not exist for attribute {}", attributeName);
-                        return event.createFollowup(attributeName + " is not a valid attribute for specified attribute type");
+                        log.error("Requested MFD value does not exist for attribute {}", normalizedAttributeName);
+                        return event.createFollowup(normalizedAttributeName + " is not a valid attribute for specified attribute type");
                     }
                     if (currentMFD == null) {
                         log.error("No higher MFD threshold found for {}", roll);
-                        return event.createFollowup("The roll of **" + roll + "** is above MFD 2 (**" + attributeValueMatrix.get(requestedAttribute).getRow().getFirst() + "**) for " + attributeName);
+                        return event.createFollowup("The roll of **" + roll + "** is above MFD 2 (**" + attributeMatrix.rows().get(requestedAttribute).getRow().getFirst() + "**) for " + normalizedAttributeName);
                     } else {
-                        int MFDIndex = attributeValueMatrix.get(requestedAttribute).getRow().indexOf(currentMFD);
-                        String matchingMFD = Modifier.values()[MFDIndex / cellModifier].getModifier();
-                        int matchingMFDValue = Integer.parseInt(attributeValueMatrix.get(requestedAttribute).getRow().get(MFDIndex));
+                        int MFDIndex = attributeMatrix.rows().get(requestedAttribute).getRow().indexOf(currentMFD);
+                        String matchingMFD = Modifier.values()[MFDIndex / attributeSelection.cellModifier()].getModifier();
+                        int matchingMFDValue = Integer.parseInt(attributeMatrix.rows().get(requestedAttribute).getRow().get(MFDIndex));
                         String modifiedMatchingMFD;
                         try {
-                            modifiedMatchingMFD = getModifiedMFD(MFDIndex, cellModifier, stepModifier);
+                            modifiedMatchingMFD = getModifiedMFD(MFDIndex, attributeSelection.cellModifier(), stepModifier);
                         } catch (NumberFormatException e) {
                             log.error("{} is not a valid step modifier", stepModifier);
                             return event.createFollowup(stepModifier + " is not a valid step modifier");
@@ -212,7 +165,7 @@ public class RollProcessingService {
                         response
                                 .append(modifiableCharacterName)
                                 .append(" rolls **").append(roll)
-                                .append("** for ").append(attributeName)
+                                .append("** for ").append(normalizedAttributeName)
                                 .append(" succeeding MFD **").append(matchingMFD).append("** (**").append(matchingMFDValue).append("**)");
                         if (Integer.parseInt(stepModifier) != 0) {
                             response
@@ -222,7 +175,7 @@ public class RollProcessingService {
                         return event.createFollowup(InteractionFollowupCreateSpec.builder()
                                 .content(response.toString())
                                 .build());
-                        }
+                    }
                 });
     }
 
@@ -254,7 +207,7 @@ public class RollProcessingService {
             int numberOfSides = Integer.parseInt(die.substring(die.indexOf("d")+1));
             BigDecimal finalSum = BigDecimal.ZERO;
             for (int i = 0; i < numberOfDice; i++) {
-                int rollResult = ThreadLocalRandom.current().nextInt(1, numberOfSides + 1); //upper bound is exclusive
+                int rollResult = rollRandomSource.nextInt(1, numberOfSides + 1); //upper bound is exclusive
                 dieRolls.add(rollResult);
                 finalSum = finalSum.add(BigDecimal.valueOf(rollResult));
             }
@@ -320,6 +273,38 @@ public class RollProcessingService {
         );
     }
 
+    private AttributeSelection resolveAttributeSelection(String attributeName) {
+        String normalizedAttributeName = attributeName.toLowerCase(Locale.ROOT);
+        Special special = Special.fromString(normalizedAttributeName);
+        if (special != null) {
+            return new AttributeSelection(special.name().toLowerCase(Locale.ROOT), true, 1);
+        }
+        if (SKILLS.contains(normalizedAttributeName)) {
+            return new AttributeSelection(normalizedAttributeName, false, 2);
+        }
+        log.error("Invalid attribute: {}", attributeName);
+        return null;
+    }
+
+    private AttributeMatrix resolveAttributeMatrix(CharacterSheetDetails sheetDetails, boolean special) {
+        if (special) {
+            return new AttributeMatrix(sheetDetails.getSpecialsMatrix().getHeaders(), sheetDetails.getSpecialsMatrix().getRows());
+        }
+        return new AttributeMatrix(sheetDetails.getSkillMatrix().getHeaders(), sheetDetails.getSkillMatrix().getRows());
+    }
+
+    private int getRequestedAttributeIndex(List<String> attributeNames, String attributeName, boolean special) {
+        if (special) {
+            try {
+                Special.fromString(StringUtils.toRootUpperCase(attributeName));
+            } catch (IllegalArgumentException e) {
+                return -1;
+            }
+            return attributeNames.indexOf(StringUtils.truncate(attributeName, 1));
+        }
+        return attributeNames.indexOf(attributeName);
+    }
+
     private Mono<Message> createResponse(ChatInputInteractionEvent event, String comment, boolean rollContainsComment, String originalRoll, List<String> dice, List<List<Integer>> individualPerformedRolls, StringBuilder response) {
         if (rollContainsComment) {
             response.append(" with comment: '").append(comment.strip()).append("'");
@@ -347,7 +332,7 @@ public class RollProcessingService {
     private Mono<Message> createRollResultFollowup(ChatInputInteractionEvent event, String characterName, String skillName, String skillModifier, int skillThreshold) {
         final int lowerBound = rigType.equals(RigType.FAIL) ? isCrit ? 96 : skillThreshold : 1;
         final int upperBound = rigType.equals(RigType.PASS) ? isCrit ? 6 : skillThreshold : 101; //upper bound is exclusive
-        final int roll = ThreadLocalRandom.current().nextInt(lowerBound, upperBound);
+        final int roll = rollRandomSource.nextInt(lowerBound, upperBound);
         String result = roll <= skillThreshold ? "Success!" : "Failure!";
 
         return event.createFollowup(InteractionFollowupCreateSpec.builder()
