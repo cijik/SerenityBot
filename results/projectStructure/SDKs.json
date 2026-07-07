@@ -1,7 +1,7 @@
 {
   "sdks": [
     {
-      "name": "ms-21",
+      "name": "21",
       "roots": [
         "jrt://$USER_HOME$/.jdks/ms-21.0.11!/java.base",
         "jrt://$USER_HOME$/.jdks/ms-21.0.11!/java.compiler",
