@@ -1,6 +1,7 @@
 name: Maven Build and Release
 
 on:
+  pull_request:
   push:
     branches: ['master']
 
@@ -55,9 +56,17 @@ jobs:
           echo "revision=${release_version}" >> "$GITHUB_ENV"
 
       - name: Build with Maven
-        run: mvn -B package --file pom.xml -Drevision=${{ env.RELEASE_VERSION }}
+        run: mvn -B verify --file pom.xml -Drevision=${{ env.RELEASE_VERSION }}
+
+      - name: Upload JaCoCo coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: target/site/jacoco
+          if-no-files-found: error
 
       - name: Create Release
+        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
         id: create_release
         uses: actions/create-release@v1
         env:
@@ -69,8 +78,16 @@ jobs:
           prerelease: false
 
       - name: Upload binary to Release
+        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
         uses: AButler/upload-release-assets@v3.0
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           files: target/serenity-bot-${{ env.RELEASE_VERSION }}.jar
           release-id: ${{ steps.create_release.outputs.id }}
+
+  qodana:
+    needs: build-and-release
+    uses: ./.github/workflows/qodana_code_quality.yml
+    with:
+      checkout-ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      coverage-artifact-name: coverage-report

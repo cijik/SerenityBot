@@ -1,0 +1,62 @@
+
+name: Qodana
+on:
+  workflow_call:
+    inputs:
+      checkout-ref:
+        description: Ref or SHA to analyze
+        required: false
+        type: string
+        default: ''
+      coverage-artifact-name:
+        description: Uploaded JaCoCo artifact name
+        required: false
+        type: string
+        default: ''
+
+jobs:
+  qodana:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      checks: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.checkout-ref != '' && inputs.checkout-ref || github.sha }}
+          fetch-depth: 0
+
+      - name: Download coverage report
+        if: ${{ inputs.coverage-artifact-name != '' }}
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ inputs.coverage-artifact-name }}
+          path: target/site/jacoco
+
+      - name: 'Qodana Scan'
+        uses: JetBrains/qodana-action@v2026.1
+        with:
+          args: "--coverage-dir target/site/jacoco"
+          # When pr-mode is set to true, Qodana analyzes only the files that have been changed
+          pr-mode: false
+          use-caches: true
+          post-pr-comment: true
+          use-annotations: true
+          # Upload Qodana results (SARIF, other artifacts, logs) as an artifact to the job
+          upload-result: true
+          # quick-fixes available in Ultimate and Ultimate Plus plans
+          push-fixes: 'none'
+
+      - name: Check Qodana output
+        run: |
+          echo "Contents of Qodana results:"
+          ls -la ${{ runner.temp }}/qodana/results/report/ || echo "Report directory not found"
+          find ${{ runner.temp }}/qodana/results/ -type f | head -20
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ${{ runner.temp }}/qodana/results/report
+          destination_dir: ./

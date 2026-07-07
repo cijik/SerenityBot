@@ -2,6 +2,8 @@
 
 SerenityBot is a Discord bot for managing a TTRPG character database backed by Google Sheets and Redis.
 
+[![Qodana](https://github.com/cijik/SerenityBot/actions/workflows/qodana_code_quality.yml/badge.svg)](https://github.com/cijik/SerenityBot/actions/workflows/qodana_code_quality.yml)
+
 ## What it does
 
 The bot currently supports:
