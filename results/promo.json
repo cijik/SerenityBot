@@ -1,4 +1,96 @@
 {
   "version": "3",
-  "listProblem": []
+  "listProblem": [
+    {
+      "tool": "Code Inspection",
+      "category": "Nullability problems",
+      "categoryPath": [
+        {
+          "id": "Java",
+          "name": "Java"
+        },
+        {
+          "id": "Java/Probable bugs",
+          "name": "Probable bugs"
+        },
+        {
+          "id": "Java/Probable bugs/Nullability problems",
+          "name": "Nullability problems"
+        }
+      ],
+      "type": "@NotNull/@Nullable problems",
+      "tags": [
+        "JAVA",
+        "CWE Top 25"
+      ],
+      "severity": "High",
+      "comment": "Not annotated method overrides method annotated with @NullMarked",
+      "detailsInfo": "Reports problems related to nullability annotations.\n\n**Examples:**\n\n* Overriding methods are not annotated:\n\n\n      abstract class A {\n        @NotNull abstract String m();\n      }\n      class B extends A {\n          String m() { return \"empty string\"; }\n      }\n          \n* Annotated primitive types: `@NotNull int myFoo;`\n* Both `@Nullable` and `@NotNull` are present on the same member: `@Nullable @NotNull String myFooString;`\n* Collection of nullable elements is assigned into a collection of non-null elements:\n\n\n      void testList(List<@Nullable String> nullableList) {\n         List<@NotNull String> list2 = nullableList;\n      }\n          \nUse the **Configure Annotations** button to specify nullability annotations and the checkboxes to fine-tune where the inspection should provide warnings.\n\nThis inspection only reports if the language level of the project or module is 5 or higher,\nand nullability annotations are available on the classpath.\n\nInspection ID: NullableProblems",
+      "sources": [
+        {
+          "type": "file",
+          "path": "src/main/java/com/ciji/serenity/service/adapter/SerenityEventAdapter.java",
+          "language": "JAVA",
+          "line": 35,
+          "offset": 25,
+          "length": 22,
+          "code": {
+            "startLine": 33,
+            "length": 22,
+            "offset": 39,
+            "surroundingCode": "\n    @Override\n    public Publisher<?> onChatInputInteraction(ChatInputInteractionEvent event) {\n        switch (Command.fromString(event.getCommandName())) {\n            case GET_CHARACTER -> {"
+          }
+        }
+      ],
+      "attributes": {
+        "module": "serenity-bot",
+        "inspectionName": "NullableProblems"
+      },
+      "hash": "faa1c4f54ded35740254f3a2a10ca0ae4958ad961620906e69cfb96a0318dcdb",
+      "problemType": "REGULAR"
+    },
+    {
+      "tool": "Code Inspection",
+      "category": "Imports",
+      "categoryPath": [
+        {
+          "id": "Java",
+          "name": "Java"
+        },
+        {
+          "id": "Java/Imports",
+          "name": "Imports"
+        }
+      ],
+      "type": "Unused import",
+      "tags": [
+        "JAVA"
+      ],
+      "severity": "High",
+      "comment": "Unused import `import com.ciji.serenity.config.Client;`",
+      "detailsInfo": "Reports redundant `import` statements.\n\nRegular `import` statements are unnecessary when not using imported classes and packages in the source file.\nThe same applies to imported `static` fields and methods that aren't used in the source file.\n\n**Example:**\n\n\n      import java.util.ArrayList;\n      public class Example {\n        public static void main(String[] args) {\n          System.out.println(\"Hello World!\");\n        }\n      }\n\nAfter the quick fix is applied:\n\n\n      public class Example {\n        public static void main(String[] args) {\n          System.out.println(\"Hello World!\");\n        }\n      }\n\nInspection ID: UNUSED_IMPORT",
+      "sources": [
+        {
+          "type": "file",
+          "path": "src/main/java/com/ciji/serenity/commands/HelpCommand.java",
+          "language": "JAVA",
+          "line": 8,
+          "offset": 1,
+          "length": 39,
+          "code": {
+            "startLine": 6,
+            "length": 39,
+            "offset": 50,
+            "surroundingCode": "import org.springframework.stereotype.Component;\n\nimport com.ciji.serenity.config.Client;\n\nimport discord4j.core.object.command.ApplicationCommand;"
+          }
+        }
+      ],
+      "attributes": {
+        "module": "serenity-bot",
+        "inspectionName": "UNUSED_IMPORT"
+      },
+      "hash": "36aecdffedcc500aad617b023825899d45d9d38b9ab44f94fc7c6e630a994ae9",
+      "problemType": "REGULAR"
+    }
+  ]
 }
