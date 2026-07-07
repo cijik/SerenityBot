@@ -1,0 +1,8 @@
+{
+  "modules": [
+    {
+      "name": "serenity-bot",
+      "languageLevel": 21
+    }
+  ]
+}

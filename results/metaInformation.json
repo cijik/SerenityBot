@@ -1,0 +1,21 @@
+{
+  "version": "1.0",
+  "total": 0,
+  "tools inspection": {
+    "Code Inspection": 0
+  },
+  "linter": "QDJVM",
+  "attributes": {
+    "deviceId": "200820300000000-4ea9-ff2f-667a-057a9c1a88c3",
+    "jobUrl": "https://github.com/cijik/SerenityBot/actions/runs/28832470237",
+    "vcs": {
+      "sarifIdea": {
+        "repositoryUri": "https://github.com/cijik/SerenityBot.git",
+        "revisionId": "154b62f9ac0a202ac5273526c30ce3db8b813913",
+        "branch": "adding-qodana"
+      }
+    },
+    "repoUrl": "https://github.com/cijik/SerenityBot.git"
+  },
+  "linterVersion": "261.25881"
+}
