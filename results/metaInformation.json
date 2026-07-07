@@ -7,11 +7,11 @@
   "linter": "QDJVM",
   "attributes": {
     "deviceId": "200820300000000-4ea9-ff2f-667a-057a9c1a88c3",
-    "jobUrl": "https://github.com/cijik/SerenityBot/actions/runs/28898472774",
+    "jobUrl": "https://github.com/cijik/SerenityBot/actions/runs/28898874153",
     "vcs": {
       "sarifIdea": {
         "repositoryUri": "https://github.com/cijik/SerenityBot.git",
-        "revisionId": "189f58bfefd12d5fe4571444d60a72942bd2e577",
+        "revisionId": "e2b3a02edfe77c9f28224b47ac2a9d0938e6942c",
         "branch": "adding-qodana"
       }
     },
