@@ -1,4 +1,91 @@
 {
   "version": "3",
-  "listProblem": []
+  "listProblem": [
+    {
+      "tool": "Code Inspection",
+      "category": "Logging",
+      "categoryPath": [
+        {
+          "id": "JVM languages",
+          "name": "JVM languages"
+        },
+        {
+          "id": "JVM languages/Logging",
+          "name": "Logging"
+        }
+      ],
+      "type": "Non-distinguishable logging calls",
+      "tags": [
+        "JAVA"
+      ],
+      "severity": "Moderate",
+      "comment": "Similar log messages",
+      "detailsInfo": "Reports SLF4J, Log4j2 logging calls in one class, such as `logger.info(\"message: {}\", key)` with similar log messages. These calls can be non-distinguishable from each other, and this introduces difficulties to understand where a certain log message is coming from.\n\n**Example (for Java):**\n\n\n      private static void request1(String text) {\n          log.info(\"Message: {}\", text); //similar call\n          doSomething1();\n      }\n\n      private static void request2(int i) {\n          log.info(\"Message: {}\", i); //similar call\n          doSomething2();\n      }\n\n* Use the **Minimum length of a similar sequence** option to set the minimum length of similar sequences after which calls will be reported\n* Use the **Do not report calls with the 'error' log level** option to ignore messages with \\`error\\` log level and when there is an exception. It may be useful to hide the warnings, because call sites can still be located using stack traces\n\nInspection ID: LoggingSimilarMessage\n\nNew in 2024.1",
+      "sources": [
+        {
+          "type": "file",
+          "path": "src/main/java/com/ciji/serenity/service/EffectsService.java",
+          "language": "JAVA",
+          "line": 80,
+          "offset": 33,
+          "length": 101,
+          "code": {
+            "startLine": 78,
+            "length": 101,
+            "offset": 288,
+            "surroundingCode": "                                tempCell = characterSheetDetailsService.getSpreadsheetMatrix(characterSheet, SheetDataProcessorService.MATRIX_RANGES).getValueRanges().get(5);\n                            } catch (IOException | GeneralSecurityException e) {\n                                log.error(\"Could not retrieve spreadsheet matrices for {}. Cause: {}\", characterName, e.getMessage());\n                                return \"Could not retrieve sheet data for \" + characterName;\n                            }"
+          }
+        }
+      ],
+      "attributes": {
+        "module": "serenity-bot",
+        "inspectionName": "LoggingSimilarMessage"
+      },
+      "hash": "233150cc9f309202ae188ad877857e6e5db779fb94f9bc91a2416ee4a98e93cc",
+      "problemType": "REGULAR"
+    },
+    {
+      "tool": "Code Inspection",
+      "category": "Logging",
+      "categoryPath": [
+        {
+          "id": "JVM languages",
+          "name": "JVM languages"
+        },
+        {
+          "id": "JVM languages/Logging",
+          "name": "Logging"
+        }
+      ],
+      "type": "Non-distinguishable logging calls",
+      "tags": [
+        "JAVA"
+      ],
+      "severity": "Moderate",
+      "comment": "Similar log messages",
+      "detailsInfo": "Reports SLF4J, Log4j2 logging calls in one class, such as `logger.info(\"message: {}\", key)` with similar log messages. These calls can be non-distinguishable from each other, and this introduces difficulties to understand where a certain log message is coming from.\n\n**Example (for Java):**\n\n\n      private static void request1(String text) {\n          log.info(\"Message: {}\", text); //similar call\n          doSomething1();\n      }\n\n      private static void request2(int i) {\n          log.info(\"Message: {}\", i); //similar call\n          doSomething2();\n      }\n\n* Use the **Minimum length of a similar sequence** option to set the minimum length of similar sequences after which calls will be reported\n* Use the **Do not report calls with the 'error' log level** option to ignore messages with \\`error\\` log level and when there is an exception. It may be useful to hide the warnings, because call sites can still be located using stack traces\n\nInspection ID: LoggingSimilarMessage\n\nNew in 2024.1",
+      "sources": [
+        {
+          "type": "file",
+          "path": "src/main/java/com/ciji/serenity/service/EffectsService.java",
+          "language": "JAVA",
+          "line": 44,
+          "offset": 33,
+          "length": 101,
+          "code": {
+            "startLine": 42,
+            "length": 101,
+            "offset": 288,
+            "surroundingCode": "                                radsCell = characterSheetDetailsService.getSpreadsheetMatrix(characterSheet, SheetDataProcessorService.MATRIX_RANGES).getValueRanges().get(4);\n                            } catch (IOException | GeneralSecurityException e) {\n                                log.error(\"Could not retrieve spreadsheet matrices for {}. Cause: {}\", characterName, e.getMessage());\n                                return event.createFollowup(\"Could not retrieve sheet data for \" + characterName);\n                            }"
+          }
+        }
+      ],
+      "attributes": {
+        "module": "serenity-bot",
+        "inspectionName": "LoggingSimilarMessage"
+      },
+      "hash": "5dce1c00d849b12b292f1b6cd167e631bbc0eb2dbbb5036ec81fc656c0cfa514",
+      "problemType": "REGULAR"
+    }
+  ]
 }
