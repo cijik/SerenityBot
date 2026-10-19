@@ -1,6 +1,7 @@
 package com.ciji.serenity.service;
 
 import com.ciji.serenity.model.CharacterSheetDetails;
+import com.ciji.serenity.model.SheetMatrix;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
 import discord4j.core.object.entity.Message;
 import lombok.RequiredArgsConstructor;
@@ -10,6 +11,8 @@ import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -34,15 +37,20 @@ public class InventoryService {
                     CharacterSheetDetails characterSheetDetails = characterSheetDetailsService.getCharacterSheetDetails(characterSheet);
                     String header = "**" + escapeMarkdown(characterSheetDetails.getName()) + "'s Inventory:**\n";
 
-                    if (characterSheetDetails.getInventoryMatrix() == null
-                            || characterSheetDetails.getInventoryMatrix().getRows().isEmpty()) {
-                        return event.createFollowup(header + "*Empty*");
-                    }
+                    // Both the matrix and its rows may be null for an empty inventory
+                    var rows = Optional.ofNullable(characterSheetDetails.getInventoryMatrix())
+                            .map(SheetMatrix::getRows)
+                            .orElse(List.of());
 
-                    List<String> lines = characterSheetDetails.getInventoryMatrix().getRows().stream()
+                    List<String> lines = rows.stream()
+                            .filter(Objects::nonNull)
                             .map(row -> formatRow(row.getRow()))
                             .filter(line -> !line.isEmpty())
                             .toList();
+
+                    if (lines.isEmpty()) {
+                        return event.createFollowup(header + "*Empty*");
+                    }
 
                     return Flux.fromIterable(splitIntoMessages(header, lines))
                             .concatMap(event::createFollowup) // sequential, keeps the order of messages
