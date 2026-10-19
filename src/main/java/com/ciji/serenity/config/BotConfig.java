@@ -13,7 +13,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.GenericJacksonJsonRedisSerializer;
 import org.springframework.data.redis.serializer.RedisSerializationContext;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
-import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
 
 import java.time.Duration;
 
@@ -22,13 +22,27 @@ import java.time.Duration;
 @Slf4j
 @EnableCaching
 public class BotConfig {
+
+    /**
+     * Writes a "@class" type property so cached values are read back as their real type,
+     * not as LinkedHashMap. The validator limits which classes may be created from Redis data.
+     */
+    private static GenericJacksonJsonRedisSerializer cacheValueSerializer() {
+        return GenericJacksonJsonRedisSerializer.builder()
+                .enableDefaultTyping(BasicPolymorphicTypeValidator.builder()
+                        .allowIfSubType("com.ciji.serenity.")
+                        .allowIfSubType("java.util.")
+                        .allowIfSubType("java.lang.")
+                        .build())
+                .build();
+    }
     
     @Bean
     public RedisTemplate<?, ?> redisTemplate(RedisConnectionFactory connectionFactory) {
         RedisTemplate<?, ?> template = new RedisTemplate<>();
         template.setConnectionFactory(connectionFactory);
         template.setKeySerializer(new StringRedisSerializer());
-        template.setValueSerializer(new GenericJacksonJsonRedisSerializer(new ObjectMapper()));
+        template.setValueSerializer(cacheValueSerializer());
 
         return template;
     }
@@ -40,14 +54,13 @@ public class BotConfig {
 
     @Bean
     public RedisCacheManagerBuilderCustomizer cacheConfiguration() {
+        RedisCacheConfiguration defaults = RedisCacheConfiguration.defaultCacheConfig()
+                .entryTtl(Duration.ofHours(12))
+                .disableCachingNullValues()
+                .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(cacheValueSerializer()));
+
         return (builder) -> builder
-                .withCacheConfiguration("sheets", RedisCacheConfiguration.defaultCacheConfig()
-                        .entryTtl(Duration.ofHours(12))
-                        .disableCachingNullValues()
-                        .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(new GenericJacksonJsonRedisSerializer(new ObjectMapper()))))
-                .withCacheConfiguration("sheet-ranges", RedisCacheConfiguration.defaultCacheConfig()
-                        .entryTtl(Duration.ofHours(12))
-                        .disableCachingNullValues()
-                        .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(new GenericJacksonJsonRedisSerializer(new ObjectMapper()))));
+                .withCacheConfiguration("sheets", defaults)
+                .withCacheConfiguration("sheet-ranges", defaults);
     }
 }
