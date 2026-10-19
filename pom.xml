@@ -14,7 +14,7 @@
 	<name>SerenityBot</name>
 	<description>A Discord bot for managing a TTRPG</description>
 	<properties>
-		<revision>0.6.0-SNAPSHOT</revision>
+		<revision>0.6.2-SNAPSHOT</revision>
 		<java.version>25</java.version>
 		<maven.compiler.proc>full</maven.compiler.proc>
 		<tomcat.version>11.0.27</tomcat.version>

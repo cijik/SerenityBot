@@ -111,11 +111,12 @@ public class SheetDataProcessorService {
     }
 
     private static Stream<List<Object>> normalizeRows(ValueRange range, InventoryLayout layout) {
-        if (range.getValues() == null) { // range is completely empty
+        if (range == null || range.getValues() == null) { // range is completely empty
             return Stream.empty();
         }
         return range.getValues().stream()
-                .filter(layout::hasItem)
+                .filter(Objects::nonNull)
+                .filter(layout::hasItem) // skip rows without an item name
                 .map(layout::normalize);
     }
 }
