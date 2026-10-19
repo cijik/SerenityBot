@@ -7,11 +7,11 @@
   "linter": "QDJVM",
   "attributes": {
     "deviceId": "200820300000000-4ea9-ff2f-667a-057a9c1a88c3",
-    "jobUrl": "https://github.com/cijik/SerenityBot/actions/runs/39301885219",
+    "jobUrl": "https://github.com/cijik/SerenityBot/actions/runs/39302801752",
     "vcs": {
       "sarifIdea": {
         "repositoryUri": "https://github.com/cijik/SerenityBot.git",
-        "revisionId": "a1112e8a0bc35735f817a14b17a370fe39874631",
+        "revisionId": "568afd21d3b8530afa607c1cf585810c0b7315c5",
         "branch": "SER-9"
       }
     },
