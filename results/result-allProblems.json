@@ -3,6 +3,842 @@
   "listProblem": [
     {
       "tool": "Code Inspection",
+      "category": "Probable bugs",
+      "categoryPath": [
+        {
+          "id": "Java",
+          "name": "Java"
+        },
+        {
+          "id": "Java/Probable bugs",
+          "name": "Probable bugs"
+        }
+      ],
+      "type": "Nullability and data flow problems",
+      "tags": [
+        "JAVA",
+        "CWE Top 25"
+      ],
+      "severity": "High",
+      "comment": "Method invocation `name` may produce `NullPointerException`",
+      "detailsInfo": "Reports code constructs that always violate nullability contracts, may throw exceptions, or are just redundant, based on data flow analysis.\n\nExamples:\n\n    if (array.length < index) {\n      System.out.println(array[index]);\n    } // Array index is always out of bounds\n\n    if (str == null) System.out.println(\"str is null\");\n    System.out.println(str.trim());\n    // the last statement may throw an NPE\n\n    @NotNull\n    Integer square(@Nullable Integer input) {\n        // the method contract is violated\n        return input == null ? null : input * input;\n    }\n\n\nThe inspection behavior may be controlled by a number of annotations, such as\n[nullability](https://www.jetbrains.com/help/idea/nullable-and-notnull-annotations.html) annotations,\n[@Contract](https://www.jetbrains.com/help/idea/contract-annotations.html) annotation,\n`@Range` annotation and so on.\n\nConfigure the inspection:\n\n* Use the **Suggest @Nullable annotation for methods/fields/parameters where nullable values are used** option to warn when a nullable value is passed as an argument to a method with a non-annotated parameter, stored into non-annotated field, or returned from a non-annotated method. In this case, the inspection will suggest propagating the `@Nullable` annotation. You can also configure nullability annotations using the **Configure Annotations** button.\n* Use the **Treat non-annotated members and parameters as @Nullable** option to assume that non-annotated members can be null, so they must not be used in non-null context.\n* Use the **Report not-null required parameter with null-literal argument usages** option to report method parameters that cannot be null (e.g. immediately dereferenced in the method body), but there are call sites where a `null` literal is passed.\n* Use the **Report nullable methods that always return a non-null value** option to report methods that are annotated as `@Nullable`, but always return non-null value. In this case, it's suggested that you change the annotation to `@NotNull`.\n* Use the **Ignore assert statements** option to control how the inspection treats `assert` statements. By default, the option is disabled, which means that the assertions are assumed to be executed (-ea mode). If the option is enabled, the assertions will be completely ignored (-da mode).\n* Use the **Reports patterns that may throw MatchException** option to report patterns that may throw `MatchException` at runtime due to null values in deconstruction patterns.\n* Use the **Report problems that happen only on some code paths** option to control whether to report problems that may happen only on some code path. If this option is disabled, warnings like *exception is possible* will not be reported. The inspection will report only warnings like *exception will definitely occur*. This mode may greatly reduce the number of false-positives, especially if the code is not consistently annotated with nullability and contract annotations. That is why it can be useful for finding the most important problems in legacy code bases.\n\n\nBefore IntelliJ IDEA 2022.3, this inspection was part of the \"Constant Conditions \\& Exceptions\" inspection.\nNow, it is split into two inspections:\n\"Constant Values\" and \"Nullability and data flow problems\".\n\nInspection ID: DataFlowIssue",
+      "sources": [
+        {
+          "type": "file",
+          "path": "src/main/java/com/ciji/serenity/commands/ShortRollCommand.java",
+          "language": "JAVA",
+          "line": 37,
+          "offset": 100,
+          "length": 4,
+          "code": {
+            "startLine": 35,
+            "length": 4,
+            "offset": 221,
+            "surroundingCode": "        restClient.getApplicationService()\n                .createGlobalApplicationCommand(applicationId, commandRequest)\n                .doOnSuccess(data -> log.info(\"{} command registered\", StringUtils.capitalize(data.name())))\n                .doOnError(e -> log.error(\"Unable to create guild command\", e))\n                .onErrorResume(e -> Mono.empty())"
+          }
+        }
+      ],
+      "attributes": {
+        "module": "serenity-bot",
+        "inspectionName": "DataFlowIssue"
+      },
+      "hash": "09a1ffeaf8eef073d4da481e1b4f098b9c5db9f92c2a6666e34ee9c446f4974f",
+      "problemType": "REGULAR"
+    },
+    {
+      "tool": "Code Inspection",
+      "category": "Probable bugs",
+      "categoryPath": [
+        {
+          "id": "Java",
+          "name": "Java"
+        },
+        {
+          "id": "Java/Probable bugs",
+          "name": "Probable bugs"
+        }
+      ],
+      "type": "Nullability and data flow problems",
+      "tags": [
+        "JAVA",
+        "CWE Top 25"
+      ],
+      "severity": "High",
+      "comment": "Method invocation `name` may produce `NullPointerException`",
+      "detailsInfo": "Reports code constructs that always violate nullability contracts, may throw exceptions, or are just redundant, based on data flow analysis.\n\nExamples:\n\n    if (array.length < index) {\n      System.out.println(array[index]);\n    } // Array index is always out of bounds\n\n    if (str == null) System.out.println(\"str is null\");\n    System.out.println(str.trim());\n    // the last statement may throw an NPE\n\n    @NotNull\n    Integer square(@Nullable Integer input) {\n        // the method contract is violated\n        return input == null ? null : input * input;\n    }\n\n\nThe inspection behavior may be controlled by a number of annotations, such as\n[nullability](https://www.jetbrains.com/help/idea/nullable-and-notnull-annotations.html) annotations,\n[@Contract](https://www.jetbrains.com/help/idea/contract-annotations.html) annotation,\n`@Range` annotation and so on.\n\nConfigure the inspection:\n\n* Use the **Suggest @Nullable annotation for methods/fields/parameters where nullable values are used** option to warn when a nullable value is passed as an argument to a method with a non-annotated parameter, stored into non-annotated field, or returned from a non-annotated method. In this case, the inspection will suggest propagating the `@Nullable` annotation. You can also configure nullability annotations using the **Configure Annotations** button.\n* Use the **Treat non-annotated members and parameters as @Nullable** option to assume that non-annotated members can be null, so they must not be used in non-null context.\n* Use the **Report not-null required parameter with null-literal argument usages** option to report method parameters that cannot be null (e.g. immediately dereferenced in the method body), but there are call sites where a `null` literal is passed.\n* Use the **Report nullable methods that always return a non-null value** option to report methods that are annotated as `@Nullable`, but always return non-null value. In this case, it's suggested that you change the annotation to `@NotNull`.\n* Use the **Ignore assert statements** option to control how the inspection treats `assert` statements. By default, the option is disabled, which means that the assertions are assumed to be executed (-ea mode). If the option is enabled, the assertions will be completely ignored (-da mode).\n* Use the **Reports patterns that may throw MatchException** option to report patterns that may throw `MatchException` at runtime due to null values in deconstruction patterns.\n* Use the **Report problems that happen only on some code paths** option to control whether to report problems that may happen only on some code path. If this option is disabled, warnings like *exception is possible* will not be reported. The inspection will report only warnings like *exception will definitely occur*. This mode may greatly reduce the number of false-positives, especially if the code is not consistently annotated with nullability and contract annotations. That is why it can be useful for finding the most important problems in legacy code bases.\n\n\nBefore IntelliJ IDEA 2022.3, this inspection was part of the \"Constant Conditions \\& Exceptions\" inspection.\nNow, it is split into two inspections:\n\"Constant Values\" and \"Nullability and data flow problems\".\n\nInspection ID: DataFlowIssue",
+      "sources": [
+        {
+          "type": "file",
+          "path": "src/main/java/com/ciji/serenity/commands/SayCommand.java",
+          "language": "JAVA",
+          "line": 41,
+          "offset": 100,
+          "length": 4,
+          "code": {
+            "startLine": 39,
+            "length": 4,
+            "offset": 241,
+            "surroundingCode": "        restClient.getApplicationService()\n                .createGuildApplicationCommand(applicationId, 177794959854796801L, commandRequest)\n                .doOnSuccess(data -> log.info(\"{} command registered\", StringUtils.capitalize(data.name())))\n                .doOnError(e -> log.error(\"Unable to create guild command\", e))\n                .onErrorResume(e -> Mono.empty())"
+          }
+        }
+      ],
+      "attributes": {
+        "module": "serenity-bot",
+        "inspectionName": "DataFlowIssue"
+      },
+      "hash": "0b4fc44d4f7ebcef8cc10c4bb006bd37e6545d049057ca9f5c611dbf6478cc67",
+      "problemType": "REGULAR"
+    },
+    {
+      "tool": "Code Inspection",
+      "category": "Probable bugs",
+      "categoryPath": [
+        {
+          "id": "Java",
+          "name": "Java"
+        },
+        {
+          "id": "Java/Probable bugs",
+          "name": "Probable bugs"
+        }
+      ],
+      "type": "Nullability and data flow problems",
+      "tags": [
+        "JAVA",
+        "CWE Top 25"
+      ],
+      "severity": "High",
+      "comment": "Method invocation `name` may produce `NullPointerException`",
+      "detailsInfo": "Reports code constructs that always violate nullability contracts, may throw exceptions, or are just redundant, based on data flow analysis.\n\nExamples:\n\n    if (array.length < index) {\n      System.out.println(array[index]);\n    } // Array index is always out of bounds\n\n    if (str == null) System.out.println(\"str is null\");\n    System.out.println(str.trim());\n    // the last statement may throw an NPE\n\n    @NotNull\n    Integer square(@Nullable Integer input) {\n        // the method contract is violated\n        return input == null ? null : input * input;\n    }\n\n\nThe inspection behavior may be controlled by a number of annotations, such as\n[nullability](https://www.jetbrains.com/help/idea/nullable-and-notnull-annotations.html) annotations,\n[@Contract](https://www.jetbrains.com/help/idea/contract-annotations.html) annotation,\n`@Range` annotation and so on.\n\nConfigure the inspection:\n\n* Use the **Suggest @Nullable annotation for methods/fields/parameters where nullable values are used** option to warn when a nullable value is passed as an argument to a method with a non-annotated parameter, stored into non-annotated field, or returned from a non-annotated method. In this case, the inspection will suggest propagating the `@Nullable` annotation. You can also configure nullability annotations using the **Configure Annotations** button.\n* Use the **Treat non-annotated members and parameters as @Nullable** option to assume that non-annotated members can be null, so they must not be used in non-null context.\n* Use the **Report not-null required parameter with null-literal argument usages** option to report method parameters that cannot be null (e.g. immediately dereferenced in the method body), but there are call sites where a `null` literal is passed.\n* Use the **Report nullable methods that always return a non-null value** option to report methods that are annotated as `@Nullable`, but always return non-null value. In this case, it's suggested that you change the annotation to `@NotNull`.\n* Use the **Ignore assert statements** option to control how the inspection treats `assert` statements. By default, the option is disabled, which means that the assertions are assumed to be executed (-ea mode). If the option is enabled, the assertions will be completely ignored (-da mode).\n* Use the **Reports patterns that may throw MatchException** option to report patterns that may throw `MatchException` at runtime due to null values in deconstruction patterns.\n* Use the **Report problems that happen only on some code paths** option to control whether to report problems that may happen only on some code path. If this option is disabled, warnings like *exception is possible* will not be reported. The inspection will report only warnings like *exception will definitely occur*. This mode may greatly reduce the number of false-positives, especially if the code is not consistently annotated with nullability and contract annotations. That is why it can be useful for finding the most important problems in legacy code bases.\n\n\nBefore IntelliJ IDEA 2022.3, this inspection was part of the \"Constant Conditions \\& Exceptions\" inspection.\nNow, it is split into two inspections:\n\"Constant Values\" and \"Nullability and data flow problems\".\n\nInspection ID: DataFlowIssue",
+      "sources": [
+        {
+          "type": "file",
+          "path": "src/main/java/com/ciji/serenity/commands/RollUntargetedCommand.java",
+          "language": "JAVA",
+          "line": 49,
+          "offset": 100,
+          "length": 4,
+          "code": {
+            "startLine": 47,
+            "length": 4,
+            "offset": 221,
+            "surroundingCode": "        restClient.getApplicationService()\n                .createGlobalApplicationCommand(applicationId, commandRequest)\n                .doOnSuccess(data -> log.info(\"{} command registered\", StringUtils.capitalize(data.name())))\n                .doOnError(e -> log.error(\"Unable to create guild command\", e))\n                .onErrorResume(e -> Mono.empty())"
+          }
+        }
+      ],
+      "attributes": {
+        "module": "serenity-bot",
+        "inspectionName": "DataFlowIssue"
+      },
+      "hash": "0d9e785f1ef5fc7331ad2c6f67c2c96dd46afb3c835e89fbd16d60a76ede37fe",
+      "problemType": "REGULAR"
+    },
+    {
+      "tool": "Code Inspection",
+      "category": "Probable bugs",
+      "categoryPath": [
+        {
+          "id": "Java",
+          "name": "Java"
+        },
+        {
+          "id": "Java/Probable bugs",
+          "name": "Probable bugs"
+        }
+      ],
+      "type": "Nullability and data flow problems",
+      "tags": [
+        "JAVA",
+        "CWE Top 25"
+      ],
+      "severity": "High",
+      "comment": "Method invocation `name` may produce `NullPointerException`",
+      "detailsInfo": "Reports code constructs that always violate nullability contracts, may throw exceptions, or are just redundant, based on data flow analysis.\n\nExamples:\n\n    if (array.length < index) {\n      System.out.println(array[index]);\n    } // Array index is always out of bounds\n\n    if (str == null) System.out.println(\"str is null\");\n    System.out.println(str.trim());\n    // the last statement may throw an NPE\n\n    @NotNull\n    Integer square(@Nullable Integer input) {\n        // the method contract is violated\n        return input == null ? null : input * input;\n    }\n\n\nThe inspection behavior may be controlled by a number of annotations, such as\n[nullability](https://www.jetbrains.com/help/idea/nullable-and-notnull-annotations.html) annotations,\n[@Contract](https://www.jetbrains.com/help/idea/contract-annotations.html) annotation,\n`@Range` annotation and so on.\n\nConfigure the inspection:\n\n* Use the **Suggest @Nullable annotation for methods/fields/parameters where nullable values are used** option to warn when a nullable value is passed as an argument to a method with a non-annotated parameter, stored into non-annotated field, or returned from a non-annotated method. In this case, the inspection will suggest propagating the `@Nullable` annotation. You can also configure nullability annotations using the **Configure Annotations** button.\n* Use the **Treat non-annotated members and parameters as @Nullable** option to assume that non-annotated members can be null, so they must not be used in non-null context.\n* Use the **Report not-null required parameter with null-literal argument usages** option to report method parameters that cannot be null (e.g. immediately dereferenced in the method body), but there are call sites where a `null` literal is passed.\n* Use the **Report nullable methods that always return a non-null value** option to report methods that are annotated as `@Nullable`, but always return non-null value. In this case, it's suggested that you change the annotation to `@NotNull`.\n* Use the **Ignore assert statements** option to control how the inspection treats `assert` statements. By default, the option is disabled, which means that the assertions are assumed to be executed (-ea mode). If the option is enabled, the assertions will be completely ignored (-da mode).\n* Use the **Reports patterns that may throw MatchException** option to report patterns that may throw `MatchException` at runtime due to null values in deconstruction patterns.\n* Use the **Report problems that happen only on some code paths** option to control whether to report problems that may happen only on some code path. If this option is disabled, warnings like *exception is possible* will not be reported. The inspection will report only warnings like *exception will definitely occur*. This mode may greatly reduce the number of false-positives, especially if the code is not consistently annotated with nullability and contract annotations. That is why it can be useful for finding the most important problems in legacy code bases.\n\n\nBefore IntelliJ IDEA 2022.3, this inspection was part of the \"Constant Conditions \\& Exceptions\" inspection.\nNow, it is split into two inspections:\n\"Constant Values\" and \"Nullability and data flow problems\".\n\nInspection ID: DataFlowIssue",
+      "sources": [
+        {
+          "type": "file",
+          "path": "src/main/java/com/ciji/serenity/commands/GetCharacterCommand.java",
+          "language": "JAVA",
+          "line": 37,
+          "offset": 100,
+          "length": 4,
+          "code": {
+            "startLine": 35,
+            "length": 4,
+            "offset": 221,
+            "surroundingCode": "        restClient.getApplicationService()\n                .createGlobalApplicationCommand(applicationId, commandRequest)\n                .doOnSuccess(data -> log.info(\"{} command registered\", StringUtils.capitalize(data.name())))\n                .doOnError(e -> log.error(\"Unable to create guild command\", e))\n                .onErrorResume(e -> Mono.empty())"
+          }
+        }
+      ],
+      "attributes": {
+        "module": "serenity-bot",
+        "inspectionName": "DataFlowIssue"
+      },
+      "hash": "15b7aa6bcaacb354b813ef00a142cd78933a4120011156e33e61a5923131740d",
+      "problemType": "REGULAR"
+    },
+    {
+      "tool": "Code Inspection",
+      "category": "Probable bugs",
+      "categoryPath": [
+        {
+          "id": "Java",
+          "name": "Java"
+        },
+        {
+          "id": "Java/Probable bugs",
+          "name": "Probable bugs"
+        }
+      ],
+      "type": "Nullability and data flow problems",
+      "tags": [
+        "JAVA",
+        "CWE Top 25"
+      ],
+      "severity": "High",
+      "comment": "Method invocation `name` may produce `NullPointerException`",
+      "detailsInfo": "Reports code constructs that always violate nullability contracts, may throw exceptions, or are just redundant, based on data flow analysis.\n\nExamples:\n\n    if (array.length < index) {\n      System.out.println(array[index]);\n    } // Array index is always out of bounds\n\n    if (str == null) System.out.println(\"str is null\");\n    System.out.println(str.trim());\n    // the last statement may throw an NPE\n\n    @NotNull\n    Integer square(@Nullable Integer input) {\n        // the method contract is violated\n        return input == null ? null : input * input;\n    }\n\n\nThe inspection behavior may be controlled by a number of annotations, such as\n[nullability](https://www.jetbrains.com/help/idea/nullable-and-notnull-annotations.html) annotations,\n[@Contract](https://www.jetbrains.com/help/idea/contract-annotations.html) annotation,\n`@Range` annotation and so on.\n\nConfigure the inspection:\n\n* Use the **Suggest @Nullable annotation for methods/fields/parameters where nullable values are used** option to warn when a nullable value is passed as an argument to a method with a non-annotated parameter, stored into non-annotated field, or returned from a non-annotated method. In this case, the inspection will suggest propagating the `@Nullable` annotation. You can also configure nullability annotations using the **Configure Annotations** button.\n* Use the **Treat non-annotated members and parameters as @Nullable** option to assume that non-annotated members can be null, so they must not be used in non-null context.\n* Use the **Report not-null required parameter with null-literal argument usages** option to report method parameters that cannot be null (e.g. immediately dereferenced in the method body), but there are call sites where a `null` literal is passed.\n* Use the **Report nullable methods that always return a non-null value** option to report methods that are annotated as `@Nullable`, but always return non-null value. In this case, it's suggested that you change the annotation to `@NotNull`.\n* Use the **Ignore assert statements** option to control how the inspection treats `assert` statements. By default, the option is disabled, which means that the assertions are assumed to be executed (-ea mode). If the option is enabled, the assertions will be completely ignored (-da mode).\n* Use the **Reports patterns that may throw MatchException** option to report patterns that may throw `MatchException` at runtime due to null values in deconstruction patterns.\n* Use the **Report problems that happen only on some code paths** option to control whether to report problems that may happen only on some code path. If this option is disabled, warnings like *exception is possible* will not be reported. The inspection will report only warnings like *exception will definitely occur*. This mode may greatly reduce the number of false-positives, especially if the code is not consistently annotated with nullability and contract annotations. That is why it can be useful for finding the most important problems in legacy code bases.\n\n\nBefore IntelliJ IDEA 2022.3, this inspection was part of the \"Constant Conditions \\& Exceptions\" inspection.\nNow, it is split into two inspections:\n\"Constant Values\" and \"Nullability and data flow problems\".\n\nInspection ID: DataFlowIssue",
+      "sources": [
+        {
+          "type": "file",
+          "path": "src/main/java/com/ciji/serenity/commands/UnrigCommand.java",
+          "language": "JAVA",
+          "line": 32,
+          "offset": 100,
+          "length": 4,
+          "code": {
+            "startLine": 30,
+            "length": 4,
+            "offset": 221,
+            "surroundingCode": "        restClient.getApplicationService()\n                .createGlobalApplicationCommand(applicationId, commandRequest)\n                .doOnSuccess(data -> log.info(\"{} command registered\", StringUtils.capitalize(data.name())))\n                .doOnError(e -> log.error(\"Unable to create guild command\", e))\n                .onErrorResume(e -> Mono.empty())"
+          }
+        }
+      ],
+      "attributes": {
+        "module": "serenity-bot",
+        "inspectionName": "DataFlowIssue"
+      },
+      "hash": "2605f40f831ca1aada36ed0f74fee1fa30d8ed3b3ae980907a276facb5fc3d84",
+      "problemType": "REGULAR"
+    },
+    {
+      "tool": "Code Inspection",
+      "category": "Probable bugs",
+      "categoryPath": [
+        {
+          "id": "Java",
+          "name": "Java"
+        },
+        {
+          "id": "Java/Probable bugs",
+          "name": "Probable bugs"
+        }
+      ],
+      "type": "Nullability and data flow problems",
+      "tags": [
+        "JAVA",
+        "CWE Top 25"
+      ],
+      "severity": "High",
+      "comment": "Method invocation `name` may produce `NullPointerException`",
+      "detailsInfo": "Reports code constructs that always violate nullability contracts, may throw exceptions, or are just redundant, based on data flow analysis.\n\nExamples:\n\n    if (array.length < index) {\n      System.out.println(array[index]);\n    } // Array index is always out of bounds\n\n    if (str == null) System.out.println(\"str is null\");\n    System.out.println(str.trim());\n    // the last statement may throw an NPE\n\n    @NotNull\n    Integer square(@Nullable Integer input) {\n        // the method contract is violated\n        return input == null ? null : input * input;\n    }\n\n\nThe inspection behavior may be controlled by a number of annotations, such as\n[nullability](https://www.jetbrains.com/help/idea/nullable-and-notnull-annotations.html) annotations,\n[@Contract](https://www.jetbrains.com/help/idea/contract-annotations.html) annotation,\n`@Range` annotation and so on.\n\nConfigure the inspection:\n\n* Use the **Suggest @Nullable annotation for methods/fields/parameters where nullable values are used** option to warn when a nullable value is passed as an argument to a method with a non-annotated parameter, stored into non-annotated field, or returned from a non-annotated method. In this case, the inspection will suggest propagating the `@Nullable` annotation. You can also configure nullability annotations using the **Configure Annotations** button.\n* Use the **Treat non-annotated members and parameters as @Nullable** option to assume that non-annotated members can be null, so they must not be used in non-null context.\n* Use the **Report not-null required parameter with null-literal argument usages** option to report method parameters that cannot be null (e.g. immediately dereferenced in the method body), but there are call sites where a `null` literal is passed.\n* Use the **Report nullable methods that always return a non-null value** option to report methods that are annotated as `@Nullable`, but always return non-null value. In this case, it's suggested that you change the annotation to `@NotNull`.\n* Use the **Ignore assert statements** option to control how the inspection treats `assert` statements. By default, the option is disabled, which means that the assertions are assumed to be executed (-ea mode). If the option is enabled, the assertions will be completely ignored (-da mode).\n* Use the **Reports patterns that may throw MatchException** option to report patterns that may throw `MatchException` at runtime due to null values in deconstruction patterns.\n* Use the **Report problems that happen only on some code paths** option to control whether to report problems that may happen only on some code path. If this option is disabled, warnings like *exception is possible* will not be reported. The inspection will report only warnings like *exception will definitely occur*. This mode may greatly reduce the number of false-positives, especially if the code is not consistently annotated with nullability and contract annotations. That is why it can be useful for finding the most important problems in legacy code bases.\n\n\nBefore IntelliJ IDEA 2022.3, this inspection was part of the \"Constant Conditions \\& Exceptions\" inspection.\nNow, it is split into two inspections:\n\"Constant Values\" and \"Nullability and data flow problems\".\n\nInspection ID: DataFlowIssue",
+      "sources": [
+        {
+          "type": "file",
+          "path": "src/main/java/com/ciji/serenity/commands/SetTemperatureCommand.java",
+          "language": "JAVA",
+          "line": 43,
+          "offset": 100,
+          "length": 4,
+          "code": {
+            "startLine": 41,
+            "length": 4,
+            "offset": 221,
+            "surroundingCode": "        restClient.getApplicationService()\n                .createGlobalApplicationCommand(applicationId, commandRequest)\n                .doOnSuccess(data -> log.info(\"{} command registered\", StringUtils.capitalize(data.name())))\n                .doOnError(e -> log.error(\"Unable to create guild command\", e))\n                .onErrorResume(e -> Mono.empty())"
+          }
+        }
+      ],
+      "attributes": {
+        "module": "serenity-bot",
+        "inspectionName": "DataFlowIssue"
+      },
+      "hash": "285c7cf5c8aa5df461d09ebb55ec567dbf5c0df15d02e688dd80c01ecf291ffd",
+      "problemType": "REGULAR"
+    },
+    {
+      "tool": "Code Inspection",
+      "category": "Probable bugs",
+      "categoryPath": [
+        {
+          "id": "Java",
+          "name": "Java"
+        },
+        {
+          "id": "Java/Probable bugs",
+          "name": "Probable bugs"
+        }
+      ],
+      "type": "Nullability and data flow problems",
+      "tags": [
+        "JAVA",
+        "CWE Top 25"
+      ],
+      "severity": "High",
+      "comment": "Method invocation `name` may produce `NullPointerException`",
+      "detailsInfo": "Reports code constructs that always violate nullability contracts, may throw exceptions, or are just redundant, based on data flow analysis.\n\nExamples:\n\n    if (array.length < index) {\n      System.out.println(array[index]);\n    } // Array index is always out of bounds\n\n    if (str == null) System.out.println(\"str is null\");\n    System.out.println(str.trim());\n    // the last statement may throw an NPE\n\n    @NotNull\n    Integer square(@Nullable Integer input) {\n        // the method contract is violated\n        return input == null ? null : input * input;\n    }\n\n\nThe inspection behavior may be controlled by a number of annotations, such as\n[nullability](https://www.jetbrains.com/help/idea/nullable-and-notnull-annotations.html) annotations,\n[@Contract](https://www.jetbrains.com/help/idea/contract-annotations.html) annotation,\n`@Range` annotation and so on.\n\nConfigure the inspection:\n\n* Use the **Suggest @Nullable annotation for methods/fields/parameters where nullable values are used** option to warn when a nullable value is passed as an argument to a method with a non-annotated parameter, stored into non-annotated field, or returned from a non-annotated method. In this case, the inspection will suggest propagating the `@Nullable` annotation. You can also configure nullability annotations using the **Configure Annotations** button.\n* Use the **Treat non-annotated members and parameters as @Nullable** option to assume that non-annotated members can be null, so they must not be used in non-null context.\n* Use the **Report not-null required parameter with null-literal argument usages** option to report method parameters that cannot be null (e.g. immediately dereferenced in the method body), but there are call sites where a `null` literal is passed.\n* Use the **Report nullable methods that always return a non-null value** option to report methods that are annotated as `@Nullable`, but always return non-null value. In this case, it's suggested that you change the annotation to `@NotNull`.\n* Use the **Ignore assert statements** option to control how the inspection treats `assert` statements. By default, the option is disabled, which means that the assertions are assumed to be executed (-ea mode). If the option is enabled, the assertions will be completely ignored (-da mode).\n* Use the **Reports patterns that may throw MatchException** option to report patterns that may throw `MatchException` at runtime due to null values in deconstruction patterns.\n* Use the **Report problems that happen only on some code paths** option to control whether to report problems that may happen only on some code path. If this option is disabled, warnings like *exception is possible* will not be reported. The inspection will report only warnings like *exception will definitely occur*. This mode may greatly reduce the number of false-positives, especially if the code is not consistently annotated with nullability and contract annotations. That is why it can be useful for finding the most important problems in legacy code bases.\n\n\nBefore IntelliJ IDEA 2022.3, this inspection was part of the \"Constant Conditions \\& Exceptions\" inspection.\nNow, it is split into two inspections:\n\"Constant Values\" and \"Nullability and data flow problems\".\n\nInspection ID: DataFlowIssue",
+      "sources": [
+        {
+          "type": "file",
+          "path": "src/main/java/com/ciji/serenity/commands/RemoveCharacterCommand.java",
+          "language": "JAVA",
+          "line": 37,
+          "offset": 100,
+          "length": 4,
+          "code": {
+            "startLine": 35,
+            "length": 4,
+            "offset": 221,
+            "surroundingCode": "        restClient.getApplicationService()\n                .createGlobalApplicationCommand(applicationId, commandRequest)\n                .doOnSuccess(data -> log.info(\"{} command registered\", StringUtils.capitalize(data.name())))\n                .doOnError(e -> log.error(\"Unable to create guild command\", e))\n                .onErrorResume(e -> Mono.empty())"
+          }
+        }
+      ],
+      "attributes": {
+        "module": "serenity-bot",
+        "inspectionName": "DataFlowIssue"
+      },
+      "hash": "2a30863960c4a8b10f99716b845835bd6cb7a31f7ad09a9d16e28fa84dc9ee6d",
+      "problemType": "REGULAR"
+    },
+    {
+      "tool": "Code Inspection",
+      "category": "Probable bugs",
+      "categoryPath": [
+        {
+          "id": "Java",
+          "name": "Java"
+        },
+        {
+          "id": "Java/Probable bugs",
+          "name": "Probable bugs"
+        }
+      ],
+      "type": "Nullability and data flow problems",
+      "tags": [
+        "JAVA",
+        "CWE Top 25"
+      ],
+      "severity": "High",
+      "comment": "Method invocation `name` may produce `NullPointerException`",
+      "detailsInfo": "Reports code constructs that always violate nullability contracts, may throw exceptions, or are just redundant, based on data flow analysis.\n\nExamples:\n\n    if (array.length < index) {\n      System.out.println(array[index]);\n    } // Array index is always out of bounds\n\n    if (str == null) System.out.println(\"str is null\");\n    System.out.println(str.trim());\n    // the last statement may throw an NPE\n\n    @NotNull\n    Integer square(@Nullable Integer input) {\n        // the method contract is violated\n        return input == null ? null : input * input;\n    }\n\n\nThe inspection behavior may be controlled by a number of annotations, such as\n[nullability](https://www.jetbrains.com/help/idea/nullable-and-notnull-annotations.html) annotations,\n[@Contract](https://www.jetbrains.com/help/idea/contract-annotations.html) annotation,\n`@Range` annotation and so on.\n\nConfigure the inspection:\n\n* Use the **Suggest @Nullable annotation for methods/fields/parameters where nullable values are used** option to warn when a nullable value is passed as an argument to a method with a non-annotated parameter, stored into non-annotated field, or returned from a non-annotated method. In this case, the inspection will suggest propagating the `@Nullable` annotation. You can also configure nullability annotations using the **Configure Annotations** button.\n* Use the **Treat non-annotated members and parameters as @Nullable** option to assume that non-annotated members can be null, so they must not be used in non-null context.\n* Use the **Report not-null required parameter with null-literal argument usages** option to report method parameters that cannot be null (e.g. immediately dereferenced in the method body), but there are call sites where a `null` literal is passed.\n* Use the **Report nullable methods that always return a non-null value** option to report methods that are annotated as `@Nullable`, but always return non-null value. In this case, it's suggested that you change the annotation to `@NotNull`.\n* Use the **Ignore assert statements** option to control how the inspection treats `assert` statements. By default, the option is disabled, which means that the assertions are assumed to be executed (-ea mode). If the option is enabled, the assertions will be completely ignored (-da mode).\n* Use the **Reports patterns that may throw MatchException** option to report patterns that may throw `MatchException` at runtime due to null values in deconstruction patterns.\n* Use the **Report problems that happen only on some code paths** option to control whether to report problems that may happen only on some code path. If this option is disabled, warnings like *exception is possible* will not be reported. The inspection will report only warnings like *exception will definitely occur*. This mode may greatly reduce the number of false-positives, especially if the code is not consistently annotated with nullability and contract annotations. That is why it can be useful for finding the most important problems in legacy code bases.\n\n\nBefore IntelliJ IDEA 2022.3, this inspection was part of the \"Constant Conditions \\& Exceptions\" inspection.\nNow, it is split into two inspections:\n\"Constant Values\" and \"Nullability and data flow problems\".\n\nInspection ID: DataFlowIssue",
+      "sources": [
+        {
+          "type": "file",
+          "path": "src/main/java/com/ciji/serenity/commands/RollTargetedCommand.java",
+          "language": "JAVA",
+          "line": 49,
+          "offset": 100,
+          "length": 4,
+          "code": {
+            "startLine": 47,
+            "length": 4,
+            "offset": 221,
+            "surroundingCode": "        restClient.getApplicationService()\n                .createGlobalApplicationCommand(applicationId, commandRequest)\n                .doOnSuccess(data -> log.info(\"{} command registered\", StringUtils.capitalize(data.name())))\n                .doOnError(e -> log.error(\"Unable to create guild command\", e))\n                .onErrorResume(e -> Mono.empty())"
+          }
+        }
+      ],
+      "attributes": {
+        "module": "serenity-bot",
+        "inspectionName": "DataFlowIssue"
+      },
+      "hash": "30f4690f693daefd78b8efe53252dbe501892988d3e623a8e5683ff81c0bc8bc",
+      "problemType": "REGULAR"
+    },
+    {
+      "tool": "Code Inspection",
+      "category": "Probable bugs",
+      "categoryPath": [
+        {
+          "id": "Java",
+          "name": "Java"
+        },
+        {
+          "id": "Java/Probable bugs",
+          "name": "Probable bugs"
+        }
+      ],
+      "type": "Nullability and data flow problems",
+      "tags": [
+        "JAVA",
+        "CWE Top 25"
+      ],
+      "severity": "High",
+      "comment": "Method invocation `name` may produce `NullPointerException`",
+      "detailsInfo": "Reports code constructs that always violate nullability contracts, may throw exceptions, or are just redundant, based on data flow analysis.\n\nExamples:\n\n    if (array.length < index) {\n      System.out.println(array[index]);\n    } // Array index is always out of bounds\n\n    if (str == null) System.out.println(\"str is null\");\n    System.out.println(str.trim());\n    // the last statement may throw an NPE\n\n    @NotNull\n    Integer square(@Nullable Integer input) {\n        // the method contract is violated\n        return input == null ? null : input * input;\n    }\n\n\nThe inspection behavior may be controlled by a number of annotations, such as\n[nullability](https://www.jetbrains.com/help/idea/nullable-and-notnull-annotations.html) annotations,\n[@Contract](https://www.jetbrains.com/help/idea/contract-annotations.html) annotation,\n`@Range` annotation and so on.\n\nConfigure the inspection:\n\n* Use the **Suggest @Nullable annotation for methods/fields/parameters where nullable values are used** option to warn when a nullable value is passed as an argument to a method with a non-annotated parameter, stored into non-annotated field, or returned from a non-annotated method. In this case, the inspection will suggest propagating the `@Nullable` annotation. You can also configure nullability annotations using the **Configure Annotations** button.\n* Use the **Treat non-annotated members and parameters as @Nullable** option to assume that non-annotated members can be null, so they must not be used in non-null context.\n* Use the **Report not-null required parameter with null-literal argument usages** option to report method parameters that cannot be null (e.g. immediately dereferenced in the method body), but there are call sites where a `null` literal is passed.\n* Use the **Report nullable methods that always return a non-null value** option to report methods that are annotated as `@Nullable`, but always return non-null value. In this case, it's suggested that you change the annotation to `@NotNull`.\n* Use the **Ignore assert statements** option to control how the inspection treats `assert` statements. By default, the option is disabled, which means that the assertions are assumed to be executed (-ea mode). If the option is enabled, the assertions will be completely ignored (-da mode).\n* Use the **Reports patterns that may throw MatchException** option to report patterns that may throw `MatchException` at runtime due to null values in deconstruction patterns.\n* Use the **Report problems that happen only on some code paths** option to control whether to report problems that may happen only on some code path. If this option is disabled, warnings like *exception is possible* will not be reported. The inspection will report only warnings like *exception will definitely occur*. This mode may greatly reduce the number of false-positives, especially if the code is not consistently annotated with nullability and contract annotations. That is why it can be useful for finding the most important problems in legacy code bases.\n\n\nBefore IntelliJ IDEA 2022.3, this inspection was part of the \"Constant Conditions \\& Exceptions\" inspection.\nNow, it is split into two inspections:\n\"Constant Values\" and \"Nullability and data flow problems\".\n\nInspection ID: DataFlowIssue",
+      "sources": [
+        {
+          "type": "file",
+          "path": "src/main/java/com/ciji/serenity/commands/SetRadiationCommand.java",
+          "language": "JAVA",
+          "line": 43,
+          "offset": 100,
+          "length": 4,
+          "code": {
+            "startLine": 41,
+            "length": 4,
+            "offset": 221,
+            "surroundingCode": "        restClient.getApplicationService()\n                .createGlobalApplicationCommand(applicationId, commandRequest)\n                .doOnSuccess(data -> log.info(\"{} command registered\", StringUtils.capitalize(data.name())))\n                .doOnError(e -> log.error(\"Unable to create guild command\", e))\n                .onErrorResume(e -> Mono.empty())"
+          }
+        }
+      ],
+      "attributes": {
+        "module": "serenity-bot",
+        "inspectionName": "DataFlowIssue"
+      },
+      "hash": "4cfbf7ecbce85bfe6cc715357052df6b3ad83ff4312646842f435c795a894424",
+      "problemType": "REGULAR"
+    },
+    {
+      "tool": "Code Inspection",
+      "category": "Probable bugs",
+      "categoryPath": [
+        {
+          "id": "Java",
+          "name": "Java"
+        },
+        {
+          "id": "Java/Probable bugs",
+          "name": "Probable bugs"
+        }
+      ],
+      "type": "Nullability and data flow problems",
+      "tags": [
+        "JAVA",
+        "CWE Top 25"
+      ],
+      "severity": "High",
+      "comment": "Method invocation `name` may produce `NullPointerException`",
+      "detailsInfo": "Reports code constructs that always violate nullability contracts, may throw exceptions, or are just redundant, based on data flow analysis.\n\nExamples:\n\n    if (array.length < index) {\n      System.out.println(array[index]);\n    } // Array index is always out of bounds\n\n    if (str == null) System.out.println(\"str is null\");\n    System.out.println(str.trim());\n    // the last statement may throw an NPE\n\n    @NotNull\n    Integer square(@Nullable Integer input) {\n        // the method contract is violated\n        return input == null ? null : input * input;\n    }\n\n\nThe inspection behavior may be controlled by a number of annotations, such as\n[nullability](https://www.jetbrains.com/help/idea/nullable-and-notnull-annotations.html) annotations,\n[@Contract](https://www.jetbrains.com/help/idea/contract-annotations.html) annotation,\n`@Range` annotation and so on.\n\nConfigure the inspection:\n\n* Use the **Suggest @Nullable annotation for methods/fields/parameters where nullable values are used** option to warn when a nullable value is passed as an argument to a method with a non-annotated parameter, stored into non-annotated field, or returned from a non-annotated method. In this case, the inspection will suggest propagating the `@Nullable` annotation. You can also configure nullability annotations using the **Configure Annotations** button.\n* Use the **Treat non-annotated members and parameters as @Nullable** option to assume that non-annotated members can be null, so they must not be used in non-null context.\n* Use the **Report not-null required parameter with null-literal argument usages** option to report method parameters that cannot be null (e.g. immediately dereferenced in the method body), but there are call sites where a `null` literal is passed.\n* Use the **Report nullable methods that always return a non-null value** option to report methods that are annotated as `@Nullable`, but always return non-null value. In this case, it's suggested that you change the annotation to `@NotNull`.\n* Use the **Ignore assert statements** option to control how the inspection treats `assert` statements. By default, the option is disabled, which means that the assertions are assumed to be executed (-ea mode). If the option is enabled, the assertions will be completely ignored (-da mode).\n* Use the **Reports patterns that may throw MatchException** option to report patterns that may throw `MatchException` at runtime due to null values in deconstruction patterns.\n* Use the **Report problems that happen only on some code paths** option to control whether to report problems that may happen only on some code path. If this option is disabled, warnings like *exception is possible* will not be reported. The inspection will report only warnings like *exception will definitely occur*. This mode may greatly reduce the number of false-positives, especially if the code is not consistently annotated with nullability and contract annotations. That is why it can be useful for finding the most important problems in legacy code bases.\n\n\nBefore IntelliJ IDEA 2022.3, this inspection was part of the \"Constant Conditions \\& Exceptions\" inspection.\nNow, it is split into two inspections:\n\"Constant Values\" and \"Nullability and data flow problems\".\n\nInspection ID: DataFlowIssue",
+      "sources": [
+        {
+          "type": "file",
+          "path": "src/main/java/com/ciji/serenity/commands/ReadSheetCommand.java",
+          "language": "JAVA",
+          "line": 43,
+          "offset": 100,
+          "length": 4,
+          "code": {
+            "startLine": 41,
+            "length": 4,
+            "offset": 221,
+            "surroundingCode": "        restClient.getApplicationService()\n                .createGlobalApplicationCommand(applicationId, commandRequest)\n                .doOnSuccess(data -> log.info(\"{} command registered\", StringUtils.capitalize(data.name())))\n                .doOnError(e -> log.error(\"Unable to create guild command\", e))\n                .onErrorResume(e -> Mono.empty())"
+          }
+        }
+      ],
+      "attributes": {
+        "module": "serenity-bot",
+        "inspectionName": "DataFlowIssue"
+      },
+      "hash": "7269f9c03259130c2a8f72bfbc992fce2e0e246e6320ac7b116caf3af95b985c",
+      "problemType": "REGULAR"
+    },
+    {
+      "tool": "Code Inspection",
+      "category": "Probable bugs",
+      "categoryPath": [
+        {
+          "id": "Java",
+          "name": "Java"
+        },
+        {
+          "id": "Java/Probable bugs",
+          "name": "Probable bugs"
+        }
+      ],
+      "type": "Nullability and data flow problems",
+      "tags": [
+        "JAVA",
+        "CWE Top 25"
+      ],
+      "severity": "High",
+      "comment": "Method invocation `name` may produce `NullPointerException`",
+      "detailsInfo": "Reports code constructs that always violate nullability contracts, may throw exceptions, or are just redundant, based on data flow analysis.\n\nExamples:\n\n    if (array.length < index) {\n      System.out.println(array[index]);\n    } // Array index is always out of bounds\n\n    if (str == null) System.out.println(\"str is null\");\n    System.out.println(str.trim());\n    // the last statement may throw an NPE\n\n    @NotNull\n    Integer square(@Nullable Integer input) {\n        // the method contract is violated\n        return input == null ? null : input * input;\n    }\n\n\nThe inspection behavior may be controlled by a number of annotations, such as\n[nullability](https://www.jetbrains.com/help/idea/nullable-and-notnull-annotations.html) annotations,\n[@Contract](https://www.jetbrains.com/help/idea/contract-annotations.html) annotation,\n`@Range` annotation and so on.\n\nConfigure the inspection:\n\n* Use the **Suggest @Nullable annotation for methods/fields/parameters where nullable values are used** option to warn when a nullable value is passed as an argument to a method with a non-annotated parameter, stored into non-annotated field, or returned from a non-annotated method. In this case, the inspection will suggest propagating the `@Nullable` annotation. You can also configure nullability annotations using the **Configure Annotations** button.\n* Use the **Treat non-annotated members and parameters as @Nullable** option to assume that non-annotated members can be null, so they must not be used in non-null context.\n* Use the **Report not-null required parameter with null-literal argument usages** option to report method parameters that cannot be null (e.g. immediately dereferenced in the method body), but there are call sites where a `null` literal is passed.\n* Use the **Report nullable methods that always return a non-null value** option to report methods that are annotated as `@Nullable`, but always return non-null value. In this case, it's suggested that you change the annotation to `@NotNull`.\n* Use the **Ignore assert statements** option to control how the inspection treats `assert` statements. By default, the option is disabled, which means that the assertions are assumed to be executed (-ea mode). If the option is enabled, the assertions will be completely ignored (-da mode).\n* Use the **Reports patterns that may throw MatchException** option to report patterns that may throw `MatchException` at runtime due to null values in deconstruction patterns.\n* Use the **Report problems that happen only on some code paths** option to control whether to report problems that may happen only on some code path. If this option is disabled, warnings like *exception is possible* will not be reported. The inspection will report only warnings like *exception will definitely occur*. This mode may greatly reduce the number of false-positives, especially if the code is not consistently annotated with nullability and contract annotations. That is why it can be useful for finding the most important problems in legacy code bases.\n\n\nBefore IntelliJ IDEA 2022.3, this inspection was part of the \"Constant Conditions \\& Exceptions\" inspection.\nNow, it is split into two inspections:\n\"Constant Values\" and \"Nullability and data flow problems\".\n\nInspection ID: DataFlowIssue",
+      "sources": [
+        {
+          "type": "file",
+          "path": "src/main/java/com/ciji/serenity/commands/GetInventoryCommand.java",
+          "language": "JAVA",
+          "line": 37,
+          "offset": 100,
+          "length": 4,
+          "code": {
+            "startLine": 35,
+            "length": 4,
+            "offset": 221,
+            "surroundingCode": "        restClient.getApplicationService()\n                .createGlobalApplicationCommand(applicationId, commandRequest)\n                .doOnSuccess(data -> log.info(\"{} command registered\", StringUtils.capitalize(data.name())))\n                .doOnError(e -> log.error(\"Unable to create guild command\", e))\n                .onErrorResume(_ -> Mono.empty())"
+          }
+        }
+      ],
+      "attributes": {
+        "module": "serenity-bot",
+        "inspectionName": "DataFlowIssue"
+      },
+      "hash": "7d738c2bf084f9e66c41e06c310e47bdb5bffe4d3b688813cd726b9b25de3263",
+      "problemType": "REGULAR"
+    },
+    {
+      "tool": "Code Inspection",
+      "category": "Probable bugs",
+      "categoryPath": [
+        {
+          "id": "Java",
+          "name": "Java"
+        },
+        {
+          "id": "Java/Probable bugs",
+          "name": "Probable bugs"
+        }
+      ],
+      "type": "Nullability and data flow problems",
+      "tags": [
+        "JAVA",
+        "CWE Top 25"
+      ],
+      "severity": "High",
+      "comment": "Method invocation `name` may produce `NullPointerException`",
+      "detailsInfo": "Reports code constructs that always violate nullability contracts, may throw exceptions, or are just redundant, based on data flow analysis.\n\nExamples:\n\n    if (array.length < index) {\n      System.out.println(array[index]);\n    } // Array index is always out of bounds\n\n    if (str == null) System.out.println(\"str is null\");\n    System.out.println(str.trim());\n    // the last statement may throw an NPE\n\n    @NotNull\n    Integer square(@Nullable Integer input) {\n        // the method contract is violated\n        return input == null ? null : input * input;\n    }\n\n\nThe inspection behavior may be controlled by a number of annotations, such as\n[nullability](https://www.jetbrains.com/help/idea/nullable-and-notnull-annotations.html) annotations,\n[@Contract](https://www.jetbrains.com/help/idea/contract-annotations.html) annotation,\n`@Range` annotation and so on.\n\nConfigure the inspection:\n\n* Use the **Suggest @Nullable annotation for methods/fields/parameters where nullable values are used** option to warn when a nullable value is passed as an argument to a method with a non-annotated parameter, stored into non-annotated field, or returned from a non-annotated method. In this case, the inspection will suggest propagating the `@Nullable` annotation. You can also configure nullability annotations using the **Configure Annotations** button.\n* Use the **Treat non-annotated members and parameters as @Nullable** option to assume that non-annotated members can be null, so they must not be used in non-null context.\n* Use the **Report not-null required parameter with null-literal argument usages** option to report method parameters that cannot be null (e.g. immediately dereferenced in the method body), but there are call sites where a `null` literal is passed.\n* Use the **Report nullable methods that always return a non-null value** option to report methods that are annotated as `@Nullable`, but always return non-null value. In this case, it's suggested that you change the annotation to `@NotNull`.\n* Use the **Ignore assert statements** option to control how the inspection treats `assert` statements. By default, the option is disabled, which means that the assertions are assumed to be executed (-ea mode). If the option is enabled, the assertions will be completely ignored (-da mode).\n* Use the **Reports patterns that may throw MatchException** option to report patterns that may throw `MatchException` at runtime due to null values in deconstruction patterns.\n* Use the **Report problems that happen only on some code paths** option to control whether to report problems that may happen only on some code path. If this option is disabled, warnings like *exception is possible* will not be reported. The inspection will report only warnings like *exception will definitely occur*. This mode may greatly reduce the number of false-positives, especially if the code is not consistently annotated with nullability and contract annotations. That is why it can be useful for finding the most important problems in legacy code bases.\n\n\nBefore IntelliJ IDEA 2022.3, this inspection was part of the \"Constant Conditions \\& Exceptions\" inspection.\nNow, it is split into two inspections:\n\"Constant Values\" and \"Nullability and data flow problems\".\n\nInspection ID: DataFlowIssue",
+      "sources": [
+        {
+          "type": "file",
+          "path": "src/main/java/com/ciji/serenity/commands/UpdateCharacterCommand.java",
+          "language": "JAVA",
+          "line": 43,
+          "offset": 100,
+          "length": 4,
+          "code": {
+            "startLine": 41,
+            "length": 4,
+            "offset": 241,
+            "surroundingCode": "        restClient.getApplicationService()\n                .createGuildApplicationCommand(applicationId, 177794959854796801L, commandRequest)\n                .doOnSuccess(data -> log.info(\"{} command registered\", StringUtils.capitalize(data.name())))\n                .doOnError(e -> log.error(\"Unable to create guild command\", e))\n                .onErrorResume(e -> Mono.empty())"
+          }
+        }
+      ],
+      "attributes": {
+        "module": "serenity-bot",
+        "inspectionName": "DataFlowIssue"
+      },
+      "hash": "7e1dea9aa97ac57a9fd5d90c7548d54f578a82dda67635158d7de84273f6e234",
+      "problemType": "REGULAR"
+    },
+    {
+      "tool": "Code Inspection",
+      "category": "Probable bugs",
+      "categoryPath": [
+        {
+          "id": "Java",
+          "name": "Java"
+        },
+        {
+          "id": "Java/Probable bugs",
+          "name": "Probable bugs"
+        }
+      ],
+      "type": "Nullability and data flow problems",
+      "tags": [
+        "JAVA",
+        "CWE Top 25"
+      ],
+      "severity": "High",
+      "comment": "Method invocation `name` may produce `NullPointerException`",
+      "detailsInfo": "Reports code constructs that always violate nullability contracts, may throw exceptions, or are just redundant, based on data flow analysis.\n\nExamples:\n\n    if (array.length < index) {\n      System.out.println(array[index]);\n    } // Array index is always out of bounds\n\n    if (str == null) System.out.println(\"str is null\");\n    System.out.println(str.trim());\n    // the last statement may throw an NPE\n\n    @NotNull\n    Integer square(@Nullable Integer input) {\n        // the method contract is violated\n        return input == null ? null : input * input;\n    }\n\n\nThe inspection behavior may be controlled by a number of annotations, such as\n[nullability](https://www.jetbrains.com/help/idea/nullable-and-notnull-annotations.html) annotations,\n[@Contract](https://www.jetbrains.com/help/idea/contract-annotations.html) annotation,\n`@Range` annotation and so on.\n\nConfigure the inspection:\n\n* Use the **Suggest @Nullable annotation for methods/fields/parameters where nullable values are used** option to warn when a nullable value is passed as an argument to a method with a non-annotated parameter, stored into non-annotated field, or returned from a non-annotated method. In this case, the inspection will suggest propagating the `@Nullable` annotation. You can also configure nullability annotations using the **Configure Annotations** button.\n* Use the **Treat non-annotated members and parameters as @Nullable** option to assume that non-annotated members can be null, so they must not be used in non-null context.\n* Use the **Report not-null required parameter with null-literal argument usages** option to report method parameters that cannot be null (e.g. immediately dereferenced in the method body), but there are call sites where a `null` literal is passed.\n* Use the **Report nullable methods that always return a non-null value** option to report methods that are annotated as `@Nullable`, but always return non-null value. In this case, it's suggested that you change the annotation to `@NotNull`.\n* Use the **Ignore assert statements** option to control how the inspection treats `assert` statements. By default, the option is disabled, which means that the assertions are assumed to be executed (-ea mode). If the option is enabled, the assertions will be completely ignored (-da mode).\n* Use the **Reports patterns that may throw MatchException** option to report patterns that may throw `MatchException` at runtime due to null values in deconstruction patterns.\n* Use the **Report problems that happen only on some code paths** option to control whether to report problems that may happen only on some code path. If this option is disabled, warnings like *exception is possible* will not be reported. The inspection will report only warnings like *exception will definitely occur*. This mode may greatly reduce the number of false-positives, especially if the code is not consistently annotated with nullability and contract annotations. That is why it can be useful for finding the most important problems in legacy code bases.\n\n\nBefore IntelliJ IDEA 2022.3, this inspection was part of the \"Constant Conditions \\& Exceptions\" inspection.\nNow, it is split into two inspections:\n\"Constant Values\" and \"Nullability and data flow problems\".\n\nInspection ID: DataFlowIssue",
+      "sources": [
+        {
+          "type": "file",
+          "path": "src/main/java/com/ciji/serenity/commands/RollCommand.java",
+          "language": "JAVA",
+          "line": 37,
+          "offset": 100,
+          "length": 4,
+          "code": {
+            "startLine": 35,
+            "length": 4,
+            "offset": 221,
+            "surroundingCode": "        restClient.getApplicationService()\n                .createGlobalApplicationCommand(applicationId, commandRequest)\n                .doOnSuccess(data -> log.info(\"{} command registered\", StringUtils.capitalize(data.name())))\n                .doOnError(e -> log.error(\"Unable to create guild command\", e))\n                .onErrorResume(e -> Mono.empty())"
+          }
+        }
+      ],
+      "attributes": {
+        "module": "serenity-bot",
+        "inspectionName": "DataFlowIssue"
+      },
+      "hash": "7f8e7b467cf23591c6077ee329cb65a3946e9f89e5da5a6945cb5f995ee63b86",
+      "problemType": "REGULAR"
+    },
+    {
+      "tool": "Code Inspection",
+      "category": "Probable bugs",
+      "categoryPath": [
+        {
+          "id": "Java",
+          "name": "Java"
+        },
+        {
+          "id": "Java/Probable bugs",
+          "name": "Probable bugs"
+        }
+      ],
+      "type": "Nullability and data flow problems",
+      "tags": [
+        "JAVA",
+        "CWE Top 25"
+      ],
+      "severity": "High",
+      "comment": "Method invocation `name` may produce `NullPointerException`",
+      "detailsInfo": "Reports code constructs that always violate nullability contracts, may throw exceptions, or are just redundant, based on data flow analysis.\n\nExamples:\n\n    if (array.length < index) {\n      System.out.println(array[index]);\n    } // Array index is always out of bounds\n\n    if (str == null) System.out.println(\"str is null\");\n    System.out.println(str.trim());\n    // the last statement may throw an NPE\n\n    @NotNull\n    Integer square(@Nullable Integer input) {\n        // the method contract is violated\n        return input == null ? null : input * input;\n    }\n\n\nThe inspection behavior may be controlled by a number of annotations, such as\n[nullability](https://www.jetbrains.com/help/idea/nullable-and-notnull-annotations.html) annotations,\n[@Contract](https://www.jetbrains.com/help/idea/contract-annotations.html) annotation,\n`@Range` annotation and so on.\n\nConfigure the inspection:\n\n* Use the **Suggest @Nullable annotation for methods/fields/parameters where nullable values are used** option to warn when a nullable value is passed as an argument to a method with a non-annotated parameter, stored into non-annotated field, or returned from a non-annotated method. In this case, the inspection will suggest propagating the `@Nullable` annotation. You can also configure nullability annotations using the **Configure Annotations** button.\n* Use the **Treat non-annotated members and parameters as @Nullable** option to assume that non-annotated members can be null, so they must not be used in non-null context.\n* Use the **Report not-null required parameter with null-literal argument usages** option to report method parameters that cannot be null (e.g. immediately dereferenced in the method body), but there are call sites where a `null` literal is passed.\n* Use the **Report nullable methods that always return a non-null value** option to report methods that are annotated as `@Nullable`, but always return non-null value. In this case, it's suggested that you change the annotation to `@NotNull`.\n* Use the **Ignore assert statements** option to control how the inspection treats `assert` statements. By default, the option is disabled, which means that the assertions are assumed to be executed (-ea mode). If the option is enabled, the assertions will be completely ignored (-da mode).\n* Use the **Reports patterns that may throw MatchException** option to report patterns that may throw `MatchException` at runtime due to null values in deconstruction patterns.\n* Use the **Report problems that happen only on some code paths** option to control whether to report problems that may happen only on some code path. If this option is disabled, warnings like *exception is possible* will not be reported. The inspection will report only warnings like *exception will definitely occur*. This mode may greatly reduce the number of false-positives, especially if the code is not consistently annotated with nullability and contract annotations. That is why it can be useful for finding the most important problems in legacy code bases.\n\n\nBefore IntelliJ IDEA 2022.3, this inspection was part of the \"Constant Conditions \\& Exceptions\" inspection.\nNow, it is split into two inspections:\n\"Constant Values\" and \"Nullability and data flow problems\".\n\nInspection ID: DataFlowIssue",
+      "sources": [
+        {
+          "type": "file",
+          "path": "src/main/java/com/ciji/serenity/commands/AddCharacterCommand.java",
+          "language": "JAVA",
+          "line": 41,
+          "offset": 100,
+          "length": 4,
+          "code": {
+            "startLine": 39,
+            "length": 4,
+            "offset": 221,
+            "surroundingCode": "        restClient.getApplicationService()\n                .createGlobalApplicationCommand(applicationId, commandRequest)\n                .doOnSuccess(data -> log.info(\"{} command registered\", StringUtils.capitalize(data.name())))\n                .doOnError(e -> log.error(\"Unable to create guild command\", e))\n                .onErrorResume(e -> Mono.empty())"
+          }
+        }
+      ],
+      "attributes": {
+        "module": "serenity-bot",
+        "inspectionName": "DataFlowIssue"
+      },
+      "hash": "a2d0beaefd34b719538777de0cad65963827440ebbec1055bb342de23722a9ab",
+      "problemType": "REGULAR"
+    },
+    {
+      "tool": "Code Inspection",
+      "category": "Probable bugs",
+      "categoryPath": [
+        {
+          "id": "Java",
+          "name": "Java"
+        },
+        {
+          "id": "Java/Probable bugs",
+          "name": "Probable bugs"
+        }
+      ],
+      "type": "Nullability and data flow problems",
+      "tags": [
+        "JAVA",
+        "CWE Top 25"
+      ],
+      "severity": "High",
+      "comment": "Method invocation `name` may produce `NullPointerException`",
+      "detailsInfo": "Reports code constructs that always violate nullability contracts, may throw exceptions, or are just redundant, based on data flow analysis.\n\nExamples:\n\n    if (array.length < index) {\n      System.out.println(array[index]);\n    } // Array index is always out of bounds\n\n    if (str == null) System.out.println(\"str is null\");\n    System.out.println(str.trim());\n    // the last statement may throw an NPE\n\n    @NotNull\n    Integer square(@Nullable Integer input) {\n        // the method contract is violated\n        return input == null ? null : input * input;\n    }\n\n\nThe inspection behavior may be controlled by a number of annotations, such as\n[nullability](https://www.jetbrains.com/help/idea/nullable-and-notnull-annotations.html) annotations,\n[@Contract](https://www.jetbrains.com/help/idea/contract-annotations.html) annotation,\n`@Range` annotation and so on.\n\nConfigure the inspection:\n\n* Use the **Suggest @Nullable annotation for methods/fields/parameters where nullable values are used** option to warn when a nullable value is passed as an argument to a method with a non-annotated parameter, stored into non-annotated field, or returned from a non-annotated method. In this case, the inspection will suggest propagating the `@Nullable` annotation. You can also configure nullability annotations using the **Configure Annotations** button.\n* Use the **Treat non-annotated members and parameters as @Nullable** option to assume that non-annotated members can be null, so they must not be used in non-null context.\n* Use the **Report not-null required parameter with null-literal argument usages** option to report method parameters that cannot be null (e.g. immediately dereferenced in the method body), but there are call sites where a `null` literal is passed.\n* Use the **Report nullable methods that always return a non-null value** option to report methods that are annotated as `@Nullable`, but always return non-null value. In this case, it's suggested that you change the annotation to `@NotNull`.\n* Use the **Ignore assert statements** option to control how the inspection treats `assert` statements. By default, the option is disabled, which means that the assertions are assumed to be executed (-ea mode). If the option is enabled, the assertions will be completely ignored (-da mode).\n* Use the **Reports patterns that may throw MatchException** option to report patterns that may throw `MatchException` at runtime due to null values in deconstruction patterns.\n* Use the **Report problems that happen only on some code paths** option to control whether to report problems that may happen only on some code path. If this option is disabled, warnings like *exception is possible* will not be reported. The inspection will report only warnings like *exception will definitely occur*. This mode may greatly reduce the number of false-positives, especially if the code is not consistently annotated with nullability and contract annotations. That is why it can be useful for finding the most important problems in legacy code bases.\n\n\nBefore IntelliJ IDEA 2022.3, this inspection was part of the \"Constant Conditions \\& Exceptions\" inspection.\nNow, it is split into two inspections:\n\"Constant Values\" and \"Nullability and data flow problems\".\n\nInspection ID: DataFlowIssue",
+      "sources": [
+        {
+          "type": "file",
+          "path": "src/main/java/com/ciji/serenity/commands/HelpCommand.java",
+          "language": "JAVA",
+          "line": 40,
+          "offset": 100,
+          "length": 4,
+          "code": {
+            "startLine": 38,
+            "length": 4,
+            "offset": 221,
+            "surroundingCode": "        restClient.getApplicationService()\n                .createGlobalApplicationCommand(applicationId, commandRequest)\n                .doOnSuccess(data -> log.info(\"{} command registered\", StringUtils.capitalize(data.name())))\n                .doOnError(e -> log.error(\"Unable to create guild command\", e))\n                .onErrorResume(e -> Mono.empty())"
+          }
+        }
+      ],
+      "attributes": {
+        "module": "serenity-bot",
+        "inspectionName": "DataFlowIssue"
+      },
+      "hash": "bf8c69d162d4ad0cbc6f2e419ba22efcbfb0b1cae55c3fd3f035972034e21a3a",
+      "problemType": "REGULAR"
+    },
+    {
+      "tool": "Code Inspection",
+      "category": "Probable bugs",
+      "categoryPath": [
+        {
+          "id": "Java",
+          "name": "Java"
+        },
+        {
+          "id": "Java/Probable bugs",
+          "name": "Probable bugs"
+        }
+      ],
+      "type": "Nullability and data flow problems",
+      "tags": [
+        "JAVA",
+        "CWE Top 25"
+      ],
+      "severity": "High",
+      "comment": "Method invocation `name` may produce `NullPointerException`",
+      "detailsInfo": "Reports code constructs that always violate nullability contracts, may throw exceptions, or are just redundant, based on data flow analysis.\n\nExamples:\n\n    if (array.length < index) {\n      System.out.println(array[index]);\n    } // Array index is always out of bounds\n\n    if (str == null) System.out.println(\"str is null\");\n    System.out.println(str.trim());\n    // the last statement may throw an NPE\n\n    @NotNull\n    Integer square(@Nullable Integer input) {\n        // the method contract is violated\n        return input == null ? null : input * input;\n    }\n\n\nThe inspection behavior may be controlled by a number of annotations, such as\n[nullability](https://www.jetbrains.com/help/idea/nullable-and-notnull-annotations.html) annotations,\n[@Contract](https://www.jetbrains.com/help/idea/contract-annotations.html) annotation,\n`@Range` annotation and so on.\n\nConfigure the inspection:\n\n* Use the **Suggest @Nullable annotation for methods/fields/parameters where nullable values are used** option to warn when a nullable value is passed as an argument to a method with a non-annotated parameter, stored into non-annotated field, or returned from a non-annotated method. In this case, the inspection will suggest propagating the `@Nullable` annotation. You can also configure nullability annotations using the **Configure Annotations** button.\n* Use the **Treat non-annotated members and parameters as @Nullable** option to assume that non-annotated members can be null, so they must not be used in non-null context.\n* Use the **Report not-null required parameter with null-literal argument usages** option to report method parameters that cannot be null (e.g. immediately dereferenced in the method body), but there are call sites where a `null` literal is passed.\n* Use the **Report nullable methods that always return a non-null value** option to report methods that are annotated as `@Nullable`, but always return non-null value. In this case, it's suggested that you change the annotation to `@NotNull`.\n* Use the **Ignore assert statements** option to control how the inspection treats `assert` statements. By default, the option is disabled, which means that the assertions are assumed to be executed (-ea mode). If the option is enabled, the assertions will be completely ignored (-da mode).\n* Use the **Reports patterns that may throw MatchException** option to report patterns that may throw `MatchException` at runtime due to null values in deconstruction patterns.\n* Use the **Report problems that happen only on some code paths** option to control whether to report problems that may happen only on some code path. If this option is disabled, warnings like *exception is possible* will not be reported. The inspection will report only warnings like *exception will definitely occur*. This mode may greatly reduce the number of false-positives, especially if the code is not consistently annotated with nullability and contract annotations. That is why it can be useful for finding the most important problems in legacy code bases.\n\n\nBefore IntelliJ IDEA 2022.3, this inspection was part of the \"Constant Conditions \\& Exceptions\" inspection.\nNow, it is split into two inspections:\n\"Constant Values\" and \"Nullability and data flow problems\".\n\nInspection ID: DataFlowIssue",
+      "sources": [
+        {
+          "type": "file",
+          "path": "src/main/java/com/ciji/serenity/commands/RigCommand.java",
+          "language": "JAVA",
+          "line": 46,
+          "offset": 100,
+          "length": 4,
+          "code": {
+            "startLine": 44,
+            "length": 4,
+            "offset": 221,
+            "surroundingCode": "        restClient.getApplicationService()\n                .createGlobalApplicationCommand(applicationId, commandRequest)\n                .doOnSuccess(data -> log.info(\"{} command registered\", StringUtils.capitalize(data.name())))\n                .doOnError(e -> log.error(\"Unable to create guild command\", e))\n                .onErrorResume(e -> Mono.empty())"
+          }
+        }
+      ],
+      "attributes": {
+        "module": "serenity-bot",
+        "inspectionName": "DataFlowIssue"
+      },
+      "hash": "d08b31a16d11ec1e60ee794a87b053213904f73dbd3928edfa0265cf0e173fd4",
+      "problemType": "REGULAR"
+    },
+    {
+      "tool": "Code Inspection",
+      "category": "Probable bugs",
+      "categoryPath": [
+        {
+          "id": "Java",
+          "name": "Java"
+        },
+        {
+          "id": "Java/Probable bugs",
+          "name": "Probable bugs"
+        }
+      ],
+      "type": "Nullability and data flow problems",
+      "tags": [
+        "JAVA",
+        "CWE Top 25"
+      ],
+      "severity": "High",
+      "comment": "Method invocation `name` may produce `NullPointerException`",
+      "detailsInfo": "Reports code constructs that always violate nullability contracts, may throw exceptions, or are just redundant, based on data flow analysis.\n\nExamples:\n\n    if (array.length < index) {\n      System.out.println(array[index]);\n    } // Array index is always out of bounds\n\n    if (str == null) System.out.println(\"str is null\");\n    System.out.println(str.trim());\n    // the last statement may throw an NPE\n\n    @NotNull\n    Integer square(@Nullable Integer input) {\n        // the method contract is violated\n        return input == null ? null : input * input;\n    }\n\n\nThe inspection behavior may be controlled by a number of annotations, such as\n[nullability](https://www.jetbrains.com/help/idea/nullable-and-notnull-annotations.html) annotations,\n[@Contract](https://www.jetbrains.com/help/idea/contract-annotations.html) annotation,\n`@Range` annotation and so on.\n\nConfigure the inspection:\n\n* Use the **Suggest @Nullable annotation for methods/fields/parameters where nullable values are used** option to warn when a nullable value is passed as an argument to a method with a non-annotated parameter, stored into non-annotated field, or returned from a non-annotated method. In this case, the inspection will suggest propagating the `@Nullable` annotation. You can also configure nullability annotations using the **Configure Annotations** button.\n* Use the **Treat non-annotated members and parameters as @Nullable** option to assume that non-annotated members can be null, so they must not be used in non-null context.\n* Use the **Report not-null required parameter with null-literal argument usages** option to report method parameters that cannot be null (e.g. immediately dereferenced in the method body), but there are call sites where a `null` literal is passed.\n* Use the **Report nullable methods that always return a non-null value** option to report methods that are annotated as `@Nullable`, but always return non-null value. In this case, it's suggested that you change the annotation to `@NotNull`.\n* Use the **Ignore assert statements** option to control how the inspection treats `assert` statements. By default, the option is disabled, which means that the assertions are assumed to be executed (-ea mode). If the option is enabled, the assertions will be completely ignored (-da mode).\n* Use the **Reports patterns that may throw MatchException** option to report patterns that may throw `MatchException` at runtime due to null values in deconstruction patterns.\n* Use the **Report problems that happen only on some code paths** option to control whether to report problems that may happen only on some code path. If this option is disabled, warnings like *exception is possible* will not be reported. The inspection will report only warnings like *exception will definitely occur*. This mode may greatly reduce the number of false-positives, especially if the code is not consistently annotated with nullability and contract annotations. That is why it can be useful for finding the most important problems in legacy code bases.\n\n\nBefore IntelliJ IDEA 2022.3, this inspection was part of the \"Constant Conditions \\& Exceptions\" inspection.\nNow, it is split into two inspections:\n\"Constant Values\" and \"Nullability and data flow problems\".\n\nInspection ID: DataFlowIssue",
+      "sources": [
+        {
+          "type": "file",
+          "path": "src/main/java/com/ciji/serenity/commands/RefreshCharacterDataCommand.java",
+          "language": "JAVA",
+          "line": 29,
+          "offset": 100,
+          "length": 4,
+          "code": {
+            "startLine": 27,
+            "length": 4,
+            "offset": 221,
+            "surroundingCode": "        restClient.getApplicationService()\n                .createGlobalApplicationCommand(applicationId, commandRequest)\n                .doOnSuccess(data -> log.info(\"{} command registered\", StringUtils.capitalize(data.name())))\n                .doOnError(e -> log.error(\"Unable to create guild command\", e))\n                .onErrorResume(e -> Mono.empty())"
+          }
+        }
+      ],
+      "attributes": {
+        "module": "serenity-bot",
+        "inspectionName": "DataFlowIssue"
+      },
+      "hash": "d61d209cc62061ba2496461c7e4bdb2a5dc062f3edff9a4fcf1727cd4e420c20",
+      "problemType": "REGULAR"
+    },
+    {
+      "tool": "Code Inspection",
+      "category": "Probable bugs",
+      "categoryPath": [
+        {
+          "id": "Java",
+          "name": "Java"
+        },
+        {
+          "id": "Java/Probable bugs",
+          "name": "Probable bugs"
+        }
+      ],
+      "type": "Nullability and data flow problems",
+      "tags": [
+        "JAVA",
+        "CWE Top 25"
+      ],
+      "severity": "High",
+      "comment": "Method invocation `name` may produce `NullPointerException`",
+      "detailsInfo": "Reports code constructs that always violate nullability contracts, may throw exceptions, or are just redundant, based on data flow analysis.\n\nExamples:\n\n    if (array.length < index) {\n      System.out.println(array[index]);\n    } // Array index is always out of bounds\n\n    if (str == null) System.out.println(\"str is null\");\n    System.out.println(str.trim());\n    // the last statement may throw an NPE\n\n    @NotNull\n    Integer square(@Nullable Integer input) {\n        // the method contract is violated\n        return input == null ? null : input * input;\n    }\n\n\nThe inspection behavior may be controlled by a number of annotations, such as\n[nullability](https://www.jetbrains.com/help/idea/nullable-and-notnull-annotations.html) annotations,\n[@Contract](https://www.jetbrains.com/help/idea/contract-annotations.html) annotation,\n`@Range` annotation and so on.\n\nConfigure the inspection:\n\n* Use the **Suggest @Nullable annotation for methods/fields/parameters where nullable values are used** option to warn when a nullable value is passed as an argument to a method with a non-annotated parameter, stored into non-annotated field, or returned from a non-annotated method. In this case, the inspection will suggest propagating the `@Nullable` annotation. You can also configure nullability annotations using the **Configure Annotations** button.\n* Use the **Treat non-annotated members and parameters as @Nullable** option to assume that non-annotated members can be null, so they must not be used in non-null context.\n* Use the **Report not-null required parameter with null-literal argument usages** option to report method parameters that cannot be null (e.g. immediately dereferenced in the method body), but there are call sites where a `null` literal is passed.\n* Use the **Report nullable methods that always return a non-null value** option to report methods that are annotated as `@Nullable`, but always return non-null value. In this case, it's suggested that you change the annotation to `@NotNull`.\n* Use the **Ignore assert statements** option to control how the inspection treats `assert` statements. By default, the option is disabled, which means that the assertions are assumed to be executed (-ea mode). If the option is enabled, the assertions will be completely ignored (-da mode).\n* Use the **Reports patterns that may throw MatchException** option to report patterns that may throw `MatchException` at runtime due to null values in deconstruction patterns.\n* Use the **Report problems that happen only on some code paths** option to control whether to report problems that may happen only on some code path. If this option is disabled, warnings like *exception is possible* will not be reported. The inspection will report only warnings like *exception will definitely occur*. This mode may greatly reduce the number of false-positives, especially if the code is not consistently annotated with nullability and contract annotations. That is why it can be useful for finding the most important problems in legacy code bases.\n\n\nBefore IntelliJ IDEA 2022.3, this inspection was part of the \"Constant Conditions \\& Exceptions\" inspection.\nNow, it is split into two inspections:\n\"Constant Values\" and \"Nullability and data flow problems\".\n\nInspection ID: DataFlowIssue",
+      "sources": [
+        {
+          "type": "file",
+          "path": "src/main/java/com/ciji/serenity/commands/DocsCommand.java",
+          "language": "JAVA",
+          "line": 29,
+          "offset": 100,
+          "length": 4,
+          "code": {
+            "startLine": 27,
+            "length": 4,
+            "offset": 221,
+            "surroundingCode": "        restClient.getApplicationService()\n                .createGlobalApplicationCommand(applicationId, commandRequest)\n                .doOnSuccess(data -> log.info(\"{} command registered\", StringUtils.capitalize(data.name())))\n                .doOnError(e -> log.error(\"Unable to create guild command\", e))\n                .onErrorResume(e -> Mono.empty())"
+          }
+        }
+      ],
+      "attributes": {
+        "module": "serenity-bot",
+        "inspectionName": "DataFlowIssue"
+      },
+      "hash": "df4dd2f6c73b5c00fe51bb061d08f807bfa99662d9df8d1d1674e71528cd45e0",
+      "problemType": "REGULAR"
+    },
+    {
+      "tool": "Code Inspection",
+      "category": "Probable bugs",
+      "categoryPath": [
+        {
+          "id": "Java",
+          "name": "Java"
+        },
+        {
+          "id": "Java/Probable bugs",
+          "name": "Probable bugs"
+        }
+      ],
+      "type": "Nullability and data flow problems",
+      "tags": [
+        "JAVA",
+        "CWE Top 25"
+      ],
+      "severity": "High",
+      "comment": "Method invocation `name` may produce `NullPointerException`",
+      "detailsInfo": "Reports code constructs that always violate nullability contracts, may throw exceptions, or are just redundant, based on data flow analysis.\n\nExamples:\n\n    if (array.length < index) {\n      System.out.println(array[index]);\n    } // Array index is always out of bounds\n\n    if (str == null) System.out.println(\"str is null\");\n    System.out.println(str.trim());\n    // the last statement may throw an NPE\n\n    @NotNull\n    Integer square(@Nullable Integer input) {\n        // the method contract is violated\n        return input == null ? null : input * input;\n    }\n\n\nThe inspection behavior may be controlled by a number of annotations, such as\n[nullability](https://www.jetbrains.com/help/idea/nullable-and-notnull-annotations.html) annotations,\n[@Contract](https://www.jetbrains.com/help/idea/contract-annotations.html) annotation,\n`@Range` annotation and so on.\n\nConfigure the inspection:\n\n* Use the **Suggest @Nullable annotation for methods/fields/parameters where nullable values are used** option to warn when a nullable value is passed as an argument to a method with a non-annotated parameter, stored into non-annotated field, or returned from a non-annotated method. In this case, the inspection will suggest propagating the `@Nullable` annotation. You can also configure nullability annotations using the **Configure Annotations** button.\n* Use the **Treat non-annotated members and parameters as @Nullable** option to assume that non-annotated members can be null, so they must not be used in non-null context.\n* Use the **Report not-null required parameter with null-literal argument usages** option to report method parameters that cannot be null (e.g. immediately dereferenced in the method body), but there are call sites where a `null` literal is passed.\n* Use the **Report nullable methods that always return a non-null value** option to report methods that are annotated as `@Nullable`, but always return non-null value. In this case, it's suggested that you change the annotation to `@NotNull`.\n* Use the **Ignore assert statements** option to control how the inspection treats `assert` statements. By default, the option is disabled, which means that the assertions are assumed to be executed (-ea mode). If the option is enabled, the assertions will be completely ignored (-da mode).\n* Use the **Reports patterns that may throw MatchException** option to report patterns that may throw `MatchException` at runtime due to null values in deconstruction patterns.\n* Use the **Report problems that happen only on some code paths** option to control whether to report problems that may happen only on some code path. If this option is disabled, warnings like *exception is possible* will not be reported. The inspection will report only warnings like *exception will definitely occur*. This mode may greatly reduce the number of false-positives, especially if the code is not consistently annotated with nullability and contract annotations. That is why it can be useful for finding the most important problems in legacy code bases.\n\n\nBefore IntelliJ IDEA 2022.3, this inspection was part of the \"Constant Conditions \\& Exceptions\" inspection.\nNow, it is split into two inspections:\n\"Constant Values\" and \"Nullability and data flow problems\".\n\nInspection ID: DataFlowIssue",
+      "sources": [
+        {
+          "type": "file",
+          "path": "src/main/java/com/ciji/serenity/commands/GetAllCharactersCommand.java",
+          "language": "JAVA",
+          "line": 29,
+          "offset": 100,
+          "length": 4,
+          "code": {
+            "startLine": 27,
+            "length": 4,
+            "offset": 221,
+            "surroundingCode": "        restClient.getApplicationService()\n                .createGlobalApplicationCommand(applicationId, commandRequest)\n                .doOnSuccess(data -> log.info(\"{} command registered\", StringUtils.capitalize(data.name())))\n                .doOnError(e -> log.error(\"Unable to create guild command\", e))\n                .onErrorResume(e -> Mono.empty())"
+          }
+        }
+      ],
+      "attributes": {
+        "module": "serenity-bot",
+        "inspectionName": "DataFlowIssue"
+      },
+      "hash": "e7d3b772cfbe6385025dbf55c3688891d442e05ddb63254d342fbd02df723c86",
+      "problemType": "REGULAR"
+    },
+    {
+      "tool": "Code Inspection",
       "category": "Logging",
       "categoryPath": [
         {

@@ -2,7 +2,7 @@
   "modules": [
     {
       "name": "serenity-bot",
-      "languageLevel": 21
+      "languageLevel": 25
     }
   ]
 }
