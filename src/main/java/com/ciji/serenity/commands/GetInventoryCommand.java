@@ -25,7 +25,7 @@ public class GetInventoryCommand implements SerenityCommand {
                 .description(GET_INVENTORY.getShortDesc())
                 .type(ApplicationCommand.Type.CHAT_INPUT.getValue())
                 .addOption(ApplicationCommandOptionData.builder()
-                        .name("name")
+                        .name("character-name")
                         .description(GET_INVENTORY.getParamDescs().get("character-name"))
                         .type(ApplicationCommandOption.Type.STRING.getValue())
                         .required(true)
