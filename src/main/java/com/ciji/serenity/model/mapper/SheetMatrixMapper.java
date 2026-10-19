@@ -34,4 +34,28 @@ public class SheetMatrixMapper {
         sheetMatrix.setRows(rows);
         return sheetMatrix;
     }
+
+    public static SheetMatrix mapInventory(List<List<Object>> valueRanges) {
+        SheetMatrix sheetMatrix = new SheetMatrix();
+        List<String> headers = new ArrayList<>();
+        List<SheetRow> rows = new ArrayList<>();
+        if (valueRanges == null || valueRanges.isEmpty()) {
+            sheetMatrix.setHeaders(headers);
+            sheetMatrix.setRows(rows);
+            return sheetMatrix;
+        }
+        List<Object> valueRangeHeaders = valueRanges.getFirst();
+        valueRangeHeaders.forEach(header -> headers.add(header.toString()));
+        sheetMatrix.setHeaders(headers);
+
+        if (valueRanges.size() >= 2) {
+            valueRanges.subList(1, valueRanges.size() - 1).forEach(valueRange -> {
+                SheetRow sheetRow = new SheetRow();
+                sheetRow.setRow(valueRange.stream().map(Object::toString).toList());
+                rows.add(sheetRow);
+            });
+        }
+        sheetMatrix.setRows(rows);
+        return sheetMatrix;
+    }
 }

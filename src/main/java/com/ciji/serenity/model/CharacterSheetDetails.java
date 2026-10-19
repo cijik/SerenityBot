@@ -24,4 +24,7 @@ public class CharacterSheetDetails {
     private int rads;
 
     private int temperature;
+
+    @Indexed
+    private SheetMatrix inventoryMatrix;
 }

@@ -34,9 +34,9 @@ public class RemoveCharacterCommand implements SerenityCommand {
 
         restClient.getApplicationService()
                 .createGlobalApplicationCommand(applicationId, commandRequest)
-                .doOnSuccess(data -> log.info("{} command registered", StringUtils.capitalize(data.name())))
+                .doOnNext(data -> log.info("{} command registered", StringUtils.capitalize(data.name())))
                 .doOnError(e -> log.error("Unable to create guild command", e))
-                .onErrorResume(e -> Mono.empty())
+                .onErrorResume(_ -> Mono.empty())
                 .block();
     }
 }

@@ -88,7 +88,11 @@ public enum Command {
 
     UNRIG("unrig", "Unrig the upcoming roll",
             "Cancel the rigging of the next roll",
-            Collections.emptyMap());
+            Collections.emptyMap()),
+
+    GET_INVENTORY("get-inventory", "Get a character's inventory",
+            "Get a character's inventory, both main and extra, listing all items, their weights, amount and value",
+            ImmutableMap.of("character-name", "Name of the character to get the inventory for"));
 
     private final String command;
 
