@@ -1,17 +1,17 @@
 {
   "version": "1.0",
-  "total": 21,
+  "total": 2,
   "tools inspection": {
-    "Code Inspection": 21
+    "Code Inspection": 2
   },
   "linter": "QDJVM",
   "attributes": {
     "deviceId": "200820300000000-4ea9-ff2f-667a-057a9c1a88c3",
-    "jobUrl": "https://github.com/cijik/SerenityBot/actions/runs/39302801752",
+    "jobUrl": "https://github.com/cijik/SerenityBot/actions/runs/39304920956",
     "vcs": {
       "sarifIdea": {
         "repositoryUri": "https://github.com/cijik/SerenityBot.git",
-        "revisionId": "568afd21d3b8530afa607c1cf585810c0b7315c5",
+        "revisionId": "7c90178ab5c64a1201845ae9de1f35eeb801ded1",
         "branch": "SER-9"
       }
     },
