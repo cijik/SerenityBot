@@ -64,7 +64,9 @@ public class CharacterSheetService {
         log.info("Adding character {} to database", characterName);
         return Mono.fromCallable(() -> characterSheetRepository.save(characterSheet))
                 .subscribeOn(Schedulers.boundedElastic())
-                .flatMap(sheet -> event.createFollowup("Character sheet added"));
+                .flatMap(_ -> event.createFollowup("Character sheet added.\n**Note:** " +
+                        "It takes some time for the character data to become available for use. Use **/refresh-character-data** to force an immediate refresh of the database." +
+                        "This process will take a few minutes."));
     }
 
     public Mono<Message> updateCharacter(ChatInputInteractionEvent event) {
@@ -78,7 +80,7 @@ public class CharacterSheetService {
                     characterSheet.setOwnerId(ownerId);
                     return Mono.fromCallable(() -> characterSheetRepository.save(characterSheet))
                             .subscribeOn(Schedulers.boundedElastic())
-                            .flatMap(character -> event.createFollowup(InteractionFollowupCreateSpec.builder()
+                            .flatMap(_ -> event.createFollowup(InteractionFollowupCreateSpec.builder()
                                     .content("Character **" + characterName + "** has been updated with ownerId " + ownerId + ".")
                                     .build()));
                 })

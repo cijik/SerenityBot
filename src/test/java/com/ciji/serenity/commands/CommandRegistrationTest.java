@@ -21,6 +21,7 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -38,9 +39,9 @@ class CommandRegistrationTest {
 
     @BeforeEach
     void setUp() {
-        when(restClient.getApplicationService()).thenReturn(applicationService);
-        when(commandData.name()).thenReturn("registered-command");
-        when(applicationService.createGlobalApplicationCommand(eq(123L), any(ApplicationCommandRequest.class)))
+        lenient().when(restClient.getApplicationService()).thenReturn(applicationService);
+        lenient().when(commandData.name()).thenReturn("registered-command");
+        lenient().when(applicationService.createGlobalApplicationCommand(eq(123L), any(ApplicationCommandRequest.class)))
                 .thenReturn(Mono.just(commandData));
     }
 
@@ -99,6 +100,16 @@ class CommandRegistrationTest {
 
         assertRequest("r", "Rolls one or several dice", 1,
                 request -> assertThat(request.options().toOptional()).contains(List.of(option("roll", true, "The roll expression"))));
+    }
+
+    @Test
+    void commandRegistrationHandlesEmptyResponseWithoutException() {
+        when(applicationService.createGlobalApplicationCommand(eq(123L), any(ApplicationCommandRequest.class)))
+                .thenReturn(Mono.empty());
+
+        new HelpCommand().register(123L, restClient);
+
+        verify(applicationService).createGlobalApplicationCommand(eq(123L), any(ApplicationCommandRequest.class));
     }
 
     private void assertRequest(String name, String description, int type, java.util.function.Consumer<ApplicationCommandRequest> assertions) {

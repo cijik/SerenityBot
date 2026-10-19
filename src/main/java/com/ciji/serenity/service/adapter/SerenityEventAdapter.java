@@ -31,6 +31,8 @@ public class SerenityEventAdapter extends ReactiveEventAdapter {
 
     private final CacheRefreshService cacheRefreshService;
 
+    private final InventoryService inventoryService;
+
     @Override
     public Publisher<?> onChatInputInteraction(ChatInputInteractionEvent event) {
         switch (Command.fromString(event.getCommandName())) {
@@ -84,12 +86,15 @@ public class SerenityEventAdapter extends ReactiveEventAdapter {
             }
             case REFRESH_CHARACTER_DATA -> {
                 return event.deferReply().then(Mono.fromCallable(() -> event.createFollowup("Database will be refreshed in a few moments. This may take a while depending on the size of the database.").subscribe())
-                        .map(d -> {
+                        .map(_ -> {
                             cacheRefreshService.refreshSheetData(false);
                             return event.createFollowup("Database has been refreshed successfully.");
                         })
                         .subscribeOn(Schedulers.boundedElastic())
                 );
+            }
+            case GET_INVENTORY -> {
+                return event.deferReply().then(inventoryService.getCharacterInventory(event));
             }
         }
         return Mono.empty();

@@ -38,9 +38,9 @@ public class SayCommand implements SerenityCommand{
 
         restClient.getApplicationService()
                 .createGuildApplicationCommand(applicationId, 177794959854796801L, commandRequest)
-                .doOnSuccess(data -> log.info("{} command registered", StringUtils.capitalize(data.name())))
+                .doOnNext(data -> log.info("{} command registered", StringUtils.capitalize(data.name())))
                 .doOnError(e -> log.error("Unable to create guild command", e))
-                .onErrorResume(e -> Mono.empty())
+                .onErrorResume(_ -> Mono.empty())
                 .block();
     }
 }
